@@ -3,7 +3,7 @@ import * as apy from '../controller/APY'
 
 const router = Router()
 
-router.post('/ARTH/WETH/Apy', (req, res) => { (apy.getArthWethLPTokenPrice(req.body, res))})
+router.get('/ARTHX', (req, res) => { apy.arthxAPY(req.body, res) })
 router.get('/test', (req, res) => { res.send('true') })
 
 

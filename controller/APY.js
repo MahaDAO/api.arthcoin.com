@@ -206,34 +206,25 @@ const getMahaPrice = async () => {
     }
 }
 
-export const arthxAPY = async () => {
+export const arthxAPY = async (req, res) => {
     try {
         const mahaprice = JSON.parse(await getMahaPrice())
         const arthxPrice = 0.01//await getArthxPrice()
         const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
         const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
-        
-        console.log(
-            'mahaprice', mahaprice.mahadao.usd,
-            'rewardPerToken', rewardPerToken / 1e18, 
-            'rewardForDuration', rewardForDuration / 1e18,
-            'totalSupply', totalSupply / 1e18,
-            'arthxPrice', arthxPrice
-        );
-        
+               
         let rewardUSD = mahaprice.mahadao.usd * rewardForDuration/ 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthxPrice
-        console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD);
         
-        let APY = ((rewardUSD /totalSupplyUSD ) * 100) * 52
-        
-        return APY
+        let APY = ((rewardUSD /totalSupplyUSD ) * 100) * 52 
+        console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD, 'APY', APY);
+
+        res.send({ APY : APY })
     } catch (e) {
         console.log(e);
     }
-
 }
-arthxAPY()
+
 
 //return 100 * (Math.pow((supplyRatePerBlock / ethMantissa * blocksPerDay) + 1, daysPerYear - 1) - 1);
 const main = async () => {
