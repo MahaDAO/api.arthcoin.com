@@ -9,16 +9,19 @@ const ArthController = require('../deployments/abi/ArthController.json')
 //const ArthShares = require('../deployments/abi/ArthShares.json')
 //const MahaToken = require('../deployments/abi/MahaToken.json')
 const UniswapV2Pair = require('../deployments/abi/UniswapV2Pair.json')
+const StakeARTHXRMAHA = require('../manualABI/BasicStakingSpecificReward.json')
 //const BoostedStaking = require('../deployments/abi/BoostedStaking.json')
 const web3 = new Web3('https://rpc-mainnet.matic.network')
 
 const arthcontroller = new web3.eth.Contract(ArthController, '0x44C2993C9BF54b211e134e2cD4b99Db4aFE2E20e')
+const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0x710B89933E82360B93bc4C4e6E2c4FA82Fd2C7f0')
 // const arthWethLP = new web3.eth.Contract(UniswapV2Pair, '0x9EA533408BC4d516bd400FEFa275E2A25eb4197f')
 // const arthWethLPStake = new web3.eth.Contract(BoostedStaking, '0x0710EB668F0548f9eceaF84025E3626B2c034c78')
 // const arthMahaLP = new web3.eth.Contract(UniswapV2Pair, '0xf1c8aaD532B39D5318D0058c63ce41CA981bf7B2')
 // const arthMahaStake = new web3.eth.Contract(BoostedStaking, '0x97908511ef2382aEbb54EA68A668Af272ffd7Bad')
 // const arthxWethLP = new web3.eth.Contract(UniswapV2Pair, '0x7D792a3AeE584802191Ed91e57F20B99E0eEeb5A')
 // const arthxwethStake = new web3.eth.Contract(BoostedStaking, '0xda184BD8819Ce67cF55210319cc169E3bf88Ce69')
+
 
 const sendRequest = async (method, url, body) => {
     const option = {
@@ -58,11 +61,11 @@ const getArthxPrice = async () => {
     return arthPrice
 }
 
-const getMahaPrice = async () => {
-    const mahaPrice = await arthcontroller.methods.getMAHAPrice().call()
+// const getMahaPrice = async () => {
+//     const mahaPrice = await arthcontroller.methods.getMAHAPrice().call()
 
-    return mahaPrice
-}
+//     return mahaPrice
+// }
 
 const getEthGmuPrice = async () => {
     const ethGmuPrice = await arthcontroller.methods.getETHGMUPrice().call()
@@ -70,7 +73,7 @@ const getEthGmuPrice = async () => {
     return ethGmuPrice
 }
 
-export const getArthWethLPTokenPrice = async (data, res) => {
+const getArthWethLPTokenPrice = async (data, res) => {
     let parsedBody = data
     let amount = parsedBody.amount
 
@@ -113,7 +116,7 @@ export const getArthWethLPTokenPrice = async (data, res) => {
     res.send({ "APY": APY })
 }
 
-export const getArthMahaLPTokenPrice = async (data, res) => {
+const getArthMahaLPTokenPrice = async (data, res) => {
     let parsedBody = data
     let amount = parsedBody.amount
 
@@ -149,7 +152,7 @@ export const getArthMahaLPTokenPrice = async (data, res) => {
     res.send({ "APY": APY })
 }
 
-export const getArthxWethLPTokenPrice = async (data, res) => {
+const getArthxWethLPTokenPrice = async (data, res) => {
     let parsedBody = data
     let amount = parsedBody.amount
 
@@ -188,6 +191,49 @@ export const getArthxWethLPTokenPrice = async (data, res) => {
     //console.log(APY);
     res.send({ "APY": APY })
 }
+
+const getMahaPrice = async () => {
+    try {
+        const priceInJsonString = await sendRequest(
+            'GET', 
+            `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
+            {}
+        );
+        
+        return priceInJsonString
+    } catch (e) {
+        return null;
+    }
+}
+
+export const arthxAPY = async () => {
+    try {
+        const mahaprice = JSON.parse(await getMahaPrice())
+        const arthxPrice = 0.01//await getArthxPrice()
+        const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
+        const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
+        
+        console.log(
+            'mahaprice', mahaprice.mahadao.usd,
+            'rewardPerToken', rewardPerToken / 1e18, 
+            'rewardForDuration', rewardForDuration / 1e18,
+            'totalSupply', totalSupply / 1e18,
+            'arthxPrice', arthxPrice
+        );
+        
+        let rewardUSD = mahaprice.mahadao.usd * rewardForDuration/ 1e18
+        let totalSupplyUSD = (totalSupply / 1e18) * arthxPrice
+        console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD);
+        
+        let APY = ((rewardUSD /totalSupplyUSD ) * 100) * 52
+        
+        return APY
+    } catch (e) {
+        console.log(e);
+    }
+
+}
+arthxAPY()
 
 //return 100 * (Math.pow((supplyRatePerBlock / ethMantissa * blocksPerDay) + 1, daysPerYear - 1) - 1);
 const main = async () => {
