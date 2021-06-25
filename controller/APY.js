@@ -11,7 +11,7 @@ const ArthController = require('../deployments/abi/ArthController.json')
 const UniswapV2Pair = require('../deployments/abi/UniswapV2Pair.json')
 const StakeARTHXRMAHA = require('../manualABI/BasicStakingSpecificReward.json')
 //const BoostedStaking = require('../deployments/abi/BoostedStaking.json')
-const web3 = new Web3('https://rpc-mainnet.matic.network')
+const web3 = new Web3('https://rpc-mainnet.matic.quiknode.pro')
 
 const arthcontroller = new web3.eth.Contract(ArthController, '0x44C2993C9BF54b211e134e2cD4b99Db4aFE2E20e')
 const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0x710B89933E82360B93bc4C4e6E2c4FA82Fd2C7f0')
