@@ -69,7 +69,6 @@ const getArthxPrice = async () => {
 
 const getEthGmuPrice = async () => {
     const ethGmuPrice = await arthcontroller.methods.getETHGMUPrice().call()
-
     return ethGmuPrice
 }
 
