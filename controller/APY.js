@@ -5,23 +5,20 @@ const uniswapPrice = require('uniswap-price')
 const CoinGecko = require('coingecko-api');
 const request = require('request-promise');
 
+const web3 = new Web3('https://rpc-mainnet.matic.quiknode.pro')
 const ArthController = require('../deployments/abi/ArthController.json')
 //const ArthShares = require('../deployments/abi/ArthShares.json')
 //const MahaToken = require('../deployments/abi/MahaToken.json')
-const UniswapV2Pair = require('../deployments/abi/UniswapV2Pair.json')
+
+//const UniswapV2Pair = require('../deployments/abi/UniswapV2Pair.json')
 const StakeARTHXRMAHA = require('../manualABI/BasicStakingSpecificReward.json')
-//const BoostedStaking = require('../deployments/abi/BoostedStaking.json')
-const web3 = new Web3('https://rpc-mainnet.matic.quiknode.pro')
+const staggingBasicStaking = require('../manualABI/staging/abi/BasicStaking.json')
+const UniswapV2Pair = require('../manualABI/staging/abi/UniswapV2Pair.json')
 
 const arthcontroller = new web3.eth.Contract(ArthController, '0x44C2993C9BF54b211e134e2cD4b99Db4aFE2E20e')
 const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0x710B89933E82360B93bc4C4e6E2c4FA82Fd2C7f0')
-// const arthWethLP = new web3.eth.Contract(UniswapV2Pair, '0x9EA533408BC4d516bd400FEFa275E2A25eb4197f')
-// const arthWethLPStake = new web3.eth.Contract(BoostedStaking, '0x0710EB668F0548f9eceaF84025E3626B2c034c78')
-// const arthMahaLP = new web3.eth.Contract(UniswapV2Pair, '0xf1c8aaD532B39D5318D0058c63ce41CA981bf7B2')
-// const arthMahaStake = new web3.eth.Contract(BoostedStaking, '0x97908511ef2382aEbb54EA68A668Af272ffd7Bad')
-// const arthxWethLP = new web3.eth.Contract(UniswapV2Pair, '0x7D792a3AeE584802191Ed91e57F20B99E0eEeb5A')
-// const arthxwethStake = new web3.eth.Contract(BoostedStaking, '0xda184BD8819Ce67cF55210319cc169E3bf88Ce69')
-
+const stakeArthxArth = new web3.eth.Contract(staggingBasicStaking, '0x83bF88AF74743916db6e140768c9F9f681A9B276')
+const ArthArthxLP = new web3.eth.Contract(UniswapV2Pair, '0x90edfEe14635de0574cb2cc210B5196B973aB1ab')
 
 const sendRequest = async (method, url, body) => {
     const option = {
@@ -72,7 +69,7 @@ const getEthGmuPrice = async () => {
     return ethGmuPrice
 }
 
-const getArthWethLPTokenPrice = async (data, res) => {
+const getarthWethLP = async () => {
     let parsedBody = data
     let amount = parsedBody.amount
 
@@ -160,16 +157,16 @@ const getArthxWethLPTokenPrice = async (data, res) => {
     let arthxWethLPReserve1 = (reserves._reserve1 / 10 ** 18)
 
     let arthPrice = (await getArthPrice()) / 10 ** 6
-    let wethGMUPrice = Number((await getEthGmuPrice()) / 10 ** 6)
-    let realWethPrice = await getRealWethPrice()
+    //let wethGMUPrice = Number((await getEthGmuPrice()) / 10 ** 6)
+    //let realWethPrice = await getRealWethPrice()
 
     let arthUsdPrice = arthxWethLPReserve0 * arthPrice
-    let wethGMUUsdPrice = arthxWethLPReserve1 * wethGMUPrice
-    let wethUsdPrice = arthxWethLPReserve1 * realWethPrice
+    // let wethGMUUsdPrice = arthxWethLPReserve1 * wethGMUPrice
+    // let wethUsdPrice = arthxWethLPReserve1 * realWethPrice
 
     // arth/eth 
-    let arthEthGMUprice = Number((arthUsdPrice / wethGMUPrice))
-    let arthEthprice = Number((arthUsdPrice / realWethPrice))
+    // let arthEthGMUprice = Number((arthUsdPrice / wethGMUPrice))
+    // let arthEthprice = Number((arthUsdPrice / realWethPrice))
 
     let sumOfReserve = (arthxWethLPReserve0 + arthxWethLPReserve1)
     let totalSupply = await arthxWethLP.methods.totalSupply().call()
@@ -205,7 +202,31 @@ const getMahaPrice = async () => {
     }
 }
 
-export const arthxAPY = async (req, res) => {
+const arthxarth = async () => {
+    
+    const reserves = await ArthArthxLP.methods.getReserves().call()
+    console.log('reserves', reserves);
+    
+    let artharthxLPReserve0 = (reserves._reserve0 / 10 ** 18)
+    let artharthxLPReserve1 = (reserves._reserve1 / 10 ** 18)
+    console.log('reserves0', artharthxLPReserve0, 'reserves1', artharthxLPReserve1);
+    
+    // let arthPrice = (await getArthPrice()) / 10 ** 6
+    // let arthUsdPrice = arthxWethLPReserve0 * arthPrice
+
+    let sumOfReserve = (artharthxLPReserve0 + artharthxLPReserve1)
+    console.log('sumOfReserve', sumOfReserve);
+
+    let totalSupply = await ArthArthxLP.methods.totalSupply().call()
+    console.log('totalSupply', totalSupply);
+
+    // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
+    let LPUSD = sumOfReserve / totalSupply
+    console.log('LPUSD', LPUSD);
+}
+arthxarth()
+
+const arthxAPY = async (req, res) => {
     try {
         const mahaprice = JSON.parse(await getMahaPrice())
         const arthxPrice = 0.01//await getArthxPrice()
