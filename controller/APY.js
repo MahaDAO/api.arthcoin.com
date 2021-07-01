@@ -15,10 +15,12 @@ const StakeARTHXRMAHA = require('../manualABI/BasicStakingSpecificReward.json')
 const staggingBasicStaking = require('../manualABI/staging/abi/BasicStaking.json')
 const UniswapV2Pair = require('../manualABI/staging/abi/UniswapV2Pair.json')
 
-const arthcontroller = new web3.eth.Contract(ArthController, '0x44C2993C9BF54b211e134e2cD4b99Db4aFE2E20e')
-const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0x710B89933E82360B93bc4C4e6E2c4FA82Fd2C7f0')
+const arthcontroller = new web3.eth.Contract(ArthController, '0x8fce074b01040805aEeBCa13a9b2500316321A18')
+const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0xAd7CD904568E5a23fdbE57d6C32fB5D1f91eBd0d')
 const stakeArthxArth = new web3.eth.Contract(staggingBasicStaking, '0x83bF88AF74743916db6e140768c9F9f681A9B276')
 const ArthArthxLP = new web3.eth.Contract(UniswapV2Pair, '0x90edfEe14635de0574cb2cc210B5196B973aB1ab')
+const StakeARTH = new web3.eth.Contract(staggingBasicStaking, '0x653887B8A074DAb771Dd116473c046e7b210c68c')
+
 
 const sendRequest = async (method, url, body) => {
     const option = {
@@ -46,147 +48,33 @@ const getRealWethPrice = async () => {
 }
 
 const getArthPrice = async () => {
-    const arthxPrice = await arthcontroller.methods.getARTHPrice().call()
-    
-    return arthxPrice
+    // will fetch it from coingecko
+    return 1;
 }
-
 //getArthPrice()
+
 const getArthxPrice = async () => {
-    const arthPrice = await arthcontroller.methods.getARTHXPrice().call()
-
-    return arthPrice
+    try {
+        let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
+        
+        if (typeof(arthxPriceFromController) === Number) {
+            console.log('true');
+            return arthxPriceFromController
+        } 
+    } catch (e) {
+        if (e) {
+            return 0.01
+        }
+    }
 }
+//getArthxPrice()
 
-// const getMahaPrice = async () => {
-//     const mahaPrice = await arthcontroller.methods.getMAHAPrice().call()
-
-//     return mahaPrice
-// }
 
 const getEthGmuPrice = async () => {
     const ethGmuPrice = await arthcontroller.methods.getETHGMUPrice().call()
     return ethGmuPrice
 }
 
-const getarthWethLP = async () => {
-    let parsedBody = data
-    let amount = parsedBody.amount
-
-    const reserves = await arthWethLP.methods.getReserves().call()
-    let arthWethLPReserve0 = ( reserves._reserve0 / 10**18 )
-    let arthWethLPReserve1 = ( reserves._reserve1 / 10**18 )
-
-    let arthPrice = (await getArthPrice()) / 10**6 
-    let wethGMUPrice = Number((await getEthGmuPrice()) / 10**6 )
-    let realWethPrice = await getRealWethPrice()
-
-    let arthUsdPrice = arthWethLPReserve0 * arthPrice
-    let wethGMUUsdPrice = arthWethLPReserve1 * wethGMUPrice
-    let wethUsdPrice = arthWethLPReserve1 * realWethPrice
-    
-    // arth/eth 
-    let arthEthGMUprice = Number((arthUsdPrice / wethGMUPrice))
-    let arthEthprice = Number((arthUsdPrice / realWethPrice))
-
-    let sumOfReserve = (arthWethLPReserve0 + arthWethLPReserve1)
-    let totalSupply = await arthWethLP.methods.totalSupply().call()
-    let LPUSD = sumOfReserve / totalSupply
-    let sevenDaysReward = Number (await arthWethLPStake.methods.getRewardForDuration().call())
-    // TLV - summ of the reserves * arth/eth usdt
-    // 1 LP token = TLV / total supply
-
-    // console.log(arthWethLPReserve0, arthWethLPReserve1)
-    // console.log(arthPrice, arthEthGMUprice, arthEthprice,  wethGMUPrice, realWethPrice);
-    // console.log(arthUsdPrice, wethGMUUsdPrice, wethUsdPrice);
-    //console.log(sumOfReserve, arthEthGMUprice, arthEthprice, LPUSD, sevenDaysReward);
-
-    let oneDayRewardAmount = (sevenDaysReward / 7) * LPUSD
-    let sevenDayRewardAmount = sevenDaysReward * LPUSD
-    let halfYearlyRewardAmount = (oneDayRewardAmount * 180) * LPUSD
-    //console.log(oneDayRewardAmount, sevenDayRewardAmount, halfYearlyRewardAmount);
-    // rewards per token 
-    // 6 months pool duration
-
-    let APY = ((halfYearlyRewardAmount * 2) / amount) * 100
-    res.send({ "APY": APY })
-}
-
-const getArthMahaLPTokenPrice = async (data, res) => {
-    let parsedBody = data
-    let amount = parsedBody.amount
-
-    const reserves = await arthMahaLP.methods.getReserves().call()
-    let arthMahaLPReserve0 = (reserves._reserve0 / 10 ** 18)
-    let arthMahaLPReserve1 = (reserves._reserve1 / 10 ** 18)
-
-    let arthPrice = (await getArthPrice()) / 10 ** 6
-    let wethGMUPrice = Number((await getMahaPrice()) / 10 ** 6)
-    let realWethPrice = await getRealWethPrice()
-
-    let arthUsdPrice = arthMahaLPReserve0 * arthPrice
-    let wethGMUUsdPrice = arthMahaLPReserve1 * wethGMUPrice
-    let wethUsdPrice = arthMahaLPReserve1 * realWethPrice
-
-    // arth/eth 
-    let arthEthGMUprice = Number((arthUsdPrice / wethGMUPrice))
-    let arthEthprice = Number((arthUsdPrice / realWethPrice))
-
-    let sumOfReserve = (arthMahaLPReserve0 + arthMahaLPReserve1)
-    let totalSupply = await arthMahaLP.methods.totalSupply().call()
-    let LPUSD = sumOfReserve / totalSupply
-    let sevenDaysReward = Number(await arthMahaStake.methods.getRewardForDuration().call())
-    // TLV - summ of the reserves * arth/eth usdt
-    // 1 LP token = TLV / total supply
-
-    let oneDayRewardAmount = (sevenDaysReward / 7) * LPUSD
-    let sevenDayRewardAmount = sevenDaysReward * LPUSD
-    let halfYearlyRewardAmount = (oneDayRewardAmount * 180) * LPUSD
-
-    let APY = ((halfYearlyRewardAmount * 2) / amount) * 100
-    //console.log(APY);
-    res.send({ "APY": APY })
-}
-
-const getArthxWethLPTokenPrice = async (data, res) => {
-    let parsedBody = data
-    let amount = parsedBody.amount
-
-    const reserves = await arthxWethLP.methods.getReserves().call()
-    let arthxWethLPReserve0 = (reserves._reserve0 / 10 ** 18)
-    let arthxWethLPReserve1 = (reserves._reserve1 / 10 ** 18)
-
-    let arthPrice = (await getArthPrice()) / 10 ** 6
-    //let wethGMUPrice = Number((await getEthGmuPrice()) / 10 ** 6)
-    //let realWethPrice = await getRealWethPrice()
-
-    let arthUsdPrice = arthxWethLPReserve0 * arthPrice
-    // let wethGMUUsdPrice = arthxWethLPReserve1 * wethGMUPrice
-    // let wethUsdPrice = arthxWethLPReserve1 * realWethPrice
-
-    // arth/eth 
-    // let arthEthGMUprice = Number((arthUsdPrice / wethGMUPrice))
-    // let arthEthprice = Number((arthUsdPrice / realWethPrice))
-
-    let sumOfReserve = (arthxWethLPReserve0 + arthxWethLPReserve1)
-    let totalSupply = await arthxWethLP.methods.totalSupply().call()
-    // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
-    let LPUSD = sumOfReserve / totalSupply
-    let sevenDaysReward = Number(await arthxwethStake.methods.getRewardForDuration().call())
-    // TLV - summ of the reserves * arth/eth usdt
-    // 1 LP token = TLV / total supply
-
-    let oneDayRewardAmount = (sevenDaysReward / 7) * LPUSD
-    let sevenDayRewardAmount = sevenDaysReward * LPUSD
-    let halfYearlyRewardAmount = (oneDayRewardAmount * 180) * LPUSD
-    //console.log(oneDayRewardAmount, sevenDayRewardAmount, halfYearlyRewardAmount);
-    // rewards per token 
-    // 6 months pool duration
-
-    let APY = ((halfYearlyRewardAmount * 2) / amount) * 100
-    //console.log(APY);
-    res.send({ "APY": APY })
-}
 
 const getMahaPrice = async () => {
     try {
@@ -202,61 +90,108 @@ const getMahaPrice = async () => {
     }
 }
 
+// const arthxarth = async () => {
+    
+//     const reserves = await ArthArthxLP.methods.getReserves().call()
+//     console.log('reserves', reserves);
+    
+//     let artharthxLPReserve0 = (reserves._reserve0 / 10 ** 18)
+//     let artharthxLPReserve1 = (reserves._reserve1 / 10 ** 18)
+//     console.log('reserves0', artharthxLPReserve0, 'reserves1', artharthxLPReserve1);
+    
+//     // let arthxPrice = (await getArthxPrice())
+//     // console.log(arthxPrice);
+//     //let arthPrice = (await getArthPrice()) / 10 ** 6
+//     let arthUsdWorth = artharthxLPReserve0 * 1//arthPrice
+//     let arthxUsdWorth = artharthxLPReserve1 * 0.1//arthxPrice
+
+//     let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
+//     // console.log('sumOfReserve', sumOfReserve);
+
+//     let totalSupplyLP = await ArthArthxLP.methods.totalSupply().call()
+//     console.log('totalSupplyLP', totalSupplyLP);
+
+//     // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
+//     let LPUSD = sumOfReserve / totalSupplyLP
+//     console.log('LPUSD', LPUSD);
+
+//     const quaterlyRewards  = Number(await stakeArthxArth.methods.getRewardForDuration().call())
+//     let oneDayRewardAmount = (quaterlyRewards / 90) * LPUSD
+//     let halfYearlyRewardAmount = (oneDayRewardAmount * 180) * LPUSD
+
+//     let APY = ((halfYearlyRewardAmount * 2) / amount) * 100
+// }
+
+// StakeARTHXARTH staking contract
 const arthxarth = async () => {
-    
-    const reserves = await ArthArthxLP.methods.getReserves().call()
-    console.log('reserves', reserves);
-    
-    let artharthxLPReserve0 = (reserves._reserve0 / 10 ** 18)
-    let artharthxLPReserve1 = (reserves._reserve1 / 10 ** 18)
-    console.log('reserves0', artharthxLPReserve0, 'reserves1', artharthxLPReserve1);
-    
-    // let arthPrice = (await getArthPrice()) / 10 ** 6
-    // let arthUsdPrice = arthxWethLPReserve0 * arthPrice
+    try {
+        const mahaprice = JSON.parse(await getMahaPrice())
+        const arthxPrice = await getArthxPrice()
+        let rewardTokenPrice = arthxPrice / mahaprice.mahadao.usd
+        
+        console.log('rewardTokenPrice', rewardTokenPrice);
 
-    let sumOfReserve = (artharthxLPReserve0 + artharthxLPReserve1)
-    console.log('sumOfReserve', sumOfReserve);
+        const rewardForDuration = Number(await stakeArthxArth.methods.getRewardForDuration().call())
+        const totalSupply = await stakeArthxArth.methods.totalSupply().call()
+        console.log('totalSupply', typeof(totalSupply));
 
-    let totalSupply = await ArthArthxLP.methods.totalSupply().call()
-    console.log('totalSupply', totalSupply);
+        let rewardUSD = rewardTokenPrice * rewardForDuration / 1e18
+        let totalSupplyUSD = (totalSupply / 1e18) * rewardTokenPrice
 
-    // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
-    let LPUSD = sumOfReserve / totalSupply
-    console.log('LPUSD', LPUSD);
+        let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
+        console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD, 'APY', APY);
+
+        //res.send({ APY: APY })
+    } catch (e) {
+        console.log(e);
+    }
 }
-arthxarth()
+//arthxarth()
 
+// StakeARTHXRMAHA staking contract
 const arthxAPY = async (req, res) => {
     try {
         const mahaprice = JSON.parse(await getMahaPrice())
         const arthxPrice = 0.01//await getArthxPrice()
         const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
         const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
+        console.log('totalSupply', totalSupply);
                
         let rewardUSD = mahaprice.mahadao.usd * rewardForDuration/ 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthxPrice
         
-        let APY = ((rewardUSD /totalSupplyUSD ) * 100) * 52 
+        let APY = ((rewardUSD / totalSupplyUSD ) * 100) * 52 
         console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD, 'APY', APY);
 
-        res.send({ APY : APY })
+        //res.send({ APY : APY })
     } catch (e) {
         console.log(e);
     }
 }
+//arthxAPY()
 
+// StakeARTH staking contract
+const arthAPY = async (req, res) => {
+    try {
+        const mahaprice = JSON.parse(await getMahaPrice())
+        const arthxPrice = await getArthxPrice()
+        const arthPrice = await getArthPrice()
+        const rewardForDuration = Number(await StakeARTH.methods.getRewardForDuration().call())
+        const totalSupply = await StakeARTH.methods.totalSupply().call()
 
-//return 100 * (Math.pow((supplyRatePerBlock / ethMantissa * blocksPerDay) + 1, daysPerYear - 1) - 1);
-const main = async () => {
-    let wethGeckoPrice = await getRealWethPrice()
-    //console.log(wethGeckoPrice);
-    // //let arthPrice = await getArthPrice()
-    // let mahaPrice = await getMahaPrice()
-    // console.log(mahaPrice);
-    let arthxPrice = await getArthxPrice()
-    console.log(arthxPrice);
-    // let ethGmuPrice = await getEthGmuPrice()
-    // console.log(wethGeckoPrice, mahaPrice, arthxPrice, ethGmuPrice);
+        let rewardTokenPrice = arthxPrice / mahaprice.mahadao.usd
+        console.log('rewardTokenPrice', rewardTokenPrice);
+
+        let rewardUSD = rewardTokenPrice * rewardForDuration / 1e18
+        let totalSupplyUSD = (totalSupply / 1e18) * arthPrice
+
+        let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
+        console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD, 'APY', APY);
+
+        res.send({ APY: APY })
+    } catch (e) {
+        console.log(e);
+    }
 }
+//arthAPY()
 
-//main()
