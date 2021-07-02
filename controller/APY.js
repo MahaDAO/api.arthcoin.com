@@ -72,8 +72,13 @@ const getMahaPrice = async () => {
             `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
             {}
         );
-
-        return priceInJsonString
+        
+        //console.log(priceInJsonString);
+        if (priceInJsonString) {
+            return priceInJsonString
+        } else {
+            return { "mahadao": { "usd": 2.3 } }
+        }
     } catch (e) {
         return null;
     }
