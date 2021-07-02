@@ -50,6 +50,25 @@ const getArthPrice = async () => {
 }
 //getArthPrice()
 
+const getUsdcPrice = async () => {
+    try {
+        const priceInJsonString = await sendRequest(
+            'GET',
+            `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
+            {}
+        );
+
+        //console.log(priceInJsonString);
+        if (priceInJsonString) {
+            return priceInJsonString
+        } else {
+            return { "mahadao": { "usd": 2.3 } }
+        }
+    } catch (e) {
+        return null;
+    }
+}
+
 const getArthxPrice = async () => {
     try {
         let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
@@ -98,12 +117,12 @@ export const arthxarth = async () => {
     console.log('arthxPrice', arthxPrice);
     //let arthPrice = (await getArthPrice()) / 10 ** 6
     let arthUsdWorth = artharthxLPReserve0 * await getArthPrice()
-    let arthxUsdWorth = artharthxLPReserve1 * await getArthxPrice()
+    let arthxUsdWorth = artharthxLPReserve1 * 0.01
 
     let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
     // console.log('sumOfReserve', sumOfReserve);
 
-    let totalSupplyLP = await ArthArthxLP.methods.totalSupply().call()
+    let totalSupplyLP = await ArthArthxLP.methods.totalSupply().call() / 10 ** 18
     console.log('totalSupplyLP', totalSupplyLP);
 
     // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
@@ -130,7 +149,7 @@ export const arthxarth = async () => {
 
 // 
 export const arthusdc = async () => {
-    console.log('test');
+    //console.log('test');
     const reserves = await ArthUsdcLP.methods.getReserves().call()
     console.log('reserves', reserves);
 
@@ -141,13 +160,13 @@ export const arthusdc = async () => {
     // let arthxPrice = (await getArthxPrice())
     // console.log(arthxPrice);
     //let arthPrice = (await getArthPrice()) / 10 ** 6
-    let arthUsdWorth = artharthxLPReserve0 * await getArthPrice()
-    let arthxUsdWorth = artharthxLPReserve1 * await getArthxPrice()
+    let arthUsdWorth = artharthxLPReserve0 * 2
+    let arthxUsdWorth = artharthxLPReserve1 * 1
 
     let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
     // console.log('sumOfReserve', sumOfReserve);
 
-    let totalSupplyLP = await ArthUsdcLP.methods.totalSupply().call()
+    let totalSupplyLP = await ArthUsdcLP.methods.totalSupply().call() / 10 ** 18
     console.log('totalSupplyLP', totalSupplyLP);
 
     // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
@@ -208,7 +227,7 @@ export const arthAPY = async () => {
         let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
         let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-        const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+        const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthxPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
 
         let rewardUSD = PriceOfPoolToken * rewardForDuration / 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthPrice
@@ -227,6 +246,7 @@ export const arthAPY = async () => {
 // StakeARTHMAHA contract for staking ARTHMAHA
 export const arthMaha = async () => {
 
+    const mahaprice = JSON.parse(await getMahaPrice())
     const reserves = await ArthMahaLP.methods.getReserves().call()
     console.log('reserves', reserves);
 
@@ -237,13 +257,13 @@ export const arthMaha = async () => {
     // let arthxPrice = (await getArthxPrice())
     // console.log(arthxPrice);
     //let arthPrice = (await getArthPrice()) / 10 ** 6
-    let arthUsdWorth = artharthxLPReserve0 * await getArthPrice()
-    let arthxUsdWorth = artharthxLPReserve1 * await getArthxPrice()
+    let arthUsdWorth = artharthxLPReserve0 * 2
+    let arthxUsdWorth = artharthxLPReserve1 * mahaprice.mahadao.usd
 
     let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
     // console.log('sumOfReserve', sumOfReserve);
 
-    let totalSupplyLP = await ArthMahaLP.methods.totalSupply().call()
+    let totalSupplyLP = await ArthMahaLP.methods.totalSupply().call() / 10 ** 18
     console.log('totalSupplyLP', totalSupplyLP);
 
     // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
@@ -254,14 +274,13 @@ export const arthMaha = async () => {
     let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
     let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-    const mahaprice = JSON.parse(await getMahaPrice())
     const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthxPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
 
     const quaterlyRewards = Number(await stakeARTHMaha.methods.getRewardForDuration().call())
     let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
     //console.log(rewardUSD);
 
-    const totalSupply = Number(await stakeARTHMaha.methods.totalSupply().call()) / 1e18
+    const totalSupply = Number(await stakeARTHMaha.methods.totalSupply().call()) / 10 ** 18
     //console.log(totalSupply);
 
     let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
@@ -311,7 +330,7 @@ export const basicStakingMaha = async () => {
         let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
         let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-        const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+        const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthxPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
 
         let rewardUSD = PriceOfPoolToken * rewardForDuration / 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthPrice
