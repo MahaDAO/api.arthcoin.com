@@ -4,7 +4,8 @@
   "description": "code for the APY",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node index.js"
+    "start": "babel-node index.js",
+    "build": "rimraf ./dist"
   },
   "dependencies": {
     "@babel/cli": "^7.14.3",
