@@ -175,6 +175,7 @@ export const arthxAPY = async () => {
         const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
         console.log('totalSupply', totalSupply);
 
+        console.log('mahaprice: 178', mahaprice);
         let rewardUSD = mahaprice.mahadao.usd * rewardForDuration/ 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthxPrice
 
