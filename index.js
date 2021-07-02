@@ -1,6 +1,6 @@
-import { getArthWethLPTokenPrice, getArthMahaLPTokenPrice, getArthxWethLPTokenPrice } from './controller/APY';
 import routes from './routes'
 import apicache from 'apicache'
+import { cronJob } from './controller/cron'
 
 const express = require('express')
 let cache = apicache.middleware
@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }))
 app.use(cache('5 minutes'))
 app.use(routes)
 
+cronJob()
 
 app.get('/', function (req, res) {
     res.send('Hello World')

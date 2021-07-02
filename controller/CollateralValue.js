@@ -22,10 +22,11 @@ const fetchCollateralValueMatic = async () => {
 export const getCollateralValue = async (req, res) => {
     try {
         let ethCollateralRaised = Number(Web3.utils.fromWei(await fetchCollateralValueETH()))
+        console.log('ethCollateralRaised', ethCollateralRaised);
         let MaticCollateralRaised = Number(Web3.utils.fromWei(await fetchCollateralValueMatic()))
-        let TotalCollateralRaised = ethCollateralRaised + MaticCollateralRaised
+        let TotalCollateralRaised = ethCollateralRaised + MaticCollateralRaised + 25000
 
-        console.log(TotalCollateralRaised);
+        //console.log('TotalCollateralRaised',TotalCollateralRaised);
         //let response = JSON.stringify({ collateralRaised: TotalCollateralRaised })
         res.send({ collateralRaised: TotalCollateralRaised })
     } catch(e) {
