@@ -8,9 +8,9 @@ const from = process.env.FROM_ADDRESS
 const privateKey = process.env.WALLET_ADDRESS
 
 const UniswapPairOracle = require('../deployments/abi/UniswapPairOracle.json')
-const UniswapPairOracle_ARTH_ARTHX = new web3.eth.Contract(UniswapPairOracle, '0x69f99Fa4514A4c284A07466cf384515dec90e06C')
-const UniswapPairOracle_ARTH_MAHA = new web3.eth.Contract(UniswapPairOracle, '0x45Fc4e11f28918F09ce45e744E85B85822643d18')
-const UniswapPairOracle_ARTH_USDC = new web3.eth.Contract(UniswapPairOracle, '0x5f97c9bc6db3E8171B83DB4d142F7411147F2249')
+const UniswapPairOracle_ARTH_ARTHX = new web3.eth.Contract(UniswapPairOracle, '0x23b8603CB7d8395754E20e272e0e2fFFA2828654')
+const UniswapPairOracle_ARTH_MAHA = new web3.eth.Contract(UniswapPairOracle, '0xFC645E3c39e257d634bBea9637a4c7f326eB4B50')
+const UniswapPairOracle_ARTH_USDC = new web3.eth.Contract(UniswapPairOracle, '0x7F4f57b81c1134eFC6c0FB7B51FDF50eEb6afdbc')
 
 
 export const updateOracles = async () => {

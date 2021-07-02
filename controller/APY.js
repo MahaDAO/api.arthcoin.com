@@ -13,11 +13,11 @@ const ArthSharesAbi = require('../deployments/abi/ARTHShares.json')
 const MahaTokenAbi = require('../manualABI/MahaToken.json')
 
 // contracts
-const arthcontroller = new web3.eth.Contract(ArthController, '0x79d93EA8500226b203180E62eE7666a19C4443bB')
+const arthcontroller = new web3.eth.Contract(ArthController, '0x8604E0606245184c619830f9E795aea01F7A3d38')
 const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0x710B89933E82360B93bc4C4e6E2c4FA82Fd2C7f0')
 const stakeArthxArth = new web3.eth.Contract(staggingBasicStaking, '0xF59Cd4B9Cc341E6650ABB1288C5aC01e9f37f9b5')
 const stakeARTH = new web3.eth.Contract(staggingBasicStaking, '0xF4de24E6393793E44Bd69e8b888828995A61E08A')
-const stakeARTHMaha = new web3.eth.Contract(staggingBasicStaking, '0x12531272961Bc1781CD789e3a00b4857491eB053')
+const stakeARTHMaha = new web3.eth.Contract(staggingBasicStaking, '0x9c5D406623aA49ACbE982E20F995a710Af4e5EC9')
 const stakeARTHX = new web3.eth.Contract(staggingBasicStaking, '0x17594C5a5305a5Ba032012AedD5bBd5906852020')
 const stakeMaha = new web3.eth.Contract(staggingBasicStaking, '0x65Ec8480D686E26c7E2AB2b0932CbacD5DaEdd2E')
 const stakeArthUsdc = new web3.eth.Contract(staggingBasicStaking, '0x99547b2E9DF856760918ad63dA09795dC1a0F3Fd')
@@ -120,7 +120,7 @@ export const arthxarth = async () => {
     const quaterlyRewards = Number(await stakeArthxArth.methods.getRewardForDuration().call())
     let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
     
-    const totalSupply = Number(await stakeArthxArth.methods.totalSupply().call())
+    const totalSupply = Number(await stakeArthxArth.methods.totalSupply().call()) / 1e18
 
     let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
     //res.send({ APY: APY })
@@ -164,7 +164,7 @@ export const arthusdc = async () => {
     const quaterlyRewards = Number(await stakeArthUsdc.methods.getRewardForDuration().call())
     let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
 
-    const totalSupply = Number(await stakeArthUsdc.methods.totalSupply().call())
+    const totalSupply = Number(await stakeArthUsdc.methods.totalSupply().call()) / 1e18
 
     let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
     //res.send({ APY: APY })
@@ -261,7 +261,7 @@ export const arthMaha = async () => {
     let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
     //console.log(rewardUSD);
 
-    const totalSupply = Number(await stakeARTHMaha.methods.totalSupply().call())
+    const totalSupply = Number(await stakeARTHMaha.methods.totalSupply().call()) / 1e18
     //console.log(totalSupply);
 
     let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
@@ -328,7 +328,7 @@ export const basicStakingMaha = async () => {
 
 export const sendResponse = async (req, res) => {
     console.log('frontend', req);
-    if (req.key === 'artharthx') {
+    if (req.key === 'arthxarth') {
         let apy = await arthxarth()
         res.send(apy)
     } else if (req.key === 'arthxrmaha'){
