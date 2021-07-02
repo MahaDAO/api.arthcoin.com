@@ -34,7 +34,7 @@ const getRealWethPrice = async () => {
         `https://api.coingecko.com/api/v3/simple/price?ids=weth&vs_currencies=usd`,
         {}
     )
-    
+
     let price = JSON.parse(wethPrice)
 
     return price.weth.usd
@@ -49,11 +49,11 @@ const getArthPrice = async () => {
 const getArthxPrice = async () => {
     try {
         let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
-        
+
         if (typeof(arthxPriceFromController) === Number) {
             console.log('true');
             return arthxPriceFromController
-        } 
+        }
     } catch (e) {
         if (e) {
             return 0.01
@@ -65,11 +65,11 @@ const getArthxPrice = async () => {
 const getMahaPrice = async () => {
     try {
         const priceInJsonString = await sendRequest(
-            'GET', 
+            'GET',
             `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
             {}
         );
-        
+
         return priceInJsonString
     } catch (e) {
         return null;
@@ -77,14 +77,14 @@ const getMahaPrice = async () => {
 }
 
 // const arthxarth = async () => {
-    
+
 //     const reserves = await ArthArthxLP.methods.getReserves().call()
 //     console.log('reserves', reserves);
-    
+
 //     let artharthxLPReserve0 = (reserves._reserve0 / 10 ** 18)
 //     let artharthxLPReserve1 = (reserves._reserve1 / 10 ** 18)
 //     console.log('reserves0', artharthxLPReserve0, 'reserves1', artharthxLPReserve1);
-    
+
 //     // let arthxPrice = (await getArthxPrice())
 //     // console.log(arthxPrice);
 //     //let arthPrice = (await getArthPrice()) / 10 ** 6
@@ -102,10 +102,14 @@ const getMahaPrice = async () => {
 //     console.log('LPUSD', LPUSD);
 
 //     const quaterlyRewards  = Number(await stakeArthxArth.methods.getRewardForDuration().call())
-//     let oneDayRewardAmount = (quaterlyRewards / 90) * LPUSD
-//     let halfYearlyRewardAmount = (oneDayRewardAmount * 180) * LPUSD
+//     let oneDayRewardAmount = (quaterlyRewards / 90) * LPUSD * RewardToUSD
+//     let halfYearlyRewardAmount = (oneDayRewardAmount * 180)
 
-//     let APY = ((halfYearlyRewardAmount * 2) / amount) * 100
+//     let APY_inPOOLToken = ((halfYearlyRewardAmount * 2) / amount) * 100
+
+
+//     const PriceOfPoolToken = ((PoolToken_ARTHXbalance * ARTHX price) + (PoolToken_MAHAbalance * Maha price)) / totalSupply
+//     let APY = APY_inPOOLToken * PriceOfPoolToken
 // }
 
 // StakeARTHXARTH staking contract
@@ -114,7 +118,7 @@ const arthxarth = async () => {
         const mahaprice = JSON.parse(await getMahaPrice())
         const arthxPrice = await getArthxPrice()
         let rewardTokenPrice = arthxPrice / mahaprice.mahadao.usd
-        
+
         console.log('rewardTokenPrice', rewardTokenPrice);
 
         const rewardForDuration = Number(await stakeArthxArth.methods.getRewardForDuration().call())
@@ -142,11 +146,11 @@ const arthxAPY = async (req, res) => {
         const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
         const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
         console.log('totalSupply', totalSupply);
-               
+
         let rewardUSD = mahaprice.mahadao.usd * rewardForDuration/ 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthxPrice
-        
-        let APY = ((rewardUSD / totalSupplyUSD ) * 100) * 52 
+
+        let APY = ((rewardUSD / totalSupplyUSD ) * 100) * 52
         console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD, 'APY', APY);
 
         //res.send({ APY : APY })
