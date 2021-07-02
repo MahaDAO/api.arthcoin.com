@@ -174,13 +174,13 @@ export const arthusdc = async () => {
 // StakeARTHXRMAHA staking contract
 export const arthxAPY = async () => {
     try {
-        const mahaprice = JSON.parse(await getMahaPrice())
+        const mahaprice = JSON.parse(await getMahaPrice()) || { "mahadao": { "usd": 2.3 } }
         const arthxPrice = await getArthxPrice()
         const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
         const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
         console.log('totalSupply', totalSupply);
 
-        console.log('mahaprice: 178', mahaprice);
+        console.log('mahaprice: 183', mahaprice);
         let rewardUSD = mahaprice.mahadao.usd * rewardForDuration/ 1e18
         let totalSupplyUSD = (totalSupply / 1e18) * arthxPrice
 
