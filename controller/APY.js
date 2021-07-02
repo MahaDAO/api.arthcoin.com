@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const web3 = new Web3('https://rpc-mainnet.matic.quiknode.pro')
+const web3 = new Web3('https://apis.ankr.com/0aa7b5a6761f4b87ae97c6b718d900ff/0a39ba8bf2c40d99b20fea4372ebaa68/polygon/full/main')
 const request = require('request-promise');
 
 // ABIs
