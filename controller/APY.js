@@ -2,6 +2,7 @@ const Web3 = require('web3');
 const web3 = new Web3('https://rpc-mainnet.matic.quiknode.pro')
 const request = require('request-promise');
 
+// ABIs
 const ArthController = require('../deployments/abi/ArthController.json')
 const StakeARTHXRMAHA = require('../manualABI/BasicStakingSpecificReward.json')
 const staggingBasicStaking = require('../manualABI/staging/abi/BasicStaking.json')
@@ -11,20 +12,24 @@ const PoolTokenAbi = require('../manualABI/staging/abi/PoolToken.json')
 const ArthSharesAbi = require('../deployments/abi/ARTHShares.json')
 const MahaTokenAbi = require('../manualABI/MahaToken.json')
 
-const arthcontroller = new web3.eth.Contract(ArthController, '0x8fce074b01040805aEeBCa13a9b2500316321A18')
+// contracts
+const arthcontroller = new web3.eth.Contract(ArthController, '0x79d93EA8500226b203180E62eE7666a19C4443bB')
 const arthxmahaStakePool = new web3.eth.Contract(StakeARTHXRMAHA, '0x710B89933E82360B93bc4C4e6E2c4FA82Fd2C7f0')
-const stakeArthxArth = new web3.eth.Contract(staggingBasicStaking, '0x83bF88AF74743916db6e140768c9F9f681A9B276')
-const stakeARTH = new web3.eth.Contract(staggingBasicStaking, '0x653887B8A074DAb771Dd116473c046e7b210c68c')
-const stakeARTHMaha = new web3.eth.Contract(staggingBasicStaking, '0xAd7CD904568E5a23fdbE57d6C32fB5D1f91eBd0d')
-const stakeARTHX = new web3.eth.Contract(staggingBasicStaking, '0x9053126c1D10F9c84Ef6F3b66152fB692a3a6c2B')
+const stakeArthxArth = new web3.eth.Contract(staggingBasicStaking, '0xF59Cd4B9Cc341E6650ABB1288C5aC01e9f37f9b5')
+const stakeARTH = new web3.eth.Contract(staggingBasicStaking, '0xF4de24E6393793E44Bd69e8b888828995A61E08A')
+const stakeARTHMaha = new web3.eth.Contract(staggingBasicStaking, '0x12531272961Bc1781CD789e3a00b4857491eB053')
+const stakeARTHX = new web3.eth.Contract(staggingBasicStaking, '0x17594C5a5305a5Ba032012AedD5bBd5906852020')
+const stakeMaha = new web3.eth.Contract(staggingBasicStaking, '0x65Ec8480D686E26c7E2AB2b0932CbacD5DaEdd2E')
+const stakeArthUsdc = new web3.eth.Contract(staggingBasicStaking, '0x99547b2E9DF856760918ad63dA09795dC1a0F3Fd')
 
-const arthx = new web3.eth.Contract(ArthSharesAbi, '0x52e15E026971B58CE688A045Bdc2c83A6D46f911')
-const maha = new web3.eth.Contract(MahaTokenAbi, '0x3b2ca68671b8df5b7ce4ef98b4280fdee906cfbf') //'0xeDd6cA8A4202d4a36611e2fff109648c4863ae19')
-const poolToken = new web3.eth.Contract(PoolTokenAbi, '0xc8Aa935bB66D46732800C4AD04eDdA385d197f06')
-const poolTokenAddress = '0xc8Aa935bB66D46732800C4AD04eDdA385d197f06'
+const arthx = new web3.eth.Contract(ArthSharesAbi, '0xD354D56DaE3588F1145dd664bc5094437b889d6F')
+const maha = new web3.eth.Contract(MahaTokenAbi, '0xeDd6cA8A4202d4a36611e2fff109648c4863ae19') //'0xeDd6cA8A4202d4a36611e2fff109648c4863ae19')
+const poolToken = new web3.eth.Contract(PoolTokenAbi, '0x963911186972433fFF9FE2aA5959dA3918456B59')
+const poolTokenAddress = '0x963911186972433fFF9FE2aA5959dA3918456B59'
 
-const ArthArthxLP = new web3.eth.Contract(UniswapV2Pair, '0x90edfEe14635de0574cb2cc210B5196B973aB1ab')
-const ArthMahaLP = new web3.eth.Contract(UniswapV2Pair, '0x5D803e860c444a7cD71168f3211FaBbD52457EB4')
+const ArthArthxLP = new web3.eth.Contract(UniswapV2Pair, '0x742146b6241B779f7fb9759E7F45772597B08DF1')
+const ArthMahaLP = new web3.eth.Contract(UniswapV2Pair, '0xd10f5Bb8DE9fDeD024F0D995793B750D207095Fc')
+const ArthUsdcLP = new web3.eth.Contract(UniswapV2Pair, '0xe11bd5a3927A2a4e55266959B348c39bA9eaECD4')
 
 const sendRequest = async (method, url, body) => {
     const option = {
@@ -48,10 +53,9 @@ const getArthPrice = async () => {
 const getArthxPrice = async () => {
     try {
         let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
-
-        if (typeof(arthxPriceFromController) === Number) {
-            console.log('true');
-            return arthxPriceFromController
+        //console.log('arthxprice:52', arthxPriceFromController);
+        if (arthxPriceFromController) {
+            return arthxPriceFromController / 1e6
         }
     } catch (e) {
         if (e) {
@@ -79,14 +83,14 @@ const getMahaPrice = async () => {
 export const arthxarth = async () => {
     console.log('test');
     const reserves = await ArthArthxLP.methods.getReserves().call()
-    console.log('reserves', reserves);
+    //console.log('reserves', reserves);
 
     let artharthxLPReserve0 = (reserves._reserve0 / 10 ** 18)
     let artharthxLPReserve1 = (reserves._reserve1 / 10 ** 18)
     console.log('reserves0', artharthxLPReserve0, 'reserves1', artharthxLPReserve1);
 
-    // let arthxPrice = (await getArthxPrice())
-    // console.log(arthxPrice);
+    let arthxPrice = (await getArthxPrice())
+    console.log('arthxPrice', arthxPrice);
     //let arthPrice = (await getArthPrice()) / 10 ** 6
     let arthUsdWorth = artharthxLPReserve0 * await getArthPrice()
     let arthxUsdWorth = artharthxLPReserve1 * await getArthxPrice()
@@ -118,6 +122,49 @@ export const arthxarth = async () => {
     return { APY: APY }
 }
 //arthxarth()
+
+// 
+export const arthusdc = async () => {
+    console.log('test');
+    const reserves = await ArthUsdcLP.methods.getReserves().call()
+    console.log('reserves', reserves);
+
+    let artharthxLPReserve0 = (reserves._reserve0 / 10 ** 18)
+    let artharthxLPReserve1 = (reserves._reserve1 / 10 ** 18)
+    console.log('reserves0', artharthxLPReserve0, 'reserves1', artharthxLPReserve1);
+
+    // let arthxPrice = (await getArthxPrice())
+    // console.log(arthxPrice);
+    //let arthPrice = (await getArthPrice()) / 10 ** 6
+    let arthUsdWorth = artharthxLPReserve0 * await getArthPrice()
+    let arthxUsdWorth = artharthxLPReserve1 * await getArthxPrice()
+
+    let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
+    // console.log('sumOfReserve', sumOfReserve);
+
+    let totalSupplyLP = await ArthUsdcLP.methods.totalSupply().call()
+    console.log('totalSupplyLP', totalSupplyLP);
+
+    // let tvlGmu = Number(sumOfReserve * arthEthGMUprice)
+    let LPUSD = sumOfReserve / totalSupplyLP
+    console.log('LPUSD', LPUSD);
+
+    let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+    let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+    let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+
+    const mahaprice = JSON.parse(await getMahaPrice())
+    const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthxPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+
+    const quaterlyRewards = Number(await stakeArthUsdc.methods.getRewardForDuration().call())
+    let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
+
+    const totalSupply = Number(await stakeArthUsdc.methods.totalSupply().call())
+
+    let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
+    //res.send({ APY: APY })
+    return { APY: APY }
+}
 
 // StakeARTHXRMAHA staking contract
 export const arthxAPY = async () => {
@@ -246,6 +293,33 @@ export const basicStakingArthx = async () => {
     }
 }
 
+export const basicStakingMaha = async () => {
+    try {
+        const mahaprice = JSON.parse(await getMahaPrice())
+        const arthxPrice = await getArthxPrice()
+        const arthPrice = await getArthPrice()
+        const rewardForDuration = Number(await stakeMaha.methods.getRewardForDuration().call())
+        const totalSupply = await stakeMaha.methods.totalSupply().call()
+
+        let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+        let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+        let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+
+        const PriceOfPoolToken = ((poolTokenArthxBalance * await getArthPrice()) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+
+        let rewardUSD = PriceOfPoolToken * rewardForDuration / 1e18
+        let totalSupplyUSD = (totalSupply / 1e18) * arthPrice
+
+        let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
+        console.log('rewardUSD', rewardUSD, 'totalSupplyUSD', totalSupplyUSD, 'APY', APY);
+
+        //res.send({ APY: APY })
+        return { APY: APY }
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 export const sendResponse = async (req, res) => {
     console.log('frontend', req);
     if (req.key === 'artharthx') {
@@ -262,6 +336,12 @@ export const sendResponse = async (req, res) => {
         res.send(apy)
     } else if (req.key === 'arthmaha') {
         let apy = await arthMaha()
+        res.send(apy)
+    } else if (req.key === 'arthusdc') {
+        let apy = await arthusdc()
+        res.send(apy)
+    } else if (req.key === 'maha') {
+        let apy = await basicStakingMaha()
         res.send(apy)
     } else {
         res.send({ error: 'invalid key'})
