@@ -38,6 +38,7 @@
     "morgan": "^1.9.1",
     "node-cron": "^3.0.0",
     "pug": "^2.0.3",
+    "reddit": "^1.2.1",
     "request-promise": "^4.2.6",
     "rimraf": "^2.6.3",
     "web3": "^1.4.0"
