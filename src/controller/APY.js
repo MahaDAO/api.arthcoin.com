@@ -60,7 +60,7 @@ const getArthxPrice = async () => {
         let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
         //console.log('arthxprice:52', arthxPriceFromController);
         if (arthxPriceFromController) {
-            console.log('arthxPriceFromController', arthxPriceFromController);
+            //console.log('arthxPriceFromController', arthxPriceFromController);
             return arthxPriceFromController / 1e6
         }
     } catch (e) {
@@ -94,7 +94,7 @@ const getMahaPrice = async () => {
 // StakeARTHXARTH contract for staking ARTHXARTH
 export const arthxarth = async () => {
     let arthxPrice = await getArthxPrice()
-    console.log('arthxPrice', arthxPrice);
+    //console.log('arthxPrice', arthxPrice);
     const reserves = await ArthArthxLP.methods.getReserves().call()
     let arthxarthLPReserve0 = (reserves._reserve0 / 10 ** 18)
     let arthxarthLPReserve1 = (reserves._reserve1 / 10 ** 18)
@@ -184,7 +184,7 @@ export const arthMaha = async () => {
 // StakeARTHXRMAHA staking contract
 export const arthxAPY = async () => {
   try {
-    let arthxPrice = await getArthxPrice()
+    // let arthxPrice = await getArthxPrice()
     const mahaprice = JSON.parse(await getMahaPrice()) || { "mahadao": { "usd": 2.3 } }
     const arthxPrice = await getArthxPrice()
     const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
