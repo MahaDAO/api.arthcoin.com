@@ -7,4 +7,6 @@ export const cronJob = async () => {
         //updateOracles()
         console.log('running a task every hour');
     });
-}
+};
+
+updateOracles();
