@@ -4,8 +4,8 @@ const Provider = require('@truffle/hdwallet-provider');
 const Web3 = require('web3');
 const web3 = new Web3('https://apis.ankr.com/0aa7b5a6761f4b87ae97c6b718d900ff/0a39ba8bf2c40d99b20fea4372ebaa68/polygon/full/main')
 
-const from = process.env.FROM_ADDRESS
-const privateKey = process.env.WALLET_ADDRESS
+const from = process.env.FROM_ADDRESS;
+const privateKey = process.env.WALLET_ADDRESS;
 
 const UniswapPairOracle = require('./deployments/abi/UniswapPairOracle.json')
 const UniswapPairOracle_ARTH_ARTHX = new web3.eth.Contract(UniswapPairOracle, '0x23b8603CB7d8395754E20e272e0e2fFFA2828654')
@@ -22,8 +22,8 @@ export const updateOracles = async () => {
             from,
             nonce: await web3.eth.getTransactionCount(from) + nonceBump,
             gasPrice: await web3.eth.getGasPrice()
-        }
-    }
+        };
+    };
 
     try {
 
