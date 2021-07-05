@@ -296,7 +296,7 @@ export const allAPY = async (req, res) => {
 
 
 export const sendResponse = async (req, res) => {
-    if (req.key === 'arthxarth') {
+    if (req.key === 'artharthx') {
         let apy = await arthxarth()
         res.send(apy)
     } else if (req.key === 'arthxrmaha'){
@@ -318,6 +318,6 @@ export const sendResponse = async (req, res) => {
         let apy = await basicStakingMaha()
         res.send(apy)
     } else {
-        res.send({ error: 'invalid key'})
+        res.send({ APY: null })
     }
 }
