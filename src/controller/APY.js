@@ -1,5 +1,8 @@
+require('dotenv').config();
+const rpc = process.env.RPC_URL;
+
 const Web3 = require('web3');
-const web3 = new Web3('https://rpc-mainnet.matic.quiknode.pro')
+const web3 = new Web3(rpc)
 const request = require('request-promise');
 
 // ABIs
