@@ -39,159 +39,175 @@ const ArthUsdcLP = new web3.eth.Contract(UniswapV2Pair, '0xe11bd5a3927A2a4e55266
 
 
 const sendRequest = async (method, url, body) => {
-    const option = {
-        'method': method,
-        'url': url,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    }
+  const option = {
+      'method': method,
+      'url': url,
+      'headers': {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+  }
 
-    return await request(option)
+  return await request(option)
 }
 
 
 const getArthPrice = async () => {
-    // will fetch it from coingecko
-    return 2;
+  // will fetch it from coingecko
+  return 2;
 }
 
 
 export const getArthxPrice = async () => {
-    console.log('getArthxPrice');
-    try {
-        let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
-        //console.log('arthxprice:62', arthxPriceFromController);
-        if (arthxPriceFromController) {
-            //console.log('arthxPriceFromController', arthxPriceFromController);
-            return arthxPriceFromController / 1e6
-        }
-    } catch (e) {
-        console.log(e);
-        if (e) {
-          return 0.000573
-        }
+  console.log('getArthxPrice');
+  try {
+      // let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
+      // //console.log('arthxprice:62', arthxPriceFromController);
+      // if (arthxPriceFromController) {
+      //     //console.log('arthxPriceFromController', arthxPriceFromController);
+      //     return arthxPriceFromController / 1e6
+      // }
+
+    const priceInJsonString = await sendRequest(
+      'GET',
+      `https://api.coingecko.com/api/v3/simple/price?ids=arthx&vs_currencies=usd`,
+      {}
+    );
+
+    console.log(priceInJsonString);
+    if (priceInJsonString) {
+      return priceInJsonString
+    } else {
+      return { "arthx": { "usd": 0.02570883 } }
     }
+  } catch (e) {
+      return null
+  }
 }
 
 
 const getMahaPrice = async () => {
-    try {
-        const priceInJsonString = await sendRequest(
-            'GET',
-            `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
-            {}
-        );
+  try {
+    const priceInJsonString = await sendRequest(
+        'GET',
+        `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
+        {}
+    );
 
-        //console.log(priceInJsonString);
-        if (priceInJsonString) {
-            return priceInJsonString
-        } else {
-            return { "mahadao": { "usd": 2.3 } }
-        }
-    } catch (e) {
-        return null;
+    //console.log(priceInJsonString);
+    if (priceInJsonString) {
+        return priceInJsonString
+    } else {
+        return { "mahadao": { "usd": 2.3 } }
     }
+  } catch (e) {
+    return null;
+  }
 }
 
 
 // StakeARTHXARTH contract for staking ARTHXARTH
 export const arthxarth = async () => {
-    let arthxPrice = await getArthxPrice()
-    // console.log('arthxPrice', arthxPrice);
-    const reserves = await ArthArthxLP.methods.getReserves().call()
-    let arthxarthLPReserve0 = (reserves._reserve0 / 10 ** 18)
-    let arthxarthLPReserve1 = (reserves._reserve1 / 10 ** 18)
-    console.log('reserves0', arthxarthLPReserve0, 'reserves1', arthxarthLPReserve1);
+  let arthxPriceRequest = await getArthxPrice()
+  let arthxPrice = arthxPriceRequest.arthx.usd
+  // console.log('arthxPrice', arthxPrice);
+  const reserves = await ArthArthxLP.methods.getReserves().call()
+  let arthxarthLPReserve0 = (reserves._reserve0 / 10 ** 18)
+  let arthxarthLPReserve1 = (reserves._reserve1 / 10 ** 18)
+  console.log('reserves0', arthxarthLPReserve0, 'reserves1', arthxarthLPReserve1);
 
-    let arthxUsdWorth = arthxarthLPReserve0 * arthxPrice
-    let arthUsdWorth = arthxarthLPReserve1 * 2
+  let arthxUsdWorth = arthxarthLPReserve0 * arthxPrice
+  let arthUsdWorth = arthxarthLPReserve1 * 2
 
-    let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
-    let totalSupplyLP = await ArthArthxLP.methods.totalSupply().call() / 10 ** 18
+  let sumOfReserve = (arthUsdWorth + arthxUsdWorth)
+  let totalSupplyLP = await ArthArthxLP.methods.totalSupply().call() / 10 ** 18
 
-    let LPUSD = sumOfReserve / totalSupplyLP
-    let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-    let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-    let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+  let LPUSD = sumOfReserve / totalSupplyLP
+  let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+  let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+  let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-    const mahaprice = JSON.parse(await getMahaPrice())
-    const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+  const mahaprice = JSON.parse(await getMahaPrice())
+  const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
 
-    const quaterlyRewards = Number(await stakeArthxArth.methods.getRewardForDuration().call())
-    let rewardUSD = PriceOfPoolToken * quaterlyRewards / 10 ** 18
-    const totalSupply = Number(await stakeArthxArth.methods.totalSupply().call()) / 10 ** 18
-    let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
-    return { APY: APY }
+  const quaterlyRewards = Number(await stakeArthxArth.methods.getRewardForDuration().call())
+  let rewardUSD = PriceOfPoolToken * quaterlyRewards / 10 ** 18
+  const totalSupply = Number(await stakeArthxArth.methods.totalSupply().call()) / 10 ** 18
+  let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
+  return { APY: APY }
 }
 
 
 export const arthusdc = async () => {
-    let arthxPrice = await getArthxPrice()
-    const reserves = await ArthUsdcLP.methods.getReserves().call()
-    let arthusdcLPReserve0 = (reserves._reserve0 / 10 ** 18)
-    let arthusdcLPReserve1 = (reserves._reserve1 / 10 ** 18)
-    console.log('reserves0', arthusdcLPReserve0, 'reserves1', arthusdcLPReserve1);
+  let arthxPriceRequest = await getArthxPrice()
+  let arthxPrice = arthxPriceRequest.arthx.usd
 
-    let arthUsdWorth = arthusdcLPReserve0 * 2
-    let usdcWorth = arthusdcLPReserve1 * 1
+  const reserves = await ArthUsdcLP.methods.getReserves().call()
+  let arthusdcLPReserve0 = (reserves._reserve0 / 10 ** 18)
+  let arthusdcLPReserve1 = (reserves._reserve1 / 10 ** 18)
+  console.log('reserves0', arthusdcLPReserve0, 'reserves1', arthusdcLPReserve1);
 
-    let sumOfReserve = (arthUsdWorth + usdcWorth)
-    let totalSupplyLP = await ArthUsdcLP.methods.totalSupply().call() / 10 ** 18
-    let LPUSD = sumOfReserve / totalSupplyLP
+  let arthUsdWorth = arthusdcLPReserve0 * 2
+  let usdcWorth = arthusdcLPReserve1 * 1
 
-    let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-    let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-    let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+  let sumOfReserve = (arthUsdWorth + usdcWorth)
+  let totalSupplyLP = await ArthUsdcLP.methods.totalSupply().call() / 10 ** 18
+  let LPUSD = sumOfReserve / totalSupplyLP
 
-    const mahaprice = JSON.parse(await getMahaPrice())
-    const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+  let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+  let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+  let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-    const quaterlyRewards = Number(await stakeArthUsdc.methods.getRewardForDuration().call())
-    let rewardUSD = PriceOfPoolToken * quaterlyRewards / 10 ** 18
-    const totalSupply = Number(await stakeArthUsdc.methods.totalSupply().call()) / 10 ** 18
-    let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
-    return { APY: APY }
+  const mahaprice = JSON.parse(await getMahaPrice())
+  const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+
+  const quaterlyRewards = Number(await stakeArthUsdc.methods.getRewardForDuration().call())
+  let rewardUSD = PriceOfPoolToken * quaterlyRewards / 10 ** 18
+  const totalSupply = Number(await stakeArthUsdc.methods.totalSupply().call()) / 10 ** 18
+  let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
+  return { APY: APY }
 }
 
 
 // StakeARTHMAHA contract for staking ARTHMAHA
 export const arthMaha = async () => {
-    let arthxPrice = await getArthxPrice()
-    const mahaprice = JSON.parse(await getMahaPrice())
-    const reserves = await ArthMahaLP.methods.getReserves().call()
+  let arthxPriceRequest = await getArthxPrice()
+  let arthxPrice = arthxPriceRequest.arthx.usd
 
-    let arthMahaLPReserve0 = (reserves._reserve0 / 10 ** 18)
-    let arthMahaLPReserve1 = (reserves._reserve1 / 10 ** 18)
+  const mahaprice = JSON.parse(await getMahaPrice())
+  const reserves = await ArthMahaLP.methods.getReserves().call()
 
-    let arthUsdWorth = arthMahaLPReserve0 * 2
-    let mahaUsdWorth = arthMahaLPReserve1 * mahaprice.mahadao.usd
-    let sumOfReserve = (arthUsdWorth + mahaUsdWorth)
+  let arthMahaLPReserve0 = (reserves._reserve0 / 10 ** 18)
+  let arthMahaLPReserve1 = (reserves._reserve1 / 10 ** 18)
 
-    let totalSupplyLP = await ArthMahaLP.methods.totalSupply().call() / 10 ** 18
-    let LPUSD = sumOfReserve / totalSupplyLP
+  let arthUsdWorth = arthMahaLPReserve0 * 2
+  let mahaUsdWorth = arthMahaLPReserve1 * mahaprice.mahadao.usd
+  let sumOfReserve = (arthUsdWorth + mahaUsdWorth)
 
-    let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-    let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-    let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+  let totalSupplyLP = await ArthMahaLP.methods.totalSupply().call() / 10 ** 18
+  let LPUSD = sumOfReserve / totalSupplyLP
 
-    const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
-    const quaterlyRewards = Number(await stakeARTHMaha.methods.getRewardForDuration().call())
-    let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
-    const totalSupply = Number(await stakeARTHMaha.methods.totalSupply().call()) / 10 ** 18
+  let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+  let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+  let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-    let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
-    return { APY: APY }
+  const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+  const quaterlyRewards = Number(await stakeARTHMaha.methods.getRewardForDuration().call())
+  let rewardUSD = PriceOfPoolToken * quaterlyRewards / 1e18
+  const totalSupply = Number(await stakeARTHMaha.methods.totalSupply().call()) / 10 ** 18
+
+  let APY = ((rewardUSD / (totalSupply * LPUSD)) * 100) * 4
+  return { APY: APY }
 }
 
 // Not an uniswap pair
 // StakeARTHXRMAHA staking contract
 export const arthxAPY = async () => {
   try {
-    //let arthxPrice = await getArthxPrice()
+    let arthxPriceRequest = await getArthxPrice()
+    let arthxPrice = arthxPriceRequest.arthx.usd
+
     const mahaprice = JSON.parse(await getMahaPrice()) || { "mahadao": { "usd": 2.3 } }
-    const arthxPrice = await getArthxPrice()
     //console.log('arthxPrice 192', arthxPrice);
     const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
     const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
@@ -209,7 +225,9 @@ export const arthxAPY = async () => {
 // StakeARTH staking contract
 export const arthAPY = async () => {
   try {
-    let arthxPrice = await getArthxPrice()
+    let arthxPriceRequest = await getArthxPrice()
+    let arthxPrice = arthxPriceRequest.arthx.usd
+
     const mahaprice = JSON.parse(await getMahaPrice()) || { "mahadao": { "usd": 2.3 } }
     const rewardForDuration = Number(await stakeARTH.methods.getRewardForDuration().call())
     const totalSupply = await stakeARTH.methods.totalSupply().call()
@@ -232,48 +250,49 @@ export const arthAPY = async () => {
 
 //StakeARTHX staking contract
 export const basicStakingArthx = async () => {
-    try {
-        let arthxPrice = await getArthxPrice()
-        //console.log(arthxPrice);
-        const mahaprice = JSON.parse(await getMahaPrice())
-        let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-        let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-        let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
-        const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+  try {
+    let arthxPriceRequest = await getArthxPrice()
+    let arthxPrice = arthxPriceRequest.arthx.usd
+    //console.log(arthxPrice);
+    const mahaprice = JSON.parse(await getMahaPrice())
+    let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+    let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+    let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+    const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
 
-        const rewardForDuration = Number(await stakeARTHX.methods.getRewardForDuration().call())
-        const totalSupply = await stakeARTHX.methods.totalSupply().call()
-        let rewardUSD = PriceOfPoolToken * rewardForDuration / 10 ** 18
-        let totalSupplyUSD = (totalSupply / 10 ** 18) * arthxPrice
+    const rewardForDuration = Number(await stakeARTHX.methods.getRewardForDuration().call())
+    const totalSupply = await stakeARTHX.methods.totalSupply().call()
+    let rewardUSD = PriceOfPoolToken * rewardForDuration / 10 ** 18
+    let totalSupplyUSD = (totalSupply / 10 ** 18) * arthxPrice
 
-        let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
-        return { APY: APY }
-    } catch (e) {
-        console.log(e);
-    }
+    let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
+    return { APY: APY }
+  } catch (e) {
+      console.log(e);
+  }
 }
 
 // StakeMaha contract
 export const basicStakingMaha = async () => {
-    try {
-        let arthxPrice = await getArthxPrice()
-        const mahaprice = JSON.parse(await getMahaPrice())
-        const rewardForDuration = Number(await stakeMaha.methods.getRewardForDuration().call())
-        const totalSupply = await stakeMaha.methods.totalSupply().call()
+  try {
+    let arthxPrice = await getArthxPrice()
+    const mahaprice = JSON.parse(await getMahaPrice())
+    const rewardForDuration = Number(await stakeMaha.methods.getRewardForDuration().call())
+    const totalSupply = await stakeMaha.methods.totalSupply().call()
 
-        let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-        let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
-        let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
+    let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+    let poolTokenMahaBalance = (await maha.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
+    let pooTokenTotalSupply = (await poolToken.methods.totalSupply().call()) / 10 ** 18
 
-        const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
-        let rewardUSD = PriceOfPoolToken * rewardForDuration / 10 ** 18
-        let totalSupplyUSD = (totalSupply / 10 ** 18) * mahaprice.mahadao.usd
+    const PriceOfPoolToken = ((poolTokenArthxBalance * arthxPrice) + (poolTokenMahaBalance * mahaprice.mahadao.usd)) / pooTokenTotalSupply
+    let rewardUSD = PriceOfPoolToken * rewardForDuration / 10 ** 18
+    let totalSupplyUSD = (totalSupply / 10 ** 18) * mahaprice.mahadao.usd
 
-        let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
-        return { APY: APY }
-    } catch (e) {
-        console.log(e);
-    }
+    let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
+    return { APY: APY }
+  } catch (e) {
+      console.log(e);
+  }
 }
 
 
@@ -299,28 +318,28 @@ export const allAPY = async (req, res) => {
 
 
 export const sendResponse = async (req, res) => {
-    if (req.key === 'artharthx') {
-        let apy = await arthxarth()
-        res.send(apy)
-    } else if (req.key === 'arthxrmaha'){
-        let apy = await arthxAPY()
-        res.send(apy)
-    } else if (req.key === 'arthx') {
-        let apy = await basicStakingArthx()
-        res.send(apy)
-    } else if (req.key === 'arth') {
-        let apy = await arthAPY()
-        res.send(apy)
-    } else if (req.key === 'arthmaha') {
-        let apy = await arthMaha()
-        res.send(apy)
-    } else if (req.key === 'arthusdc') {
-        let apy = await arthusdc()
-        res.send(apy)
-    } else if (req.key === 'maha') {
-        let apy = await basicStakingMaha()
-        res.send(apy)
-    } else {
-        res.send({ APY: null })
-    }
+  if (req.key === 'artharthx') {
+      let apy = await arthxarth()
+      res.send(apy)
+  } else if (req.key === 'arthxrmaha'){
+      let apy = await arthxAPY()
+      res.send(apy)
+  } else if (req.key === 'arthx') {
+      let apy = await basicStakingArthx()
+      res.send(apy)
+  } else if (req.key === 'arth') {
+      let apy = await arthAPY()
+      res.send(apy)
+  } else if (req.key === 'arthmaha') {
+      let apy = await arthMaha()
+      res.send(apy)
+  } else if (req.key === 'arthusdc') {
+      let apy = await arthusdc()
+      res.send(apy)
+  } else if (req.key === 'maha') {
+      let apy = await basicStakingMaha()
+      res.send(apy)
+  } else {
+      res.send({ APY: null })
+  }
 }
