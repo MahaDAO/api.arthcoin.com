@@ -61,27 +61,17 @@ const getArthPrice = async () => {
 export const getArthxPrice = async () => {
   console.log('getArthxPrice');
   try {
-      // let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
-      // //console.log('arthxprice:62', arthxPriceFromController);
-      // if (arthxPriceFromController) {
-      //     //console.log('arthxPriceFromController', arthxPriceFromController);
-      //     return arthxPriceFromController / 1e6
-      // }
-
-    const priceInJsonString = await sendRequest(
-      'GET',
-      `https://api.coingecko.com/api/v3/simple/price?ids=arthx&vs_currencies=usd`,
-      {}
-    );
-
-    console.log(priceInJsonString);
-    if (priceInJsonString) {
-      return priceInJsonString
-    } else {
-      return { "arthx": { "usd": 0.02570883 } }
+    let arthxPriceFromController = await arthcontroller.methods.getARTHXPrice().call()
+    //console.log('arthxprice:62', arthxPriceFromController);
+    if (arthxPriceFromController) {
+      //console.log('arthxPriceFromController', arthxPriceFromController);
+      return arthxPriceFromController / 1e6
     }
   } catch (e) {
-      return null
+    console.log(e);
+    if (e) {
+      return 0.000573
+    }
   }
 }
 
