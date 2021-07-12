@@ -40,12 +40,12 @@ const ArthUsdcLP = new web3.eth.Contract(UniswapV2Pair, '0xe11bd5a3927A2a4e55266
 
 const sendRequest = async (method, url, body) => {
   const option = {
-      'method': method,
-      'url': url,
-      'headers': {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
+    'method': method,
+    'url': url,
+    'headers': {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
   }
 
   return await request(option)
@@ -79,16 +79,16 @@ export const getArthxPrice = async () => {
 const getMahaPrice = async () => {
   try {
     const priceInJsonString = await sendRequest(
-        'GET',
-        `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
-        {}
+      'GET',
+      `https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=usd`,
+      {}
     );
 
     //console.log(priceInJsonString);
     if (priceInJsonString) {
-        return priceInJsonString
+      return priceInJsonString
     } else {
-        return { "mahadao": { "usd": 2.3 } }
+      return { "mahadao": { "usd": 2.3 } }
     }
   } catch (e) {
     return null;
@@ -98,8 +98,7 @@ const getMahaPrice = async () => {
 
 // StakeARTHXARTH contract for staking ARTHXARTH
 export const arthxarth = async () => {
-  let arthxPriceRequest = await getArthxPrice()
-  let arthxPrice = arthxPriceRequest.arthx.usd
+  let arthxPrice = await getArthxPrice()
   // console.log('arthxPrice', arthxPrice);
   const reserves = await ArthArthxLP.methods.getReserves().call()
   let arthxarthLPReserve0 = (reserves._reserve0 / 10 ** 18)
@@ -129,9 +128,7 @@ export const arthxarth = async () => {
 
 
 export const arthusdc = async () => {
-  let arthxPriceRequest = await getArthxPrice()
-  let arthxPrice = arthxPriceRequest.arthx.usd
-
+  let arthxPrice = await getArthxPrice()
   const reserves = await ArthUsdcLP.methods.getReserves().call()
   let arthusdcLPReserve0 = (reserves._reserve0 / 10 ** 18)
   let arthusdcLPReserve1 = (reserves._reserve1 / 10 ** 18)
@@ -161,9 +158,7 @@ export const arthusdc = async () => {
 
 // StakeARTHMAHA contract for staking ARTHMAHA
 export const arthMaha = async () => {
-  let arthxPriceRequest = await getArthxPrice()
-  let arthxPrice = arthxPriceRequest.arthx.usd
-
+  let arthxPrice = await getArthxPrice()
   const mahaprice = JSON.parse(await getMahaPrice())
   const reserves = await ArthMahaLP.methods.getReserves().call()
 
@@ -194,10 +189,9 @@ export const arthMaha = async () => {
 // StakeARTHXRMAHA staking contract
 export const arthxAPY = async () => {
   try {
-    let arthxPriceRequest = await getArthxPrice()
-    let arthxPrice = arthxPriceRequest.arthx.usd
-
+    //let arthxPrice = await getArthxPrice()
     const mahaprice = JSON.parse(await getMahaPrice()) || { "mahadao": { "usd": 2.3 } }
+    const arthxPrice = await getArthxPrice()
     //console.log('arthxPrice 192', arthxPrice);
     const rewardForDuration = Number(await arthxmahaStakePool.methods.getRewardForDuration().call())
     const totalSupply = await arthxmahaStakePool.methods.totalSupply().call()
@@ -215,9 +209,7 @@ export const arthxAPY = async () => {
 // StakeARTH staking contract
 export const arthAPY = async () => {
   try {
-    let arthxPriceRequest = await getArthxPrice()
-    let arthxPrice = arthxPriceRequest.arthx.usd
-
+    let arthxPrice = await getArthxPrice()
     const mahaprice = JSON.parse(await getMahaPrice()) || { "mahadao": { "usd": 2.3 } }
     const rewardForDuration = Number(await stakeARTH.methods.getRewardForDuration().call())
     const totalSupply = await stakeARTH.methods.totalSupply().call()
@@ -241,8 +233,7 @@ export const arthAPY = async () => {
 //StakeARTHX staking contract
 export const basicStakingArthx = async () => {
   try {
-    let arthxPriceRequest = await getArthxPrice()
-    let arthxPrice = arthxPriceRequest.arthx.usd
+    let arthxPrice = await getArthxPrice()
     //console.log(arthxPrice);
     const mahaprice = JSON.parse(await getMahaPrice())
     let poolTokenArthxBalance = (await arthx.methods.balanceOf(poolTokenAddress).call()) / 10 ** 18
@@ -258,7 +249,7 @@ export const basicStakingArthx = async () => {
     let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
     return { APY: APY }
   } catch (e) {
-      console.log(e);
+    console.log(e);
   }
 }
 
@@ -281,7 +272,7 @@ export const basicStakingMaha = async () => {
     let APY = ((rewardUSD / totalSupplyUSD) * 100) * 4
     return { APY: APY }
   } catch (e) {
-      console.log(e);
+    console.log(e);
   }
 }
 
@@ -309,27 +300,27 @@ export const allAPY = async (req, res) => {
 
 export const sendResponse = async (req, res) => {
   if (req.key === 'artharthx') {
-      let apy = await arthxarth()
-      res.send(apy)
-  } else if (req.key === 'arthxrmaha'){
-      let apy = await arthxAPY()
-      res.send(apy)
+    let apy = await arthxarth()
+    res.send(apy)
+  } else if (req.key === 'arthxrmaha') {
+    let apy = await arthxAPY()
+    res.send(apy)
   } else if (req.key === 'arthx') {
-      let apy = await basicStakingArthx()
-      res.send(apy)
+    let apy = await basicStakingArthx()
+    res.send(apy)
   } else if (req.key === 'arth') {
-      let apy = await arthAPY()
-      res.send(apy)
+    let apy = await arthAPY()
+    res.send(apy)
   } else if (req.key === 'arthmaha') {
-      let apy = await arthMaha()
-      res.send(apy)
+    let apy = await arthMaha()
+    res.send(apy)
   } else if (req.key === 'arthusdc') {
-      let apy = await arthusdc()
-      res.send(apy)
+    let apy = await arthusdc()
+    res.send(apy)
   } else if (req.key === 'maha') {
-      let apy = await basicStakingMaha()
-      res.send(apy)
+    let apy = await basicStakingMaha()
+    res.send(apy)
   } else {
-      res.send({ APY: null })
+    res.send({ APY: null })
   }
 }
