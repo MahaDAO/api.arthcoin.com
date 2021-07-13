@@ -172,7 +172,5 @@ const job = async () => {
 setInterval(job, 5 * 60 * 1000) // 5min cache
 job()
 
-export default async (req, res, next) => {
-  res.json(cache)
-}
+export default async (_req, res) => res.json(cache)
 
