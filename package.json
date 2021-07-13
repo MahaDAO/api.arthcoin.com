@@ -1,6 +1,6 @@
 {
   "name": "api.arthcoin.com",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Vassilis Mastorostergios <vmasto@gmail.com>",
   "license": "MIT",
   "main": "dist/index.js",
