@@ -162,6 +162,8 @@ const job = async () => {
       arthApy: await arthBasicQ3(collateralPrices),
       mahaApy: await mahaBasicQ3(collateralPrices),
     }
+
+    console.log('done')
   } catch (error) {
     console.log(error, error.message)
   }
