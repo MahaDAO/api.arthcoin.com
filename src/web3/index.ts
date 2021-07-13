@@ -1,8 +1,8 @@
-import * as nconf from 'nconf'
+import nconf from 'nconf'
 import Provider from "@truffle/hdwallet-provider";
 import Web3 from "web3";
 
-export const me = nconf.get('WALLET_ADDR').toLowerCase();
+export const me = nconf.get('WALLET_ADDR');
 
 export const provider: any = new Provider(
   nconf.get('WALLET_KEY'),

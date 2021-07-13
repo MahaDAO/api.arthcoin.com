@@ -1,6 +1,6 @@
 import { me, web3 } from "../web3";
 
-const ABI = require('../controller/deployments/abi/OracleUpdater.json');
+const ABI = require('../web3/deployments/abi/OracleUpdater.json');
 
 export default async () => {
   const instance = new web3.eth.Contract(ABI, '0x8E98466623E5Af52a7c06045eB1ebE074A2d1eD6');
