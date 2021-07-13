@@ -15,7 +15,7 @@ nconf
   .required(["WALLET_ADDR", "WALLET_KEY", "WEB3_URL_HTTP"]);
 
 
-if (process.env.NODE_ENV === 'production') {
+if (nconf.get('NODE_ENV') === 'production') {
   require('./dist/index')
   return
 }
