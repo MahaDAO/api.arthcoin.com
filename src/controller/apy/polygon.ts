@@ -1,9 +1,9 @@
+import { nextTick } from "process";
 import { web3 } from "../../web3";
 import { getCollateralPrices, ICollatearlPrices } from "./coingecko";
 
 // ABIs
 const ArthController = require('../../web3/deployments/customAddedAbi/arthController.json')
-const StakeARTHXRMAHA = require('../../web3/deployments/customAddedAbi/BasicStakingSpecificReward.json')
 const BasicStakingABI = require('../../web3/deployments/abi/BasicStaking.json')
 const UniswapV2PairABI = require('../../web3/deployments/abi/UniswapV2Pair.json')
 const PoolTokenABI = require('../../web3/deployments/abi/PoolToken.json')
@@ -93,10 +93,10 @@ const _getUSDValueOfOnePoolToken = async (collateralPrices: ICollatearlPrices) =
   return totalUSDValue / totalSupplyLP
 }
 
-const _getAPYforLPBasicStakingContract = async (collateralPrices: ICollatearlPrices, contract: string, token1: string, token2: string, quarters: number) => {
+const _getAPYforLPBasicStakingContract = async (collateralPrices: ICollatearlPrices, contract: string, lpToken: string, token1: string, token2: string, quarters: number) => {
   const stakingContract = new web3.eth.Contract(BasicStakingABI, contract)
 
-  const priceOfOneLPToken = await _getUSDValueOfOneLPToken(collateralPrices, contract, token1, token2)
+  const priceOfOneLPToken = await _getUSDValueOfOneLPToken(collateralPrices, lpToken, token1, token2)
   const priceOfOnePoolToken = await _getUSDValueOfOnePoolToken(collateralPrices)
 
   const rewardTokensRemaining = (await poolToken.methods.balanceOf(contract).call()) / 10 ** 18
@@ -124,16 +124,15 @@ const _getAPYforBasicStakingContract = async (collateralPrices: ICollatearlPrice
 }
 
 export const arthxarthQ3 = async (collateralPrices: ICollatearlPrices) => {
-  return _getAPYforLPBasicStakingContract(collateralPrices, stakingAddresses.stakeArthxArth, 'ARTH', 'ARTHX', 4)
+  return _getAPYforLPBasicStakingContract(collateralPrices, stakingAddresses.stakeArthxArth, tokenAddresses.arthArthxLP, 'ARTH', 'ARTHX', 4)
 }
 
-
 export const arthusdcQ3 = async (collateralPrices: ICollatearlPrices) => {
-  return _getAPYforLPBasicStakingContract(collateralPrices, stakingAddresses.stakeArthUsdc, 'ARTH', 'USDC', 4)
+  return _getAPYforLPBasicStakingContract(collateralPrices, stakingAddresses.stakeArthUsdc, tokenAddresses.arthUsdcLP, 'ARTH', 'USDC', 4)
 }
 
 export const arthMahaQ3 = async (collateralPrices: ICollatearlPrices) => {
-  return _getAPYforLPBasicStakingContract(collateralPrices, stakingAddresses.stakeARTHMaha, 'ARTH', 'MAHA', 4)
+  return _getAPYforLPBasicStakingContract(collateralPrices, stakingAddresses.stakeARTHMaha, tokenAddresses.arthMahaLP, 'ARTH', 'MAHA', 4)
 }
 
 export const arthBasicQ3 = async (collateralPrices: ICollatearlPrices) => {
@@ -149,17 +148,29 @@ export const mahaBasicQ3 = async (collateralPrices: ICollatearlPrices) => {
 }
 
 
-export default async (req, res) => {
+let cache: any = {}
+const job = async () => {
   const collateralPrices = await getCollateralPrices();
   collateralPrices.ARTHX = await getArthxPrice();
 
-  res.json({
-    arthxarthApy: await arthxarthQ3(collateralPrices),
-    arthmahaApy: await arthMahaQ3(collateralPrices),
-    arthusdcApy: await arthusdcQ3(collateralPrices),
-    arthxApy: await arthxBasicQ3(collateralPrices),
-    arthApy: await arthBasicQ3(collateralPrices),
-    mahaApy: await mahaBasicQ3(collateralPrices),
-  })
+  try {
+    cache = {
+      arthxarthApy: await arthxarthQ3(collateralPrices),
+      arthmahaApy: await arthMahaQ3(collateralPrices),
+      arthusdcApy: await arthusdcQ3(collateralPrices),
+      arthxApy: await arthxBasicQ3(collateralPrices),
+      arthApy: await arthBasicQ3(collateralPrices),
+      mahaApy: await mahaBasicQ3(collateralPrices),
+    }
+  } catch (error) {
+    console.log(error, error.message)
+  }
+}
+
+setInterval(job, 5 * 60 * 1000) // 5min cache
+job()
+
+export default async (req, res, next) => {
+  res.json(cache)
 }
 

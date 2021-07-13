@@ -13,7 +13,7 @@ app.use(cors())
 app.use(logger('dev', { skip: () => app.get('env') === 'test' }));
 
 // Routes
-app.use(apicache.middleware('60 minutes'));
+app.use(apicache.middleware('5 minutes'));
 app.use(routes);
 
 export default app;

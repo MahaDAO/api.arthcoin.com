@@ -16,7 +16,6 @@ export default async () => {
     console.log('updating oracles');
     const receipt1 = await instance.methods.update().send(await getSendParams());
     console.log('oracles updated; tx hash', receipt1.transactionHash);
-
   } catch (e) {
     console.log('BondRedemtionOracle tx filed; nvm', e);
   }
