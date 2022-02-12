@@ -1,5 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
+import cron from "node-cron";
 
 import { getCollateralPrices, ICollateralPrices } from "./coingecko";
 import { polygonProvider } from "../web3";
@@ -84,16 +85,24 @@ const getAPR = async () => {
   };
 };
 
+const fetchAndCache = async () => {
+  console.log("hi1");
+  const data = await getAPR();
+  cache.set("governance-apr", JSON.stringify(data));
+};
+
+// 5 min cache
+cron.schedule("0 */5 * * * *", fetchAndCache);
+fetchAndCache();
+
 export default async (_req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.status(200);
 
-  // 1 min cache
   if (cache.get("governance-apr")) {
     res.send(cache.get("governance-apr"));
   } else {
-    const data = await getAPR();
-    cache.set("governance-apr", JSON.stringify(data), 60);
-    res.send(JSON.stringify(data));
+    await fetchAndCache();
+    res.send(cache.get("governance-apr"));
   }
 };

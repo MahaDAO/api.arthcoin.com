@@ -1,6 +1,7 @@
 import { polygonProvider, bscProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
+import cron from "node-cron";
 
 import {
   getCollateralPrices,
@@ -82,27 +83,6 @@ const getLPTokenTVLinUSD = async (
 
   // total usd in the LP token
   return token1USDValue.add(token2USDValue);
-
-  //   const poolTokenUsdcBalance =
-  //   (await usdcPolygon.balanceOf(
-  //     "0x34aAfA58894aFf03E137b63275aff64cA3552a3E"
-  //   )) /
-  //   10 ** 18;
-  // const poolTokenArthBalance =
-  //   (await arthPolygon.balanceOf(
-  //     "0x34aAfA58894aFf03E137b63275aff64cA3552a3E"
-  //   )) /
-  //   10 ** 18;
-
-  // const usdcPrice = collateralPrices.USDC;
-  // const arthPrice = collateralPrices.ARTH;
-
-  // const totalUSDValue =
-  //   poolTokenUsdcBalance * usdcPrice + poolTokenArthBalance * arthPrice;
-
-  // let totalSupplyLP = (await arthUsdcLPPolygon.totalSupply()) / 10 ** 18;
-
-  // return totalUSDValue / totalSupplyLP;
 };
 
 const getTVL = async (
@@ -137,8 +117,6 @@ const getTVL = async (
 };
 
 const fetchAPRs = async () => {
-  console.log("here new farm");
-
   const collateralPrices = await getCollateralPrices();
 
   const arthMahaBscTVL = await getTVL(
@@ -204,6 +182,15 @@ const fetchAPRs = async () => {
   };
 };
 
+const fetchAndCache = async () => {
+  console.log("hi2");
+  const data = await fetchAPRs();
+  cache.set("loans-apr", JSON.stringify(data));
+};
+
+cron.schedule("0 * * * * *", fetchAndCache); // every minute
+fetchAndCache();
+
 export default async (_req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.status(200);
@@ -212,8 +199,7 @@ export default async (_req, res) => {
   if (cache.get("loans-apr")) {
     res.send(cache.get("loans-apr"));
   } else {
-    const data = await fetchAPRs();
-    cache.set("loans-apr", JSON.stringify(data), 60);
-    res.send(JSON.stringify(data));
+    await fetchAndCache();
+    res.send(cache.get("loans-apr"));
   }
 };
