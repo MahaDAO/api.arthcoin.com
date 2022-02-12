@@ -39,7 +39,7 @@
     "nconf": "^0.11.3",
     "node-cache": "^5.1.2",
     "node-cron": "^3.0.0",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "reddit": "^1.2.1",
     "request-promise": "^4.2.6",
     "rimraf": "^3.0.2",
