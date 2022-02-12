@@ -48,7 +48,7 @@ const getMAHARewardPerYear = async (collateralPrices: ICollateralPrices) => {
   return {
     maha: Math.ceil(tokenRewardPerYear.mahaUSDPerYear / collateralPrices.MAHA),
     sclp: Math.ceil(tokenRewardPerYear.sclpUSDPerYear / collateralPrices.MAHA),
-    forward: Math.ceil(tokenRewardPerYear.forwardUSDPerYear / 0), //collateralPrices.FORWARD
+    forward: 0, // Math.ceil(tokenRewardPerYear.forwardUSDPerYear / collateralPrices.FORWARD),
     usdc: Math.ceil(tokenRewardPerYear.usdcUSDPerYear / collateralPrices.MAHA),
     arth: Math.ceil(tokenRewardPerYear.arthUSDPerYear / collateralPrices.MAHA),
   };
