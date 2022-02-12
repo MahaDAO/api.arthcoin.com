@@ -26,7 +26,6 @@
   ],
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.4.1",
-    "apicache": "^1.6.2",
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
@@ -34,7 +33,9 @@
     "body-parser": "^1.18.2",
     "coingecko-api": "^1.0.10",
     "cors": "^2.8.5",
+    "ethers": "^5.5.4",
     "express": "^4.16.4",
+    "memcache": "^0.3.0",
     "morgan": "^1.9.1",
     "nconf": "^0.11.3",
     "node-cron": "^3.0.0",

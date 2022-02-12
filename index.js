@@ -12,7 +12,7 @@ nconf
   .argv()
   .file({ file: "config.json" })
   .env()
-  .required(["WALLET_ADDR", "WALLET_KEY", "WEB3_URL_HTTP"]);
+  .required(["RPC_URL_POLYGON", "RPC_URL_BSC", "WALLET_KEY"]);
 
 
 if (nconf.get('NODE_ENV') === 'production') {

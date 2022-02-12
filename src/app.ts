@@ -1,19 +1,15 @@
-import express from 'express';
-import logger from 'morgan';
-import apicache from 'apicache';
+import express from "express";
+import logger from "morgan";
 
-import routes from './routes';
-import './cron';
+import routes from "./routes";
+import "./cron";
 
 const app = express();
-const cors = require('cors');
-app.disable('x-powered-by');
+const cors = require("cors");
+app.disable("x-powered-by");
 
-app.use(cors())
-app.use(logger('dev', { skip: () => app.get('env') === 'test' }));
-
-// Routes
-// app.use(apicache.middleware('5 minutes'));
+app.use(cors());
+app.use(logger("dev", { skip: () => app.get("env") === "test" }));
 app.use(routes);
 
 export default app;
