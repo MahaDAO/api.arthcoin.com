@@ -1,6 +1,10 @@
+import { ethers, BigNumber } from "ethers";
+import NodeCache from "node-cache";
+
+import { getCollateralPrices, ICollateralPrices } from "./coingecko";
 import { polygonProvider } from "../web3";
-import { getCollateralPrices, ICollatearlPrices } from "./coingecko";
-import { ethers } from "ethers";
+
+const cache = new NodeCache();
 
 // ABIs
 const BasicStakingABI = require("../abi/BasicStaking.json");
@@ -35,7 +39,11 @@ const usdc = new ethers.Contract(
   IERC20ABI,
   polygonProvider
 );
-//const sclp = new ethers.Contract(tokenAddresses.sclp, IERC20ABI, provider);
+const sclp = new ethers.Contract(
+  tokenAddresses.sclp,
+  IERC20ABI,
+  polygonProvider
+);
 const arth = new ethers.Contract(
   tokenAddresses.arth,
   IERC20ABI,
@@ -43,18 +51,18 @@ const arth = new ethers.Contract(
 );
 
 const _getAPYforTokensStakingContract = async (
-  collateralPrices: ICollatearlPrices,
-  token: any,
+  collateralPrices: ICollateralPrices,
+  tokenAddress: string,
   contract: string,
   quarters: number
 ) => {
+  const token = new ethers.Contract(tokenAddress, IERC20ABI, polygonProvider);
+
   const stakingContract = new ethers.Contract(
     contract,
     BasicStakingABI,
     polygonProvider
   );
-  const mahaPrice = collateralPrices.MAHA;
-  console.log("mahaPrice", mahaPrice);
 
   let collateral;
   let rewardsTokenRemaining;
@@ -95,52 +103,58 @@ const _getAPYforTokensStakingContract = async (
   return (rewardUSD / totalUSDValueLocked) * 100 * quarters;
 };
 
-export const rewardAPY = async (collateralPrices: ICollatearlPrices) => {
-  // let arthApy = await _getAPYforTokensStakingContract(
-  //   collateralPrices,
-  //   arth,
-  //   stakingAddresses.stakeMahax,
-  //   4
-  // );
-  // let usdcApy = await _getAPYforTokensStakingContract(
-  //   collateralPrices,
-  //   usdc,
-  //   stakingAddresses.stakeMahax,
-  //   4
-  // );
-  let mahaApy = await _getAPYforTokensStakingContract(
+export const rewardAPY = async (collateralPrices: ICollateralPrices) => {
+  let arthApy = await _getAPYforTokensStakingContract(
     collateralPrices,
-    maha,
+    tokenAddresses.arth,
     stakingAddresses.stakeMahax,
     4
   );
-  //let sclpApy = await _getAPYforTokensStakingContract(collateralPrices, sclp, stakingAddresses.stakeMahax, 4)
+  let usdcApy = await _getAPYforTokensStakingContract(
+    collateralPrices,
+    tokenAddresses.usdc,
+    stakingAddresses.stakeMahax,
+    4
+  );
+  let mahaApy = await _getAPYforTokensStakingContract(
+    collateralPrices,
+    tokenAddresses.maha,
+    stakingAddresses.stakeMahax,
+    4
+  );
+  let sclpApy = await _getAPYforTokensStakingContract(
+    collateralPrices,
+    tokenAddresses.sclp,
+    stakingAddresses.stakeMahax,
+    4
+  );
 
   return {
     arthApy: 0,
     usdcApy: 0,
     mahaApy: mahaApy,
-    sclpApy: 0,
+    sclpApy: sclpApy,
   };
 };
 
-let cache: any = {};
-const job = async () => {
+const fetchAPRs = async () => {
   const collateralPrices = await getCollateralPrices();
-  console.log(collateralPrices);
-
-  try {
-    cache = {
-      // mahaxApy: await mahaxBasicQ3(collateralPrices),
-      rewardsApy: await rewardAPY(collateralPrices),
-    };
-
-    console.log(cache);
-
-    console.log("done");
-  } catch (error) {
-    console.log(error, error.message);
-  }
+  return {
+    // mahaxApy: await mahaxBasicQ3(collateralPrices),
+    rewardsApy: await rewardAPY(collateralPrices),
+  };
 };
 
-export default async (_req, res) => res.json(cache);
+export default async (_req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.status(200);
+
+  // 1 min cache
+  if (cache.get("governance-apr")) {
+    res.send(cache.get("governance-apr"));
+  } else {
+    const data = await fetchAPRs();
+    cache.set("governance-apr", JSON.stringify(data), 60);
+    res.send(JSON.stringify(data));
+  }
+};

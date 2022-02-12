@@ -2,7 +2,6 @@ import express from "express";
 import logger from "morgan";
 
 import routes from "./routes";
-import "./cron";
 
 const app = express();
 const cors = require("cors");

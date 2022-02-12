@@ -1,6 +1,5 @@
 import nconf from "nconf";
-
-const { ethers } = require("ethers");
+import { ethers } from "ethers";
 
 export const me = nconf.get("WALLET_ADDR") || process.env.WALLET_KEY;
 console.log("me", me, process.env.WALLET_KEY);
