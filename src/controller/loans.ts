@@ -183,7 +183,6 @@ const fetchAPRs = async () => {
 };
 
 const fetchAndCache = async () => {
-  console.log("hi2");
   const data = await fetchAPRs();
   cache.set("loans-apr", JSON.stringify(data));
 };

@@ -86,7 +86,6 @@ const getAPR = async () => {
 };
 
 const fetchAndCache = async () => {
-  console.log("hi1");
   const data = await getAPR();
   cache.set("governance-apr", JSON.stringify(data));
 };
