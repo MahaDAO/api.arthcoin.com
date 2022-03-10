@@ -1,4 +1,4 @@
-import { polygonProvider, bscProvider } from "../web3";
+import { polygonProvider, bscProvider, polygonTestnetProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
@@ -14,6 +14,8 @@ const cache = new NodeCache();
 // ABIs
 const BasicStakingABI = require("../abi/BasicStaking.json");
 const IERC20 = require("../abi/IERC20.json");
+const TroveManager = require("../abi/TroveManager.json")
+const priceFeed = require("../abi/PriceFeed.json");
 
 const bsc = {
   arthBusdStaking: "0xE8b16cab47505708a093085926560a3eB32584B8",
@@ -33,6 +35,8 @@ const polygon = {
   usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
   arth: "0xe52509181feb30eb4979e29ec70d50fd5c44d590",
   maha: "0xedd6ca8a4202d4a36611e2fff109648c4863ae19",
+  troveManager: "0xe5EfD185Bd7c288e270bA764E105f8964aAecd41",
+  priceFeed: "0x935c70e4B9371f63A598BdA58BF1B2b270C8eBFe"
 };
 
 const tokenDecimals: ICollateralPrices = {
@@ -45,6 +49,11 @@ const tokenDecimals: ICollateralPrices = {
   SCLP: 18,
   USDC: 6,
 };
+
+const wallet = new ethers.Wallet(
+  process.env.WALLET_KEY,
+  polygonTestnetProvider
+)
 
 const getAPR = async (
   contractTVLinUSD: number,
@@ -182,9 +191,21 @@ const fetchAPRs = async () => {
   };
 };
 
+// const usdcUsdtQLP = async (
+//   provider: ethers.providers.Provider
+// ) => {
+//   const troveManager = new ethers.Contract(polygon.troveManager, TroveManager, polygonTestnetProvider);
+//   const collateralRaised = await troveManager.getEntireSystemColl();
+
+//   console.log('collateralRaised', collateralRaised);
+//   return { collateralRaised : collateralRaised }
+// }
+
 const fetchAndCache = async () => {
   const data = await fetchAPRs();
+  //const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
   cache.set("loans-apr", JSON.stringify(data));
+  //cache.set("loan-qlp-tvl", JSON.stringify(qlpTvl));
 };
 
 cron.schedule("0 * * * * *", fetchAndCache); // every minute
@@ -196,7 +217,7 @@ export default async (_req, res) => {
 
   // 1 min cache
   if (cache.get("loans-apr")) {
-    res.send(cache.get("loans-apr"));
+    res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
   } else {
     await fetchAndCache();
     res.send(cache.get("loans-apr"));

@@ -1,3 +1,6 @@
+const dotenv = require('dotenv')
+dotenv.config()
+
 import nconf from "nconf";
 import { ethers } from "ethers";
 
@@ -13,7 +16,7 @@ export const polygonProvider = new ethers.providers.JsonRpcProvider(
 );
 
 export const polygonTestnetProvider = new ethers.providers.JsonRpcProvider(
-  nconf.get("RPC_URL_POLYGON") || process.env.RPC_URL_POLYGON_TESTNET
+  nconf.get("RPC_URL_POLYGON") || "https://matic-mumbai.chainstacklabs.com"
 );
 
 export const bscProvider = new ethers.providers.JsonRpcProvider(

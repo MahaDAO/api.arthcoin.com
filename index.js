@@ -15,7 +15,7 @@ nconf
   .required(["RPC_URL_POLYGON", "RPC_URL_BSC", "WALLET_KEY"]);
 
 
-if (nconf.get('NODE_ENV') === 'production') {
+if (nconf.get('NODE_ENV') === 'production' || process.env.NODE_ENV === 'production') {
   require('./dist/index');
   return;
 }
