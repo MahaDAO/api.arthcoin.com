@@ -1,6 +1,5 @@
-
-const dotenv = require('dotenv');
-const nconf = require('nconf');
+const dotenv = require("dotenv");
+const nconf = require("nconf");
 
 dotenv.config();
 process.env.ROOT_PATH = __dirname;
@@ -14,10 +13,8 @@ nconf
   .env()
   .required(["RPC_URL_POLYGON", "RPC_URL_BSC", "WALLET_KEY"]);
 
-
-if (nconf.get('NODE_ENV') === 'production') {
-  require('./dist/index');
-  return;
+if (nconf.get("NODE_ENV") === "production") {
+  require("./dist/index");
+} else {
+  require("./src/index");
 }
-
-require('./src/index');
