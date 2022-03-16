@@ -16,6 +16,7 @@ const BasicStakingABI = require("../abi/BasicStaking.json");
 const IERC20 = require("../abi/IERC20.json");
 
 const bsc = {
+  arthu3epsStakingV2: "0x6398c73761a802a7db8f6418ef0a299301bc1fb0",
   arthBusdStaking: "0xE8b16cab47505708a093085926560a3eB32584B8",
   arthMahaStaking: "0x7699d230Ba47796fc2E13fba1D2D52Ecb0318c33",
   arthu3epsStaking: "0x8fF204D06B39a19Bd8c8367302bfCB329214c14B",
@@ -30,7 +31,7 @@ const bsc = {
 };
 
 const polygon = {
-  arthu3ppolStaking: "0x245AE0bBc1E31e7279F0835cE8E93127A13a3781",
+  arthu3poolStaking: "0x245AE0bBc1E31e7279F0835cE8E93127A13a3781",
   arthu3poolLP: "0xDdE5FdB48B2ec6bc26bb4487f8E3a4EB99b3d633",
   arthUsdcStaking: "0xD585bfCF37db3C2507e2D44562F0Dbe2E4ec37Bc",
   arthMahaStaking: "0xC82c95666bE4E89AED8AE10bab4b714cae6655d5",
@@ -210,7 +211,7 @@ const fetchAPRs = async () => {
   );
 
   const arthu3poolPolygonTVL = await getTVL(
-    polygon.arthu3ppolStaking,
+    polygon.arthu3poolStaking,
     polygon.arthu3poolLP,
     [polygon["arth.usd"], polygon["polygon.3pool"]],
     ["ARTH.usd", "polygon.3pool"],
@@ -220,6 +221,15 @@ const fetchAPRs = async () => {
 
   const arthu3epsBscTVL = await getTVL(
     bsc.arthu3epsStaking,
+    bsc.arthu3epsLP,
+    [bsc["arth.usd"], bsc["bsc.3eps"]],
+    ["ARTH.usd", "bsc.3eps"],
+    collateralPrices,
+    bscProvider
+  );
+
+  const arthu3epsV2BscTVL = await getTVL(
+    bsc.arthu3epsStakingV2,
     bsc.arthu3epsLP,
     [bsc["arth.usd"], bsc["bsc.3eps"]],
     ["ARTH.usd", "bsc.3eps"],
@@ -247,11 +257,17 @@ const fetchAPRs = async () => {
       },
       56: {
         apr: {
-          arthu3eps: await getAPR(arthu3epsBscTVL, 5000, collateralPrices),
+          // arthu3eps: await getAPR(arthu3epsBscTVL, 5000, collateralPrices),
+          "arthu3eps-v2": await getAPR(
+            arthu3epsV2BscTVL,
+            6000,
+            collateralPrices
+          ),
           arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
           arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
         },
         tvl: {
+          "arthu3eps-v2": arthu3epsV2BscTVL,
           arthu3eps: arthu3epsBscTVL,
           arthBusd: arthBuscBscTVL,
           arthMaha: arthMahaBscTVL,
