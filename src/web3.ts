@@ -16,7 +16,7 @@ export const polygonProvider = new ethers.providers.JsonRpcProvider(
 );
 
 export const polygonTestnetProvider = new ethers.providers.JsonRpcProvider(
-  nconf.get("RPC_URL_MUMBAI") || process.env.RPC_URL_POLYGON
+  nconf.get("RPC_URL_MUMBAI") || process.env.RPC_URL_POLYGON_TESTNET
 );
 
 export const bscProvider = new ethers.providers.JsonRpcProvider(

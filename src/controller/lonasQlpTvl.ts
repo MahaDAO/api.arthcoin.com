@@ -19,26 +19,30 @@ const wallet = new ethers.Wallet(
 );
 
 const usdcUsdtQLP = async (provider: ethers.providers.Provider) => {
-  const troveManager = new ethers.Contract(
-    polygon.troveManager,
-    TroveManager,
-    polygonTestnetProvider
-  );
-
-  let decimal = BigNumber.from(10).pow(18);
-  const collateralRaised = await troveManager.getEntireSystemColl();
-  const collateral = collateralRaised.div(decimal);
-
-  const priceFeedContract = new ethers.Contract(
-    polygon.priceFeed,
-    priceFeed,
-    wallet
-  );
-
-  const fetchPrice = await priceFeedContract.callStatic.fetchPrice();
-  const price = fetchPrice / 1e18;
-
-  return { QlpTvl: collateral * (price * 2) };
+  try {
+    const troveManager = new ethers.Contract(
+      polygon.troveManager,
+      TroveManager,
+      polygonTestnetProvider
+    );
+  
+    let decimal = BigNumber.from(10).pow(18);
+    const collateralRaised = await troveManager.getEntireSystemColl();    
+    const collateral = collateralRaised.div(decimal);
+  
+    const priceFeedContract = new ethers.Contract(
+      polygon.priceFeed,
+      priceFeed,
+      wallet
+    );
+  
+    const fetchPrice = await priceFeedContract.callStatic.fetchPrice();
+    const price = fetchPrice / 1e18;
+  
+    return { QlpTvl: collateral * (price * 2) };
+  } catch (e) {
+    console.log(e);
+  } 
 };
 
 const fetchAndCache = async () => {
