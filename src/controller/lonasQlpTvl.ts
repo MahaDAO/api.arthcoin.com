@@ -5,43 +5,41 @@ import cron from "node-cron";
 
 const cache = new NodeCache();
 
-const TroveManager = require("../abi/TroveManager.json")
+const TroveManager = require("../abi/TroveManager.json");
 const priceFeed = require("../abi/PriceFeed.json");
 
 const polygon = {
   troveManager: "0xe5EfD185Bd7c288e270bA764E105f8964aAecd41",
-  priceFeed: "0x935c70e4B9371f63A598BdA58BF1B2b270C8eBFe"
+  priceFeed: "0x935c70e4B9371f63A598BdA58BF1B2b270C8eBFe",
 };
 
 const wallet = new ethers.Wallet(
   process.env.WALLET_KEY,
   polygonTestnetProvider
-)
+);
 
-const usdcUsdtQLP = async (
-  provider: ethers.providers.Provider
-) => {
-    const troveManager = new ethers.Contract(
-      polygon.troveManager, 
-      TroveManager, 
-      polygonTestnetProvider
-    );
+const usdcUsdtQLP = async (provider: ethers.providers.Provider) => {
+  const troveManager = new ethers.Contract(
+    polygon.troveManager,
+    TroveManager,
+    polygonTestnetProvider
+  );
 
-    let decimal = BigNumber.from(10).pow(18)
-    const collateralRaised = await troveManager.getEntireSystemColl();
-    const collateral = collateralRaised.div(decimal)
-    
-    const priceFeedContract = new ethers.Contract(
-        polygon.priceFeed,
-        priceFeed, 
-        wallet
-    );
-    
-    const fetchPrice = await priceFeedContract.callStatic.fetchPrice()
-    const price = fetchPrice / 1e18
+  let decimal = BigNumber.from(10).pow(18);
+  const collateralRaised = await troveManager.getEntireSystemColl();
+  const collateral = collateralRaised.div(decimal);
 
-    return { QlpTvl : collateral * (price * 2) }
-}
+  const priceFeedContract = new ethers.Contract(
+    polygon.priceFeed,
+    priceFeed,
+    wallet
+  );
+
+  const fetchPrice = await priceFeedContract.callStatic.fetchPrice();
+  const price = fetchPrice / 1e18;
+
+  return { QlpTvl: collateral * (price * 2) };
+};
 
 const fetchAndCache = async () => {
   const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
