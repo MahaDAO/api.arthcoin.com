@@ -29,4 +29,5 @@ export default async (_req, res) => {
     await fetchAndCache();
     res.send(cache.get("lp-price"));
   }
+  
 };
