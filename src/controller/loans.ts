@@ -313,9 +313,11 @@ export default async (_req, res) => {
 
   // 1 min cache
   if (cache.get("loans-apr")) {
-    res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+    //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+    res.send(cache.get("loans-apr"));
   } else {
     await fetchAndCache();
+    //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
     res.send(cache.get("loans-apr"));
   }
 };
