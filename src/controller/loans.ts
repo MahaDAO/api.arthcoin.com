@@ -287,21 +287,21 @@ const fetchAPRs = async () => {
   };
 };
 
-// const usdcUsdtQLP = async (
-//   provider: ethers.providers.Provider
-// ) => {
-//   const troveManager = new ethers.Contract(polygon.troveManager, TroveManager, polygonTestnetProvider);
-//   const collateralRaised = await troveManager.getEntireSystemColl();
+const usdcUsdtQLP = async (
+  provider: ethers.providers.Provider
+) => {
+  const troveManager = new ethers.Contract(polygon.troveManager, TroveManager, polygonTestnetProvider);
+  const collateralRaised = await troveManager.getEntireSystemColl();
 
-//   console.log('collateralRaised', collateralRaised);
-//   return { collateralRaised : collateralRaised }
-// }
+  //console.log('collateralRaised', collateralRaised);
+  return { collateralRaised : collateralRaised }
+}
 
 const fetchAndCache = async () => {
   const data = await fetchAPRs();
-  //const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
+  const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
   cache.set("loans-apr", JSON.stringify(data));
-  //cache.set("loan-qlp-tvl", JSON.stringify(qlpTvl));
+  cache.set("loan-qlp-tvl", JSON.stringify(qlpTvl));
 };
 
 cron.schedule("0 * * * * *", fetchAndCache); // every minute
