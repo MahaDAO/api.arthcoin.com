@@ -7,9 +7,12 @@ const cache = new NodeCache();
 
 const fetchAndCache = async () => {
     let dummyLpPrice = {
-        arthmaha_polygon: 5,
-        "arth.usdc_polygon": 3,
-        arthusdc_polygon: 2
+        arthMahaPolygon: 5,
+        arthUsdc3Polygon: 3,
+        arthUsdcPolygon: 2,
+        arthUsdc3Bsc: 3,
+        arthBusdBsc: 2,
+        arthMahaBsc: 5
     }
     // const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
     cache.set("lp-price", JSON.stringify(dummyLpPrice));
