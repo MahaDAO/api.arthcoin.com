@@ -169,14 +169,16 @@ cron.schedule("0 * * * * *", fetchAndCache); // every minute
 fetchAndCache();
 
 export default async (_req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.status(200);
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
 
-  // 1 min cache
-  if (cache.get("lp-price")) {
-    res.send(cache.get("lp-price"));
-  } else {
-    await fetchAndCache();
-    res.send(cache.get("lp-price"));
-  }
+    console.log('true', _req.query.collateral);
+    
+    // 1 min cache
+    if (cache.get("lp-price")) {
+        res.send(cache.get("lp-price"));
+    } else {
+        await fetchAndCache();
+        res.send(cache.get("lp-price"));
+    }
 };
