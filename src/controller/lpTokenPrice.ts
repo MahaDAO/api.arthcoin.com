@@ -172,7 +172,7 @@ export default async (_req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.status(200);
 
-    console.log('true', _req.query.collateral);
+    //console.log('true', _req.query.collateral);
     
     // 1 min cache
     if (cache.get("lp-price")) {
