@@ -39,7 +39,7 @@ const usdcUsdtQLP = async (provider: ethers.providers.Provider) => {
     );
   
     const fetchPrice = await priceFeedContract.callStatic.fetchPrice();
-    const price = fetchPrice / 1e18;
+    const price = fetchPrice / 1e12;
     
     //console.log('price', price);
     
