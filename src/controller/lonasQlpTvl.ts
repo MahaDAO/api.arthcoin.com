@@ -55,6 +55,12 @@ const fetchAndCache = async () => {
   
   cache.set("loans-qlp", JSON.stringify(qlpTvl));
   console.log('cache', cache.get("loans-qlp"));
+
+  cache.set("loans-qlp-busd-usdc", JSON.stringify(4624713));
+  //console.log('cache', cache.get("loans-qlp"));
+
+  cache.set("loans-qlp-busd-usdt", JSON.stringify(4451492));
+  //console.log('cache', cache.get("loans-qlp"));
 };
 
 cron.schedule("0 * * * * *", fetchAndCache); // every minute
@@ -68,6 +74,12 @@ export default async (_req, res) => {
   switch (_req.query.collateral) {
     case 'USDCUSDT-QLP-S':
       data = cache.get("loans-qlp");
+      break;
+    case 'BUSDUSDT-APE-LP-S':
+      data = cache.get("loans-qlp-busd-usdt")
+      break;
+    case 'BUSDUSDC-APE-LP-S':
+      data = cache.get("loans-qlp-busd-usdc")
       break;
     default:
       data = cache.get("loans-qlp");

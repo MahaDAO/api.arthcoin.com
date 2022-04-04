@@ -47,7 +47,7 @@ export default async (_req, res) => {
     case 'BUSDUSDT-APE-LP-S':
       data = cache.get("leaverage-datapoints-busd-usdt")
       break;
-    case 'BUSDUSDc-APE-LP-S':
+    case 'BUSDUSDC-APE-LP-S':
       data = cache.get("leaverage-datapoints-busd-usdc")
       break;
     default:
