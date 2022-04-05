@@ -30,6 +30,7 @@ const bsc = {
   maha: "0xCE86F7fcD3B40791F63B86C3ea3B8B355Ce2685b",
   "arth.usd": "0x88fd584dF3f97c64843CD474bDC6F78e398394f4",
   "bsc.3eps": "0xaf4de8e872131ae328ce21d909c74705d3aaf452",
+  apeswapChefAddr: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9"
 };
 
 const polygon = {
@@ -61,6 +62,7 @@ const tokenDecimals: ICollateralPrices = {
   MAHA: 18,
   SCLP: 18,
   USDC: 6,
+  BANNANA: 18
 };
 
 const wallet = new ethers.Wallet(

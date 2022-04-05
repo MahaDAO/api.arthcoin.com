@@ -229,8 +229,6 @@ export async function loadBscChefContract(App, tokens, prices, chef, chefAddress
     console.log('rewardTokenAddress', rewardTokenAddress);
     
     const rewardToken = await getBscToken(App, rewardTokenAddress, chefAddress);
-
-    console.log('rewardToken', rewardToken);
     
     const rewardsPerWeek = rewardsPerWeekFixed ??
       await chefContract.callStatic[rewardsPerBlockFunction]()

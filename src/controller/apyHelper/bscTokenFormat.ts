@@ -294,7 +294,7 @@ export async function getBscToken(App, tokenAddress, stakingAddress) {
       return getBep20(App, null, tokenAddress, "")
     }
     const type = '';
-    if (type) return getBscStoredToken(App, tokenAddress, stakingAddress, type);
+    //if (type) return getBscStoredToken(App, tokenAddress, stakingAddress, type);
     try {
       const vpool = new ethers.Contract(tokenAddress, VALUE_LP_ABI, App.provider);
       const tokenWeights = await vpool.getTokenWeights()
