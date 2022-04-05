@@ -251,7 +251,7 @@ export async function loadBscChefContract(App, tokens, prices, chef, chefAddress
 
     const poolPrices = poolInfos.map(poolInfo => poolInfo.poolToken ? getPoolPrices(tokens, prices, poolInfo.poolToken, "bsc") : undefined);
 
-
+    
     let aprs = []
     for (var i = 0; i < poolCount; i++) {
       if (poolPrices[i]) {
@@ -261,6 +261,7 @@ export async function loadBscChefContract(App, tokens, prices, chef, chefAddress
         aprs.push(apr);
       }
     }
+
     let totalUserStaked=0, totalStaked=0, averageApr=0;
     for (const a of aprs) {
       if (!isNaN(a.totalStakedUsd)) {

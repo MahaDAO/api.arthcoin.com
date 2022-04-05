@@ -288,22 +288,6 @@ const fetchAPRs = async () => {
     bscProvider
   );
 
-  const busdusdcTVL = await getApeSwapLPTokenTVLinUSD(
-    bsc.apeBusdUsdc,
-    [bsc.usdc, bsc.busd],
-    ["BSCUSDC", "BUSD"],
-    collateralPrices,
-    bscProvider
-  )
-
-  const busdusdtTVL = await getApeSwapLPTokenTVLinUSD(
-    bsc.apeBusdUsdt,
-    [bsc.usdt, bsc.busd],
-    ["BSCUSDT", "BUSD"],
-    collateralPrices,
-    bscProvider
-  )
-
   return {
     chainSpecificData: {
       137: {
@@ -331,9 +315,7 @@ const fetchAPRs = async () => {
             collateralPrices
           ),
           arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
-          arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
-          busdUsdc: await getApeAPR(Number(busdusdcTVL), apeSwapReward, collateralPrices),
-          busdUsdt: await getApeAPR(Number(busdusdtTVL), apeSwapReward, collateralPrices)
+          arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices)
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
