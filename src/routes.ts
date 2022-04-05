@@ -17,6 +17,6 @@ router.get("/apy/governance", governance);
 router.get("/apy/loans", loans);
 router.post("/apy/qlp", (req, res) => { qlp(req, res) });
 router.post("/apy/lp", (req, res) => { lpPrice(req, res) });
-router.post("/apy/leverage", (req, res) => { leverage(req, res) });
+router.get("/apy/leverage", (req, res) => { leverage(req, res) });
 
 export default router;
