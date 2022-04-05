@@ -15,7 +15,9 @@ export type CollateralKeys =
   | "MAHA"
   | "ARTH"
   | "SCLP"
-  | "BANNANA";
+  | "BANNANA"
+  | "BSCUSDC"
+  | "BSCUSDT";
 
 export type ICollateralPrices = {
   [key in CollateralKeys]: number;
@@ -40,6 +42,8 @@ export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
     WETH: result.data.ethereum.usd,
     MAHA: result.data.mahadao.usd,
     SCLP: result.data.scallop.usd,
-    BANNANA: result.data["apeswap-finance"].usd
+    BANNANA: result.data["apeswap-finance"].usd,
+    BSCUSDC: result.data["usd-coin"].usd,
+    BSCUSDT: result.data.tether.usd
   };
 };

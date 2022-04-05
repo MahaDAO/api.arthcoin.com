@@ -46,6 +46,9 @@ const tokenDecimals: ICollateralPrices = {
     MAHA: 18,
     SCLP: 18,
     USDC: 6,
+    BANNANA: 18,
+    BSCUSDC: 18,
+    BSCUSDT: 18
 };
   
 const getEllipsisLPTokenTVLinUSD = async (

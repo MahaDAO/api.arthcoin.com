@@ -2,6 +2,7 @@ import { polygonProvider, bscProvider, polygonTestnetProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
+import { rewardPerMonth, getApeAPR } from "./apyHelper/apeReward"
 
 import {
   getCollateralPrices,
@@ -16,6 +17,7 @@ const BasicStakingABI = require("../abi/BasicStaking.json");
 const IERC20 = require("../abi/IERC20.json");
 const TroveManager = require("../abi/TroveManager.json")
 const priceFeed = require("../abi/PriceFeed.json");
+const apeSwapChef = require("../abi/ApeSwapChef.json");
 
 const bsc = {
   arthu3epsStakingV2: "0x6398c73761a802a7db8f6418ef0a299301bc1fb0",
@@ -26,11 +28,15 @@ const bsc = {
   arthMahaLP: "0xb955d5b120ff5b803cdb5a225c11583cd56b7040",
   arthBusdLP: "0x80342bc6125a102a33909d124a6c26CC5D7b8d56",
   busd: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+  usdc: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+  usdt: "0x55d398326f99059ff775485246999027b3197955",
   arth: "0xb69a424df8c737a122d0e60695382b3eec07ff4b",
   maha: "0xCE86F7fcD3B40791F63B86C3ea3B8B355Ce2685b",
   "arth.usd": "0x88fd584dF3f97c64843CD474bDC6F78e398394f4",
   "bsc.3eps": "0xaf4de8e872131ae328ce21d909c74705d3aaf452",
-  apeswapChefAddr: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9"
+  apeswapChefAddr: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9",
+  apeBusdUsdc: "0xC087C78AbaC4A0E900a327444193dBF9BA69058E",
+  apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb"
 };
 
 const polygon = {
@@ -62,7 +68,9 @@ const tokenDecimals: ICollateralPrices = {
   MAHA: 18,
   SCLP: 18,
   USDC: 6,
-  BANNANA: 18
+  BANNANA: 18,
+  BSCUSDC: 18,
+  BSCUSDT: 18
 };
 
 const wallet = new ethers.Wallet(
@@ -140,6 +148,37 @@ const getUniswapLPTokenTVLinUSD = async (
   return token1USDValue.add(token2USDValue);
 };
 
+const getApeSwapLPTokenTVLinUSD = async (
+  lpAddress: string,
+  tokenAddresses: string[],
+  tokenNames: string[],
+  collateralPrices: ICollateralPrices,
+  provider: ethers.providers.Provider
+) => {
+  const token1 = new ethers.Contract(tokenAddresses[0], IERC20, provider);
+  const token2 = new ethers.Contract(tokenAddresses[1], IERC20, provider);
+
+  const token1Balance: BigNumber = await token1.balanceOf(lpAddress);
+  const token2Balance: BigNumber = await token2.balanceOf(lpAddress);
+
+  const token1Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[0]]);
+  const token2Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[1]]);
+
+  const token1Amount = token1Balance.div(token1Decimals);
+  const token2Amount = token2Balance.div(token2Decimals);
+  
+  const token1USDValue = token1Amount
+    .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
+    .div(1000);
+  
+  const token2USDValue = token2Amount
+    .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
+    .div(1000);
+    
+  // total usd in the LP token
+  return token1USDValue.add(token2USDValue);
+};
+
 const getTVL = async (
   stakingContractAddress: string,
   lpAddress: string,
@@ -184,6 +223,7 @@ const getTVL = async (
 
 const fetchAPRs = async () => {
   const collateralPrices = await getCollateralPrices();
+  const apeSwapReward = await rewardPerMonth(apeSwapChef, bscProvider)
 
   const arthMahaBscTVL = await getTVL(
     bsc.arthMahaStaking,
@@ -248,6 +288,22 @@ const fetchAPRs = async () => {
     bscProvider
   );
 
+  const busdusdcTVL = await getApeSwapLPTokenTVLinUSD(
+    bsc.apeBusdUsdc,
+    [bsc.usdc, bsc.busd],
+    ["BSCUSDC", "BUSD"],
+    collateralPrices,
+    bscProvider
+  )
+
+  const busdusdtTVL = await getApeSwapLPTokenTVLinUSD(
+    bsc.apeBusdUsdt,
+    [bsc.usdt, bsc.busd],
+    ["BSCUSDT", "BUSD"],
+    collateralPrices,
+    bscProvider
+  )
+
   return {
     chainSpecificData: {
       137: {
@@ -276,6 +332,8 @@ const fetchAPRs = async () => {
           ),
           arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
           arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
+          busdUsdc: await getApeAPR(Number(busdusdcTVL), apeSwapReward, collateralPrices),
+          busdUsdt: await getApeAPR(Number(busdusdtTVL), apeSwapReward, collateralPrices)
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
