@@ -76,7 +76,7 @@ const fetchAndCache = async () => {
     supplyAPR: String(busdUsdcApr),
     tradingAPR: "0.00",
     borrowAPR: "1.63",
-    totalAPR: String(busdUsdtApr)
+    totalAPR: String(busdUsdcApr)
   }));
 };
 
