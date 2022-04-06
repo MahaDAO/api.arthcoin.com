@@ -69,14 +69,14 @@ const fetchAndCache = async () => {
     supplyAPR: String(busdUsdtApr),
     tradingAPR: "0.00",
     borrowAPR: "1.63",
-    totalAPR: String(busdUsdtApr + 1.63)
+    totalAPR: String(busdUsdtApr)
   }));
 
   cache.set("leaverage-datapoints-busd-usdc", JSON.stringify({
     supplyAPR: String(busdUsdcApr),
     tradingAPR: "0.00",
     borrowAPR: "1.63",
-    totalAPR: String(busdUsdtApr + 1.63)
+    totalAPR: String(busdUsdtApr)
   }));
 };
 
