@@ -36,7 +36,9 @@ const bsc = {
   "bsc.3eps": "0xaf4de8e872131ae328ce21d909c74705d3aaf452",
   apeswapChefAddr: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9",
   apeBusdUsdc: "0xC087C78AbaC4A0E900a327444193dBF9BA69058E",
-  apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb"
+  apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb",
+  apeArthMahaStaking: "0x1599a0A579aD3Fc86DBe6953dfEc04eb365dd8e6",
+  apeArthMahaLp: "0x84020EEfe28647056eAC16Cb16095Da2Ccf25665"
 };
 
 const polygon = {
@@ -287,6 +289,15 @@ const fetchAPRs = async () => {
     collateralPrices,
     bscProvider
   );
+  
+  const apeArthMahaBscTVL = await getTVL(
+    bsc.apeArthMahaStaking,
+    bsc.apeArthMahaLp,
+    [bsc.arth, bsc.maha],
+    ["ARTH", "MAHA"],
+    collateralPrices,
+    bscProvider
+  );
 
   return {
     chainSpecificData: {
@@ -314,14 +325,16 @@ const fetchAPRs = async () => {
             6000,
             collateralPrices
           ),
-          arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
-          arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices)
+          // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
+          // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
+          arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices)
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
           arthu3eps: arthu3epsBscTVL,
-          arthBusd: arthBuscBscTVL,
-          arthMaha: arthMahaBscTVL,
+          // arthBusd: arthBuscBscTVL,
+          // arthMaha: arthMahaBscTVL,
+          arthMahaApe: apeArthMahaBscTVL
         },
       },
     },
