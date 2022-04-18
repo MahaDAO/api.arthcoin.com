@@ -57,6 +57,18 @@ const polygon = {
   priceFeed: "0x935c70e4B9371f63A598BdA58BF1B2b270C8eBFe"
 };
 
+const eth = {
+  arthMahaSLP: "0xB73160F333b563f0B8a0bcf1a25ac7578A10DE96",
+  arthMahaSushiStaking: "0x20257283d7B8Aa42FC00bcc3567e756De1E7BF5a",
+  maha: "0xb4d930279552397bba2ee473229f89ec245bc365",
+  weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  fxs: "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0",
+  arth: "0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71",
+  "arth.usd": "0x973F054eDBECD287209c36A2651094fA52F99a71",
+  frxArthLP : "0x5a59fd6018186471727faaeae4e57890abc49b08",
+  frxArthStaking: "0x7B2F31Fe97f32760c5d6A4021eeA132d44D22039"
+}
+
 const tokenDecimals: ICollateralPrices = {
   ARTH: 18,
   WBTC: 18,
