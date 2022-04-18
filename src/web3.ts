@@ -23,4 +23,8 @@ export const bscProvider = new ethers.providers.JsonRpcProvider(
   nconf.get("RPC_URL_BSC") || process.env.RPC_URL_BSC
 );
 
+export const ethProvider = new ethers.providers.JsonRpcProvider(
+  nconf.get("RPC_URL_ETH") || process.env.RPC_URL_ETH
+);
+
 export const gasPrice = Number(nconf.get("GWEI")) * 1000000000;

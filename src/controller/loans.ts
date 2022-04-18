@@ -1,4 +1,4 @@
-import { polygonProvider, bscProvider, polygonTestnetProvider } from "../web3";
+import { polygonProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
@@ -58,8 +58,8 @@ const polygon = {
 };
 
 const eth = {
-  arthMahaSLP: "0xB73160F333b563f0B8a0bcf1a25ac7578A10DE96",
-  arthMahaSushiStaking: "0x20257283d7B8Aa42FC00bcc3567e756De1E7BF5a",
+  ethMahaSLP: "0xB73160F333b563f0B8a0bcf1a25ac7578A10DE96",
+  ethMahaSushiStaking: "0x20257283d7B8Aa42FC00bcc3567e756De1E7BF5a",
   maha: "0xb4d930279552397bba2ee473229f89ec245bc365",
   weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
   fxs: "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0",
@@ -144,12 +144,17 @@ const getUniswapLPTokenTVLinUSD = async (
 
   const token1Balance: BigNumber = await token1.balanceOf(lpAddress);
   const token2Balance: BigNumber = await token2.balanceOf(lpAddress);
-
+  
   const token1Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[0]]);
   const token2Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[1]]);
 
   const token1Amount = token1Balance.div(token1Decimals);
   const token2Amount = token2Balance.div(token2Decimals);
+
+  console.log(
+    "token1Amount", Number(token1Amount), 
+    "token2Amount", Number(token2Amount)
+  );
 
   const token1USDValue = token1Amount
     .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
@@ -157,7 +162,13 @@ const getUniswapLPTokenTVLinUSD = async (
   const token2USDValue = token2Amount
     .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
     .div(1000);
-
+  
+  console.log(
+    "token1USDValue", Number(token1USDValue), 
+    "token2USDValue", Number(token2USDValue), 
+    collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
+  );
+  
   // total usd in the LP token
   return token1USDValue.add(token2USDValue);
 };
@@ -226,7 +237,9 @@ const getTVL = async (
           collateralPrices,
           provider
         );
-
+  
+  console.log('lpTokenTVLinUSD', Number(lpTokenTVLinUSD));
+  
   const totalSupply: BigNumber = await lpToken.totalSupply();
   const stakedAmount: BigNumber = await stakingContract.totalSupply();
 
@@ -239,116 +252,135 @@ const fetchAPRs = async () => {
   const collateralPrices = await getCollateralPrices();
   const apeSwapReward = await rewardPerMonth(apeSwapChef, bscProvider)
 
-  const arthMahaBscTVL = await getTVL(
-    bsc.arthMahaStaking,
-    bsc.arthMahaLP,
-    [bsc.arth, bsc.maha],
-    ["ARTH", "MAHA"],
-    collateralPrices,
-    bscProvider
-  );
+  // const arthMahaBscTVL = await getTVL(
+  //   bsc.arthMahaStaking,
+  //   bsc.arthMahaLP,
+  //   [bsc.arth, bsc.maha],
+  //   ["ARTH", "MAHA"],
+  //   collateralPrices,
+  //   bscProvider
+  // );
 
-  const arthBuscBscTVL = await getTVL(
-    bsc.arthBusdStaking,
-    bsc.arthBusdLP,
-    [bsc.arth, bsc.busd],
-    ["ARTH", "BUSD"],
-    collateralPrices,
-    bscProvider
-  );
+  // const arthBuscBscTVL = await getTVL(
+  //   bsc.arthBusdStaking,
+  //   bsc.arthBusdLP,
+  //   [bsc.arth, bsc.busd],
+  //   ["ARTH", "BUSD"],
+  //   collateralPrices,
+  //   bscProvider
+  // );
 
-  const arthMahaPolygonTVL = await getTVL(
-    polygon.arthMahaStaking,
-    polygon.arthMahaLP,
-    [polygon.arth, polygon.maha],
-    ["ARTH", "MAHA"],
-    collateralPrices,
-    polygonProvider
-  );
+  // const arthMahaPolygonTVL = await getTVL(
+  //   polygon.arthMahaStaking,
+  //   polygon.arthMahaLP,
+  //   [polygon.arth, polygon.maha],
+  //   ["ARTH", "MAHA"],
+  //   collateralPrices,
+  //   polygonProvider
+  // );
 
-  const arthUsdcPolygonTVL = await getTVL(
-    polygon.arthUsdcStaking,
-    polygon.arthUsdcLP,
-    [polygon.arth, polygon.usdc],
-    ["ARTH", "USDC"],
-    collateralPrices,
-    polygonProvider
-  );
+  // const arthUsdcPolygonTVL = await getTVL(
+  //   polygon.arthUsdcStaking,
+  //   polygon.arthUsdcLP,
+  //   [polygon.arth, polygon.usdc],
+  //   ["ARTH", "USDC"],
+  //   collateralPrices,
+  //   polygonProvider
+  // );
 
-  const arthu3poolPolygonTVL = await getTVL(
-    polygon.arthu3poolStaking,
-    polygon.arthu3poolLP,
-    [polygon["arth.usd"], polygon["polygon.3pool"]],
-    ["ARTH.usd", "polygon.3pool"],
-    collateralPrices,
-    polygonProvider
-  );
+  // const arthu3poolPolygonTVL = await getTVL(
+  //   polygon.arthu3poolStaking,
+  //   polygon.arthu3poolLP,
+  //   [polygon["arth.usd"], polygon["polygon.3pool"]],
+  //   ["ARTH.usd", "polygon.3pool"],
+  //   collateralPrices,
+  //   polygonProvider
+  // );
 
-  const arthu3epsBscTVL = await getTVL(
-    bsc.arthu3epsStaking,
-    bsc.arthu3epsLP,
-    [bsc["arth.usd"], bsc["bsc.3eps"]],
-    ["ARTH.usd", "bsc.3eps"],
-    collateralPrices,
-    bscProvider
-  );
+  // const arthu3epsBscTVL = await getTVL(
+  //   bsc.arthu3epsStaking,
+  //   bsc.arthu3epsLP,
+  //   [bsc["arth.usd"], bsc["bsc.3eps"]],
+  //   ["ARTH.usd", "bsc.3eps"],
+  //   collateralPrices,
+  //   bscProvider
+  // );
 
-  const arthu3epsV2BscTVL = await getTVL(
-    bsc.arthu3epsStakingV2,
-    bsc.arthu3epsLP,
-    [bsc["arth.usd"], bsc["bsc.3eps"]],
-    ["ARTH.usd", "bsc.3eps"],
-    collateralPrices,
-    bscProvider
-  );
+  // const arthu3epsV2BscTVL = await getTVL(
+  //   bsc.arthu3epsStakingV2,
+  //   bsc.arthu3epsLP,
+  //   [bsc["arth.usd"], bsc["bsc.3eps"]],
+  //   ["ARTH.usd", "bsc.3eps"],
+  //   collateralPrices,
+  //   bscProvider
+  // );
   
-  const apeArthMahaBscTVL = await getTVL(
-    bsc.apeArthMahaStaking,
-    bsc.apeArthMahaLp,
-    [bsc.arth, bsc.maha],
-    ["ARTH", "MAHA"],
+  // const apeArthMahaBscTVL = await getTVL(
+  //   bsc.apeArthMahaStaking,
+  //   bsc.apeArthMahaLp,
+  //   [bsc.arth, bsc.maha],
+  //   ["ARTH", "MAHA"],
+  //   collateralPrices,
+  //   bscProvider
+  // );
+
+  const sushiEthMahaETHTVL = await getTVL(
+    eth.ethMahaSushiStaking,
+    eth.ethMahaSLP,
+    [eth.weth, eth.maha],
+    ["WETH", "MAHA"],
     collateralPrices,
-    bscProvider
+    ethProvider
   );
 
+  console.log("sushiEthMahaETHTVL", sushiEthMahaETHTVL);
+  
   return {
     chainSpecificData: {
-      137: {
+      // 137: {
+      //   apr: {
+      //     arthu3pool: await getAPR(
+      //       arthu3poolPolygonTVL,
+      //       5000,
+      //       collateralPrices
+      //     ),
+      //     //arthUsdc: await getAPR(arthUsdcPolygonTVL, 5000, collateralPrices),
+      //     arthMaha: await getAPR(arthMahaPolygonTVL, 5000, collateralPrices),
+      //   },
+      //   tvl: {
+      //     arthu3pool: arthu3poolPolygonTVL,
+      //     arthMaha: arthMahaPolygonTVL,
+      //     arthUsdc: arthUsdcPolygonTVL,
+      //   },
+      // },
+      // 56: {
+      //   apr: {
+      //     // arthu3eps: await getAPR(arthu3epsBscTVL, 5000, collateralPrices),
+      //     "arthu3eps-v2": await getAPR(
+      //       arthu3epsV2BscTVL,
+      //       6000,
+      //       collateralPrices
+      //     ),
+      //     // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
+      //     // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
+      //     arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices)
+      //   },
+      //   tvl: {
+      //     "arthu3eps-v2": arthu3epsV2BscTVL,
+      //     arthu3eps: arthu3epsBscTVL,
+      //     arthBusd: arthBuscBscTVL,
+      //     arthMaha: arthMahaBscTVL,
+      //     arthMahaApe: apeArthMahaBscTVL
+      //   },
+      // },
+      1: {
         apr: {
-          arthu3pool: await getAPR(
-            arthu3poolPolygonTVL,
-            5000,
-            collateralPrices
-          ),
-          //arthUsdc: await getAPR(arthUsdcPolygonTVL, 5000, collateralPrices),
-          arthMaha: await getAPR(arthMahaPolygonTVL, 5000, collateralPrices),
+          ethMahaSushi: await getAPR(sushiEthMahaETHTVL, 5000, collateralPrices)
         },
         tvl: {
-          arthu3pool: arthu3poolPolygonTVL,
-          arthMaha: arthMahaPolygonTVL,
-          arthUsdc: arthUsdcPolygonTVL,
-        },
-      },
-      56: {
-        apr: {
-          // arthu3eps: await getAPR(arthu3epsBscTVL, 5000, collateralPrices),
-          "arthu3eps-v2": await getAPR(
-            arthu3epsV2BscTVL,
-            6000,
-            collateralPrices
-          ),
-          // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
-          // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
-          arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices)
-        },
-        tvl: {
-          "arthu3eps-v2": arthu3epsV2BscTVL,
-          arthu3eps: arthu3epsBscTVL,
-          arthBusd: arthBuscBscTVL,
-          arthMaha: arthMahaBscTVL,
-          arthMahaApe: apeArthMahaBscTVL
-        },
-      },
+          ethMahaSushi: sushiEthMahaETHTVL
+        }
+      }
     },
     mahaRewardPerMinute: 5000 / (86400 * 30),
   };
