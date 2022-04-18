@@ -48,7 +48,8 @@ const tokenDecimals: ICollateralPrices = {
     USDC: 6,
     BANNANA: 18,
     BSCUSDC: 18,
-    BSCUSDT: 18
+    BSCUSDT: 18,
+    FRAX :18
 };
   
 const getEllipsisLPTokenTVLinUSD = async (
