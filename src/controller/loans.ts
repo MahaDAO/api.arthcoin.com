@@ -38,7 +38,9 @@ const bsc = {
   apeBusdUsdc: "0xC087C78AbaC4A0E900a327444193dBF9BA69058E",
   apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb",
   apeArthMahaStaking: "0x1599a0A579aD3Fc86DBe6953dfEc04eb365dd8e6",
-  apeArthMahaLp: "0x84020EEfe28647056eAC16Cb16095Da2Ccf25665"
+  apeArthMahaLp: "0x84020EEfe28647056eAC16Cb16095Da2Ccf25665",
+  arthValLP: "0x4cfaabd5920021359bb22bb6924cce708773b6ac",
+  arthValStaking: "0x41efe9AD56D328449439c330b327Ca496C3e38BB"
 };
 
 const polygon = {
@@ -122,12 +124,23 @@ const getEllipsisLPTokenTVLinUSD = async (
   const token1Amount = token1Balance.div(token1Decimals);
   const token2Amount = token2Balance.div(token2Decimals);
 
+  // console.log(
+  //   "token1Amount", Number(token1Amount), 
+  //   "token2Amount", Number(token2Amount)
+  // );
+
   const token1USDValue = token1Amount
     .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
     .div(1000);
   const token2USDValue = token2Amount
     .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
     .div(1000);
+
+  // console.log(
+  //   "token1USDValue", Number(token1USDValue), 
+  //   "token2USDValue", Number(token2USDValue), 
+  //   collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
+  // );
 
   // total usd in the LP token
   return token1USDValue.add(token2USDValue);
@@ -220,26 +233,55 @@ const getTVL = async (
   );
 
   const lpToken = new ethers.Contract(lpAddress, IERC20, provider);
-
-  const lpTokenTVLinUSD =
-    lpAddress !== bsc.arthu3epsLP
-      ? await getUniswapLPTokenTVLinUSD(
-          lpAddress,
-          tokenAddresses,
-          tokenNames,
-          collateralPrices,
-          provider
-        )
-      : await getEllipsisLPTokenTVLinUSD(
-          "0x98245Bfbef4e3059535232D68821a58abB265C45",
-          lpAddress,
-          tokenAddresses,
-          tokenNames,
-          collateralPrices,
-          provider
-        );
   
-  console.log('lpTokenTVLinUSD', Number(lpTokenTVLinUSD));
+  let lpTokenTVLinUSD
+  // const lpTokenTVLinUSD =
+  //   lpAddress !== bsc.arthu3epsLP
+  //     ? await getUniswapLPTokenTVLinUSD(
+  //         lpAddress,
+  //         tokenAddresses,
+  //         tokenNames,
+  //         collateralPrices,
+  //         provider
+  //       )
+  //     : await getEllipsisLPTokenTVLinUSD(
+  //         "0x98245Bfbef4e3059535232D68821a58abB265C45",
+  //         lpAddress,
+  //         tokenAddresses,
+  //         tokenNames,
+  //         collateralPrices,
+  //         provider
+  //       );
+
+  if (lpAddress == bsc.arthu3epsLP) {
+    lpTokenTVLinUSD = await getEllipsisLPTokenTVLinUSD(
+      "0x98245Bfbef4e3059535232D68821a58abB265C45",
+      lpAddress,
+      tokenAddresses,
+      tokenNames,
+      collateralPrices,
+      provider
+    );
+  } else if(lpAddress == bsc.arthValLP) {
+    lpTokenTVLinUSD = await getEllipsisLPTokenTVLinUSD(
+      "0x1d4B4796853aEDA5Ab457644a18B703b6bA8b4aB",
+      lpAddress,
+      tokenAddresses,
+      tokenNames,
+      collateralPrices,
+      provider
+    );
+  } else {
+    lpTokenTVLinUSD = await getUniswapLPTokenTVLinUSD(
+      lpAddress,
+      tokenAddresses,
+      tokenNames,
+      collateralPrices,
+      provider
+    )
+  }
+  
+  //console.log('lpTokenTVLinUSD', Number(lpTokenTVLinUSD));
   
   const totalSupply: BigNumber = await lpToken.totalSupply();
   const stakedAmount: BigNumber = await stakingContract.totalSupply();
@@ -302,6 +344,15 @@ const fetchAPRs = async () => {
     bsc.arthu3epsStaking,
     bsc.arthu3epsLP,
     [bsc["arth.usd"], bsc["bsc.3eps"]],
+    ["ARTH.usd", "bsc.3eps"],
+    collateralPrices,
+    bscProvider
+  );
+
+  const arthValepsBscTVL = await getTVL(
+    bsc.arthValStaking,
+    bsc.arthValLP,
+    [bsc["arth.usd"], bsc.arthValLP],
     ["ARTH.usd", "bsc.3eps"],
     collateralPrices,
     bscProvider
@@ -371,14 +422,16 @@ const fetchAPRs = async () => {
           ),
           // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
           // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
-          arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices)
+          arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
+          "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices)
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
           arthu3eps: arthu3epsBscTVL,
           arthBusd: arthBuscBscTVL,
           arthMaha: arthMahaBscTVL,
-          arthMahaApe: apeArthMahaBscTVL
+          arthMahaApe: apeArthMahaBscTVL,
+          "arthu3valeps-v2": arthValepsBscTVL
         },
       },
       1: {
