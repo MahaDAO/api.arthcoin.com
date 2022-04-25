@@ -3,6 +3,7 @@ import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
 import { rewardPerMonth, getApeAPR } from "./apyHelper/apeReward"
+import { scrappedApr } from "./scrapedApy/apr"
 
 import {
   getCollateralPrices,
@@ -369,6 +370,8 @@ const fetchAPRs = async () => {
     ethProvider
   );
 
+  const aprData = await scrappedApr()
+
   return {
     chainSpecificData: {
       137: {
@@ -398,7 +401,9 @@ const fetchAPRs = async () => {
           // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
           // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
           arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
-          "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices)
+          "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices),
+          arthu3valdoteps: aprData.dot,
+          arthu3epx: aprData.ellipsis
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
