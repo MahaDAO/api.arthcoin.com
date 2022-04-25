@@ -34,6 +34,7 @@ const bsc = {
   maha: "0xCE86F7fcD3B40791F63B86C3ea3B8B355Ce2685b",
   "arth.usd": "0x88fd584dF3f97c64843CD474bDC6F78e398394f4",
   "bsc.3eps": "0xaf4de8e872131ae328ce21d909c74705d3aaf452",
+  "bsc.val3eps": "0x5b5bD8913D766D005859CE002533D4838B0Ebbb5",
   apeswapChefAddr: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9",
   apeBusdUsdc: "0xC087C78AbaC4A0E900a327444193dBF9BA69058E",
   apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb",
@@ -125,7 +126,7 @@ const getEllipsisLPTokenTVLinUSD = async (
   const token2Amount = token2Balance.div(token2Decimals);
 
   // console.log(
-  //   "token1Amount", Number(token1Amount), 
+  //   "token1Amount", Number(token1Amount),"\n", 
   //   "token2Amount", Number(token2Amount)
   // );
 
@@ -137,9 +138,11 @@ const getEllipsisLPTokenTVLinUSD = async (
     .div(1000);
 
   // console.log(
-  //   "token1USDValue", Number(token1USDValue), 
-  //   "token2USDValue", Number(token2USDValue), 
-  //   collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
+  //   "token1USDValue", Number(token1USDValue),"\n", 
+  //   "token2USDValue", Number(token2USDValue),"\n", 
+  //   "tokens-", tokenNames[0], tokenNames[1],"\n",
+  //   "collateralPrices", collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]], "\n",
+  //   "========================================================="
   // );
 
   // total usd in the LP token
@@ -183,37 +186,6 @@ const getUniswapLPTokenTVLinUSD = async (
   //   collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
   // );
   
-  // total usd in the LP token
-  return token1USDValue.add(token2USDValue);
-};
-
-const getApeSwapLPTokenTVLinUSD = async (
-  lpAddress: string,
-  tokenAddresses: string[],
-  tokenNames: string[],
-  collateralPrices: ICollateralPrices,
-  provider: ethers.providers.Provider
-) => {
-  const token1 = new ethers.Contract(tokenAddresses[0], IERC20, provider);
-  const token2 = new ethers.Contract(tokenAddresses[1], IERC20, provider);
-
-  const token1Balance: BigNumber = await token1.balanceOf(lpAddress);
-  const token2Balance: BigNumber = await token2.balanceOf(lpAddress);
-
-  const token1Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[0]]);
-  const token2Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[1]]);
-
-  const token1Amount = token1Balance.div(token1Decimals);
-  const token2Amount = token2Balance.div(token2Decimals);
-  
-  const token1USDValue = token1Amount
-    .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
-    .div(1000);
-  
-  const token2USDValue = token2Amount
-    .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
-    .div(1000);
-    
   // total usd in the LP token
   return token1USDValue.add(token2USDValue);
 };
@@ -340,6 +312,7 @@ const fetchAPRs = async () => {
     polygonProvider
   );
 
+  console.log("arthu3eps");
   const arthu3epsBscTVL = await getTVL(
     bsc.arthu3epsStaking,
     bsc.arthu3epsLP,
@@ -348,16 +321,18 @@ const fetchAPRs = async () => {
     collateralPrices,
     bscProvider
   );
-
+  
+  console.log("arthValeps");
   const arthValepsBscTVL = await getTVL(
     bsc.arthValStaking,
     bsc.arthValLP,
-    [bsc["arth.usd"], bsc.arthValLP],
+    [bsc["arth.usd"], bsc["bsc.val3eps"]],
     ["ARTH.usd", "bsc.3eps"],
     collateralPrices,
     bscProvider
   );
-
+  
+  console.log("arthu3epsV2");
   const arthu3epsV2BscTVL = await getTVL(
     bsc.arthu3epsStakingV2,
     bsc.arthu3epsLP,
@@ -422,15 +397,15 @@ const fetchAPRs = async () => {
           ),
           // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
           // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
-          arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
-          "arthu3valeps-v2": 68.47 //( await getAPR(arthValepsBscTVL, 5000, collateralPrices))
+          // arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
+          "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices)
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
           arthu3eps: arthu3epsBscTVL,
-          arthBusd: arthBuscBscTVL,
-          arthMaha: arthMahaBscTVL,
-          arthMahaApe: apeArthMahaBscTVL,
+          // arthBusd: arthBuscBscTVL,
+          // arthMaha: arthMahaBscTVL,
+          // arthMahaApe: apeArthMahaBscTVL,
           "arthu3valeps-v2": arthValepsBscTVL
         },
       },

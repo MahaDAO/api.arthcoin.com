@@ -51,10 +51,10 @@ const usdcUsdtQLP = async (provider: ethers.providers.Provider) => {
 
 const fetchAndCache = async () => {
   const qlpTvl = await usdcUsdtQLP(polygonProvider);
-  console.log('qlpTvl', qlpTvl);
+  //console.log('qlpTvl', qlpTvl);
   
   cache.set("loans-qlp", JSON.stringify(qlpTvl));
-  console.log('cache', cache.get("loans-qlp"));
+  //console.log('cache', cache.get("loans-qlp"));
 
   cache.set("loans-qlp-busd-usdc", JSON.stringify(4624713));
   //console.log('cache', cache.get("loans-qlp"));
