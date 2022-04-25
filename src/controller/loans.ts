@@ -401,12 +401,12 @@ const fetchAPRs = async () => {
           "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices)
         },
         tvl: {
-          //"arthu3eps-v2": arthu3epsV2BscTVL,
+          "arthu3eps-v2": arthu3epsV2BscTVL,
           arthu3eps: arthu3epsBscTVL,
-          // arthBusd: arthBuscBscTVL,
-          // arthMaha: arthMahaBscTVL,
-          // arthMahaApe: apeArthMahaBscTVL,
-          //"arthu3valeps-v2": arthValepsBscTVL
+          arthBusd: arthBuscBscTVL,
+          arthMaha: arthMahaBscTVL,
+          arthMahaApe: apeArthMahaBscTVL,
+          "arthu3valeps-v2": arthValepsBscTVL
         },
       },
       1: {
