@@ -411,7 +411,9 @@ const fetchAPRs = async () => {
           arthBusd: arthBuscBscTVL,
           arthMaha: arthMahaBscTVL,
           arthMahaApe: apeArthMahaBscTVL,
-          "arthu3valeps-v2": arthValepsBscTVL
+          "arthu3valeps-v2": arthValepsBscTVL,
+          arthu3epx: Number(aprData.ellipsisTvl),
+          arthu3valdoteps: aprData.dotTvl
         },
       },
       1: {
