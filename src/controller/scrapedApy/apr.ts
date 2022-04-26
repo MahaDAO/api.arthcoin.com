@@ -7,14 +7,14 @@ export const scrappedApr = async () => {
 
     const epxAprWithoutBoost = arthData.aprWithoutBoost
     const epxTvl = arthData.tvl
-    console.log(arthData);
+    //console.log(arthData);
     
     const rawDataDot = await request('https://api.dotdot.finance/api/lpDetails')
     const dotDataJson = JSON.parse(rawDataDot)
     const dotData = dotDataJson.data.tokens[18]
     const dotApy = dotData.dddAPR + dotData.epxAPR
     const dotTvl = dotData.dddTvlUSD + dotData.epsTvlUSD
-    console.log(dotTvl);
+    //console.log(dotTvl);
     
     return {
         ellipsis: epxAprWithoutBoost,
