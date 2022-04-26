@@ -403,7 +403,7 @@ const fetchAPRs = async () => {
           arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
           "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices),
           arthu3valdoteps: aprData.dot,
-          arthu3epx: aprData.ellipsis
+          arthu3epx: Number(aprData.ellipsis)
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
