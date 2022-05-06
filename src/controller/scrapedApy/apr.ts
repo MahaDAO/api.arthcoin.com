@@ -6,7 +6,7 @@ export const scrappedApr = async () => {
     const arthData = arthDataJson.data["16"]
 
     const epxAprWithBoost = arthData.aprWithBoost
-    const epxAprWithoutBoost = arthData.aprWithBoost
+    const epxAprWithoutBoost = arthData.aprWithoutBoost
 
     const epxTvl = arthData.tvl
     //console.log(arthData);
