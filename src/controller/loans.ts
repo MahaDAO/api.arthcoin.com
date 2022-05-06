@@ -415,6 +415,14 @@ const fetchAPRs = async () => {
           arthu3epx: Number(aprData.ellipsisTvl),
           arthu3valdoteps: aprData.dotTvl
         },
+        minApr: {
+          arthu3valdoteps: aprData.dotDddApr,
+          arthu3epx: Number(aprData.ellipsisMinApr)
+        },
+        maxApr: {
+          arthu3valdoteps: aprData.dotEpxApr,
+          arthu3epx: Number(aprData.ellipsisMaxApr)
+        }
       },
       1: {
         apr: {
