@@ -18,7 +18,8 @@ export type CollateralKeys =
   | "BANNANA"
   | "BSCUSDC"
   | "FRAX"
-  | "BSCUSDT";
+  | "BSCUSDT"
+  | "SOLID";
 
 export type ICollateralPrices = {
   [key in CollateralKeys]: number;
@@ -26,7 +27,7 @@ export type ICollateralPrices = {
 
 export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
   const result = await CoinGeckoClient.simple.price({
-    ids: "bitcoin,ethereum,dai,tether,mahadao,arth,usd-coin,scallop,binance-usd,apeswap-finance,frax",
+    ids: "bitcoin,ethereum,dai,tether,mahadao,arth,usd-coin,scallop,binance-usd,apeswap-finance,frax,solidly",
     vs_currencies: "USD",
   });
 
@@ -46,6 +47,7 @@ export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
     BANNANA: result.data["apeswap-finance"].usd,
     BSCUSDC: result.data["usd-coin"].usd,
     BSCUSDT: result.data.tether.usd,
-    FRAX: result.data.frax.usd
+    FRAX: result.data.frax.usd, 
+    SOLID: result.data.solidly.usd
   };
 };

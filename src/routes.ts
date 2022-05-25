@@ -1,6 +1,7 @@
 import { Router } from "express";
 import governance from "./controller/governance";
 import loans from "./controller/loans";
+import guage from "./controller/gauageApy";
 import qlp from "./controller/lonasQlpTvl";
 import lpPrice from "./controller/lpTokenPrice";
 import leverage from "./controller/leverage";
@@ -15,6 +16,7 @@ router.get("/", (req, res) => {
 
 router.get("/apy/governance", governance);
 router.get("/apy/loans", loans);
+router.get("/apy/guage", guage);
 router.post("/apy/qlp", (req, res) => { qlp(req, res) });
 router.post("/apy/lp", (req, res) => { lpPrice(req, res) });
 router.get("/apy/leverage", (req, res) => { leverage(req, res) });
