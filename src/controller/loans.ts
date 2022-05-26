@@ -90,7 +90,8 @@ const tokenDecimals: ICollateralPrices = {
   BSCUSDC: 18,
   BSCUSDT: 18,
   FRAX: 18,
-  SOLID: 18
+  SOLID: 18,
+  MATIC: 18
 };
 
 const wallet = new ethers.Wallet(
