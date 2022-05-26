@@ -34,6 +34,10 @@ const polygon = {
 const polygonMatic = {
     daiMahaGuage: "0x0AEfb132a53feD4e555F01e52db40C8490c0da1d",
     daiMahaLP: "0x208F0A5A5F842E9c761e668e6a560865176ab57e",
+    daiSolidGuage: "0x7D4f9CAA114d55Bc2e77ba7B940d60D3e1e64fa2",
+    daiSolidLP: "0x1Ca805046A05d09Ac20d2Ab5D44B18D6238D39a5",
+    mahaSolidGuage: "0x281eCb4D21508e1B029d0FC005E7fd9eED2Af86a",
+    mahaSolidLP: "0xbdCbF9F08cDA7B596EeEC5a1035B0e945fbB5e29",
     dai: "0x544380b5ee3d1a8485671537a553f61f3c7190f1",
     maha: "0x7af163582b3ebaabb7bce03aada8c1d76d655a5c",
     solid: "0x62C33009b62B1e972c01820Ac608D9F8992190F5"
@@ -249,15 +253,49 @@ const fetchAPRs = async () => {
         polygonTestnetProvider
     );
 
-    const apr = await getAPR(
+    const daiSolidGuageTVL = await getTVL(
+        polygonMatic.daiSolidGuage,
+        polygonMatic.daiSolidLP,
+        [polygonMatic.dai, polygonMatic.solid],
+        ["DAI", "SOLID"],
+        collateralPrices,
+        polygonTestnetProvider
+    );
+
+    const mahaSolidGuageTVL = await getTVL(
+        polygonMatic.mahaSolidGuage,
+        polygonMatic.mahaSolidLP,
+        [polygonMatic.maha, polygonMatic.solid],
+        ["MAHA", "SOLID"],
+        collateralPrices,
+        polygonTestnetProvider
+    );
+
+    const daiMahaApr = await getAPR(
         daiMahaGuageTVL,
         collateralPrices,
         '0x0AEfb132a53feD4e555F01e52db40C8490c0da1d',
         polygonTestnetProvider
     )
 
+    const daiSolidApr = await getAPR(
+        daiSolidGuageTVL,
+        collateralPrices,
+        '0x7D4f9CAA114d55Bc2e77ba7B940d60D3e1e64fa2',
+        polygonTestnetProvider
+    )
+    
+    const mahaSolidApr = await getAPR(
+        daiSolidGuageTVL,
+        collateralPrices,
+        '0x281eCb4D21508e1B029d0FC005E7fd9eED2Af86a',
+        polygonTestnetProvider
+    )
+
     return {   
-        "0x0AEfb132a53feD4e555F01e52db40C8490c0da1d": { min: String( apr * 1/5), max: String(apr)}
+        "0x0AEfb132a53feD4e555F01e52db40C8490c0da1d": { min: String( daiMahaApr * 1/5), max: String(daiMahaApr)},
+        "0x7D4f9CAA114d55Bc2e77ba7B940d60D3e1e64fa2": { min: String( daiSolidApr * 1/5), max: String(daiSolidApr)},
+        "0x281eCb4D21508e1B029d0FC005E7fd9eED2Af86a": { min: String( mahaSolidApr * 1/5), max: String(mahaSolidApr)}
     }
 };
 
