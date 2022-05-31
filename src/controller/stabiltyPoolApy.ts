@@ -120,7 +120,7 @@ const fetchAPRs = async () => {
     const polygonApr = await getAPR(tvlInUsd, collateralPrices, 1000)
 
     return {   
-        matic: String(polygonApr)
+        wmatic: String(polygonApr)
     }
 };
 
