@@ -59,10 +59,10 @@ export const getTokenAddress = async (chainid) => {
     let tokenAddress 
     switch (chainid) {
         case (137):
-            tokenAddress = "0xE52509181FEb30EB4979E29EC70D50FD5C44D590";
+            tokenAddress = "0x862Fc9F243365d98Ed9FF68f720041074299B0dC";
         break;
         case (56):
-            tokenAddress = "0xB69A424Df8C737a122D0e60695382B3Eec07fF4B";
+            tokenAddress = "0x85daB10c3BA20148cA60C2eb955e1F8ffE9eAa79";
         break;
         case (1):
             tokenAddress = "ARTH";
@@ -90,13 +90,14 @@ const getTVL = async (
     provider
 ) => {
     const tokenAddress = await getTokenAddress(chainid)
-    const arthPolygon = new ethers.Contract(
+    const arth = new ethers.Contract(
         tokenAddress,
         IERC20,
         provider
     );
 
-    const balance = await arthPolygon.balanceOf(stabilityPool)
+    const balance = await arth.balanceOf(stabilityPool)
+
     return Number(balance / 1e18)
 }
 
@@ -115,14 +116,20 @@ const getTVL = async (
 const fetchAPRs = async () => {
     const collateralPrices = await getCollateralPrices();
 
-    const polygonStabilytvl = await getTVL("0xE60B391d3690aC3627065CEA96DaAD0f2C89E835", 137, polygonProvider)
-    const tvlInUsd = polygonStabilytvl * collateralPrices.MAHA
-    const polygonApr = await getAPR(tvlInUsd, collateralPrices, 1000)
+    const polygonStabilytvl = await getTVL("0x9209757eC192caA894Ad8eBC393DeB95b2ed5d0a", 137, polygonProvider)
+    //console.log('arth balance', polygonStabilytvl); 
+    const tvlInUsdPolygon = polygonStabilytvl * collateralPrices.ARTH || 2
+    const polygonApr = await getAPR(tvlInUsdPolygon, collateralPrices, 1000)
+
+    const bnbStabilytvl = await getTVL("0x61A787B3E2eE1e410310fC7c4A9f6C77430e1B57", 56, bscProvider)
+    //console.log('arth balance', bnbStabilytvl);
+    const tvlInUsdBnb = bnbStabilytvl * collateralPrices.ARTH || 2
+    const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 1000)
 
     return {   
         matic: String(polygonApr),
         eth: String(polygonApr),
-        bnb: String(polygonApr)
+        bnb: String(bnbApr)
     }
 };
 
