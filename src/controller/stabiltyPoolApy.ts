@@ -65,7 +65,7 @@ export const getTokenAddress = async (chainid) => {
             tokenAddress = "0x85daB10c3BA20148cA60C2eb955e1F8ffE9eAa79";
         break;
         case (1):
-            tokenAddress = "ARTH";
+            tokenAddress = "0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71";
         break;
         default:
             tokenAddress = "NEW";
@@ -126,10 +126,15 @@ const fetchAPRs = async () => {
     const tvlInUsdBnb = bnbStabilytvl * collateralPrices.ARTH || 2
     const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 1000)
 
+    const ethStabilytvl = await getTVL("0x2c360b513AE52947EEb37cfAD57ac9B7c9373e1B", 1, ethProvider)
+    //console.log('arth balance', bnbStabilytvl);
+    const tvlInUsdEth = ethStabilytvl * collateralPrices.ARTH || 2
+    const ethApr = await getAPR(tvlInUsdEth, collateralPrices, 1000)
+
     return {   
         matic: String(polygonApr),
         eth: String(polygonApr),
-        bnb: String(bnbApr)
+        bnb: String(ethApr)
     }
 };
 
