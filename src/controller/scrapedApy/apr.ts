@@ -28,25 +28,7 @@ export const scrappedApr = async () => {
     const dotEpxAprArthu3eps = dotDataArthu3eps.realEpxAPR
     const dotApyArthu3eps = dotDataArthu3eps.realDddAPR + dotDataArthu3eps.realEpxAPR
     const dotTvlArthu3eps = dotDataArthu3eps.dddTvlUSD //+ dotDataArthu3eps.epsTvlUSD
-
-    console.log({
-        ellipsis: epxAprWithBoost,
-        ellipsisMinApr: epxAprWithoutBoost,
-        ellipsisMaxApr: epxAprWithBoost,
-
-        dotDddApr: dotDddApr,
-        dotEpxApr: dotEpxApr,
-        dot: dotApy,
-
-        dotDddAprArthu3eps: dotDddAprArthu3eps,
-        dotEpxAprArthu3eps: dotEpxAprArthu3eps,
-        dotApyArthu3eps: dotApyArthu3eps,
-
-        ellipsisTvl: epxTvl,
-        dotTvl: dotTvl,
-        dotTvlArthu3eps: dotTvlArthu3eps
-    })
-    
+ 
     return {
         ellipsis: epxAprWithBoost,
         ellipsisMinApr: epxAprWithoutBoost,

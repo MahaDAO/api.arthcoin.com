@@ -15,19 +15,6 @@ const cache = new NodeCache();
 const BaseGaugeV1ABI = require("../abi/BaseGaugeV1.json");
 const IERC20 = require("../abi/IERC20.json");
 
-const polygon = {
-    dai: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-    usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-    "arth.usd": "0x84f168e646d31F6c33fDbF284D9037f59603Aa28",
-    "polygon.3pool": "0x19793b454d3afc7b454f206ffe95ade26ca6912c",
-    arth: "0xE52509181FEb30EB4979E29EC70D50FD5C44D590",
-    maha: "0xedd6ca8a4202d4a36611e2fff109648c4863ae19",
-    wmatic: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-    daiStabilityPool: "0x6832B8f9d4b59129f7C83A9d6a76EfDD70DbD836",
-    wmaticStabilityPool: "0xE60B391d3690aC3627065CEA96DaAD0f2C89E835",
-    "USDCUSDT-QLP-SStabilityPool": "0x590C0bfcEB5c6F6EdB7A5Ba0CceB448a9c822BB2",
-    wethStabilityPool: "0x41378573500C2892595dCea79f00F4Ab87092427"
-};
 
 const tokenDecimals: ICollateralPrices = {
   ARTH: 18,
@@ -119,7 +106,7 @@ const fetchAPRs = async () => {
     const polygonStabilytvl = await getTVL("0x9209757eC192caA894Ad8eBC393DeB95b2ed5d0a", 137, polygonProvider)
     //console.log('arth balance', polygonStabilytvl); 
     const tvlInUsdPolygon = polygonStabilytvl * collateralPrices.ARTH || 2
-    const polygonApr = await getAPR(tvlInUsdPolygon, collateralPrices, 2000)
+    const polygonApr = await getAPR(tvlInUsdPolygon, collateralPrices, 0)
 
     const bnbStabilytvl = await getTVL("0x61A787B3E2eE1e410310fC7c4A9f6C77430e1B57", 56, bscProvider)
     //console.log('arth balance', bnbStabilytvl);
@@ -129,12 +116,12 @@ const fetchAPRs = async () => {
     const ethStabilytvl = await getTVL("0x2c360b513AE52947EEb37cfAD57ac9B7c9373e1B", 1, ethProvider)
     //console.log('arth balance', bnbStabilytvl);
     const tvlInUsdEth = ethStabilytvl * collateralPrices.ARTH || 2
-    const ethApr = await getAPR(tvlInUsdEth, collateralPrices, 2000)
+    const ethApr = await getAPR(tvlInUsdEth, collateralPrices, 0)
 
     return {   
         matic: String(polygonApr),
-        eth: String(polygonApr),
-        bnb: String(ethApr)
+        eth: String(ethApr),
+        bnb: String(bnbApr)
     }
 };
 
