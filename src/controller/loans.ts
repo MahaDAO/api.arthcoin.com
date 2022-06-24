@@ -405,11 +405,12 @@ const fetchAPRs = async () => {
           arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
           "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices),
           arthu3valdoteps: aprData.dot,
-          arthu3epx: Number(aprData.ellipsis)
+          arthu3epx: Number(aprData.ellipsis),
+          arthu3eps: aprData.dotApyArthu3eps
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
-          arthu3eps: arthu3epsBscTVL,
+          arthu3eps: aprData.dotTvlArthu3eps,
           arthBusd: arthBuscBscTVL,
           arthMaha: arthMahaBscTVL,
           arthMahaApe: apeArthMahaBscTVL,
@@ -419,11 +420,13 @@ const fetchAPRs = async () => {
         },
         minApr: {
           arthu3valdoteps: aprData.dotDddApr,
-          arthu3epx: Number(aprData.ellipsisMinApr)
+          arthu3epx: Number(aprData.ellipsisMinApr),
+          arthu3eps: aprData.dotDddAprArthu3eps
         },
         maxApr: {
           arthu3valdoteps: aprData.dotEpxApr,
-          arthu3epx: Number(aprData.ellipsisMaxApr)
+          arthu3epx: Number(aprData.ellipsisMaxApr),
+          arthu3eps: aprData.dotEpxAprArthu3eps
         }
       },
       1: {
