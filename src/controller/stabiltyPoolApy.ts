@@ -111,12 +111,12 @@ const fetchAPRs = async () => {
     const bnbStabilytvl = await getTVL("0x61A787B3E2eE1e410310fC7c4A9f6C77430e1B57", 56, bscProvider)
     //console.log('arth balance', bnbStabilytvl);
     const tvlInUsdBnb = bnbStabilytvl * collateralPrices.ARTH || 2
-    const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 2000)
+    const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 0)
 
-    const ethStabilytvl = await getTVL("0x2c360b513AE52947EEb37cfAD57ac9B7c9373e1B", 1, ethProvider)
+    const ethStabilytvl = await getTVL("0xdac4961f0Ab8f7326D2d8ff75cFA1DBe29d558EC", 1, ethProvider)
     //console.log('arth balance', bnbStabilytvl);
     const tvlInUsdEth = ethStabilytvl * collateralPrices.ARTH || 2
-    const ethApr = await getAPR(tvlInUsdEth, collateralPrices, 0)
+    const ethApr = await getAPR(tvlInUsdEth, collateralPrices, 1000)
 
     return {   
         matic: String(polygonApr),
