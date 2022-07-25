@@ -111,7 +111,7 @@ const fetchAPRs = async () => {
     const bnbStabilytvl = await getTVL("0x61A787B3E2eE1e410310fC7c4A9f6C77430e1B57", 56, bscProvider)
     //console.log('arth balance', bnbStabilytvl);
     const tvlInUsdBnb = bnbStabilytvl * collateralPrices.ARTH || 2
-    const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 1000)
+    const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 500)
 
     const ethStabilytvl = await getTVL("0xdac4961f0Ab8f7326D2d8ff75cFA1DBe29d558EC", 1, ethProvider)
     //console.log('arth balance', bnbStabilytvl);
