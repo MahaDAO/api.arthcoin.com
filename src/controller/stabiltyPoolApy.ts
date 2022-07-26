@@ -68,6 +68,9 @@ const getAPR = async (
   monthlyRewardinMAHA
 ) => { 
     const rewardinUSD = 12 * monthlyRewardinMAHA * collateralPrices.MAHA;  
+
+    console.log("APR", (rewardinUSD / contractTVLinUSD) * 100);
+    
     return (rewardinUSD / contractTVLinUSD) * 100;
 };
 
@@ -84,6 +87,9 @@ const getTVL = async (
     );
 
     const balance = await arth.balanceOf(stabilityPool)
+
+    console.log("TVL", balance/ 1e18);
+    
 
     return Number(balance / 1e18)
 }
@@ -113,7 +119,7 @@ const fetchAPRs = async () => {
     const tvlInUsdBnb = bnbStabilytvl * collateralPrices.ARTH || 2
     const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, 500)
 
-    const ethStabilytvl = await getTVL("0xdac4961f0Ab8f7326D2d8ff75cFA1DBe29d558EC", 1, ethProvider)
+    const ethStabilytvl = await getTVL("0x2c360b513AE52947EEb37cfAD57ac9B7c9373e1B", 1, ethProvider)
     //console.log('arth balance', bnbStabilytvl);
     const tvlInUsdEth = ethStabilytvl * collateralPrices.ARTH || 2
     const ethApr = await getAPR(tvlInUsdEth, collateralPrices, 1000)
