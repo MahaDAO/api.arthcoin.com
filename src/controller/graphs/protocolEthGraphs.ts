@@ -44,7 +44,7 @@ const main = async (address) => {
     const ethPriceArray = []
     const ethDatapoints = await price.forEach((val, i) => {        
         ethPriceArray.push({
-            time: Number(val[0]),
+            time: Number((val[0] / 1000)),
             price: Number(val[1])
         })
     })
