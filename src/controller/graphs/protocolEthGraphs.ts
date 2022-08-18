@@ -12,11 +12,11 @@ const request = require('request-promise')
 const apiKey = process.env.ETHERSCAN_KEY
 const topic = '0x4d29de21de555af78a62fc82dd4bc05e9ae5b0660a37f04729527e0f22780cd3'
 
-const ethPrice = async (length) => {
-    let priceChart = await CoinGeckoClient.coins.fetchMarketChart('ethereum', {
-        vs_currency: "USD",
-        days: length,
-        interval: 'daily'
+const ethPrice = async (from, to) => {
+    let priceChart = await CoinGeckoClient.coins.fetchMarketChartRange('ethereum', {
+        vs_currency: "usd",
+        from: from,
+        to: to
     });
 
     return priceChart.data.prices
@@ -37,10 +37,10 @@ const main = async (address) => {
         ])
     })
 
-    //console.log(dataArray.reverse()[0].time, dataArray.reverse()[20].time, dataArray.length);
+    //console.log(dataArray[0][0], dataArray[dataArray.length - 1][0], dataArray.length);
     
     //console.log(dataArray.reverse());
-    let price = await ethPrice(dataArray.length)
+    let price = await ethPrice((dataArray[0][0] / 1000), ( dataArray[dataArray.length - 1][0] / 1000))
     // const ethPriceArray = []
     // const ethDatapoints = await price.forEach((val, i) => {        
     //     ethPriceArray.push(
