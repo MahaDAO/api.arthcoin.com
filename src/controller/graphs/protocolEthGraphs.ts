@@ -31,27 +31,27 @@ const main = async (address) => {
     //console.log(formatedData.result, formatedData.result.length); 
     const dataArray = []
     const datapoints = await formatedData.result.forEach(val => {
-        dataArray.push({
-            time: Number(val.timeStamp),
-            price: ( Number(val.data) / 1e18 )
-        })
+        dataArray.push([
+            Number(val.timeStamp) * 1000,
+            ( Number(val.data) / 1e18 )
+        ])
     })
 
     console.log(dataArray.reverse()[0].time, dataArray.reverse()[20].time, dataArray.length);
     
     //console.log(dataArray.reverse());
     let price = await ethPrice()
-    const ethPriceArray = []
-    const ethDatapoints = await price.forEach((val, i) => {        
-        ethPriceArray.push({
-            time: Number((val[0] / 1000)),
-            price: Number(val[1])
-        })
-    })
+    // const ethPriceArray = []
+    // const ethDatapoints = await price.forEach((val, i) => {        
+    //     ethPriceArray.push(
+    //         time: Number((val[0])),
+    //         price: Number(val[1])
+    //     )
+    // })
     
     return {
         protocolPrice: dataArray.reverse(),
-        ethPrice: ethPriceArray.reverse()
+        ethPrice: price.reverse()
     }
 }
 
