@@ -31,4 +31,8 @@ export const ethRinkebyProvider = new ethers.providers.JsonRpcProvider(
   nconf.get("RPC_URL_RINKEBY") || process.env.RPC_URL_RINKEBY
 );
 
+export const ethGoerliProvider = new ethers.providers.JsonRpcProvider(
+  nconf.get("RPC_URL_RINKEBY") || process.env.RPC_URL_Goerli
+);
+
 export const gasPrice = Number(nconf.get("GWEI")) * 1000000000;
