@@ -1,5 +1,11 @@
-import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../web3";
+
+import  Moralis  from 'moralis';
+import { EvmChain } from '@moralisweb3/evm-utils';
+import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../src/web3";
 import { ethers, BigNumber } from "ethers";
+
+import * as Bluebird from "bluebird";
+import _, { map } from 'underscore';
 import NodeCache from "node-cache";
 import cron from "node-cron";
 
@@ -8,17 +14,16 @@ import {
     CollateralKeys,
     ICollateralPrices,
 } from "./coingecko";
-  
-const cache = new NodeCache();
 
+const NFT = require("../abi/nftABI.json");
+const FACTORY = require("../abi/factory.json");
+const NFTMANAGER = require("../abi/uniswapNftManager.json");
 const IERC20 = require("../abi/IERC20.json");
-const GuageV2 = require("../abi/GuageV2.json");
 
-const goerli = {
-    bribesAddress: "0xd34f4f0244D4b90E51E412F265aAA6FEac2A5199",
-    gaugeAddress: "0xaFc6936593016cb6a5FE276399004aB72e921f86",
-    poolAddress: "0xe2e7e671ccb343e8fe1db0ec2968b0be4fcaeff9"
-}
+const address = '0xaFc6936593016cb6a5FE276399004aB72e921f86';
+const uniswapNftManager = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+const chain = EvmChain.GOERLI;
+const cache = new NodeCache();
 
 const tokenDecimals: ICollateralPrices = {
     ARTH: 18,
@@ -28,7 +33,7 @@ const tokenDecimals: ICollateralPrices = {
     BUSD: 18,
     DAI: 18,
     WETH: 18,
-    "bsc.3eps": 18, 
+    "bsc.3eps": 18,
     USDT: 6,
     MAHA: 18,
     SCLP: 18,
@@ -36,69 +41,188 @@ const tokenDecimals: ICollateralPrices = {
     BANNANA: 18,
     BSCUSDC: 18,
     BSCUSDT: 18,
-    FRAX: 18,
+    FRAX :18,
     SOLID: 18,
     MATIC: 18
 };
 
-export const getMahaAddress = async (chainid) => {
-    let tokenAddress 
-    switch (chainid) {
-        case (137):
-            tokenAddress = "0xeDd6cA8A4202d4a36611e2fff109648c4863ae19";
+export const getTokenName = async (address) => {    
+    let tokenName 
+    switch (address) {
+        case ('0xBEaB728FcC37DE548620F17e9A521374F4A35c02'):
+            tokenName = "ARTH";
         break;
-        case (56):
-            tokenAddress = "0xCE86F7fcD3B40791F63B86C3ea3B8B355Ce2685b";
-        break;
-        case (1):
-            tokenAddress = "0xB4d930279552397bbA2ee473229f89Ec245bc365";
+        case ('0xc003235c028A18E55bacE946E91fAe95769348BB'):
+            tokenName = "USDC";
         break;
         default:
-            tokenAddress = "NEW";
+            tokenName = "new";
     }
-  
-    return tokenAddress
+
+    return tokenName
 }
 
-const getTVL = async (
-    guage,
-    provider
-) => {
-    const guageAddress = new ethers.Contract(
-        guage,
-        GuageV2,
-        provider
-    );
-
-    const balance = await guageAddress.totalLiquiditySupply()
-    return Number(balance / 1e18)
-}
-
-const getRewardBalance = async (
-    guage,
-    chainid,
-    provider
-) => {
-    const tokenAddress = await getMahaAddress(chainid)
-    console.log("Maha", tokenAddress, chainid, guage);
-    
+//export const getRewardRemaing = async (collateralPrices, address) => {
+export const getRewardRemaing = async (collateralPrices) => {
     const maha = new ethers.Contract(
-        tokenAddress,
+        '0x106E0c36aD45cEAce8a778fa7365a2ce0500C3a2',
         IERC20,
-        provider
+        ethGoerliProvider
     );
-  
-    const balance = await maha.balanceOf(guage)
-    console.log("balance", Number(balance / 1e18));
     
-    return Number(balance / 1e18)
+    //const balance = await maha.balanceOf(address)
+    const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
+
+    const mahaUSD = (Number(balance / 1e18) * collateralPrices['MAHA'])    
+    return Number(mahaUSD)
 }
+
+const getUniswapLPTokenTVLinUSD = async (
+    lpAddress: string,
+    tokenAddresses: string[],
+    tokenNames: string[],
+    collateralPrices: ICollateralPrices,
+    provider: ethers.providers.Provider
+) => {    
+    const token1 = new ethers.Contract(tokenAddresses[0], IERC20, provider);
+    const token2 = new ethers.Contract(tokenAddresses[1], IERC20, provider);
+  
+    const token1Balance: BigNumber = await token1.balanceOf(lpAddress);
+    const token2Balance: BigNumber = await token2.balanceOf(lpAddress);
+
+    const token1Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[0]]);
+    const token2Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[1]]);
+  
+    const token1Amount = token1Balance.div(token1Decimals);
+    const token2Amount = token2Balance.div(token2Decimals);
+  
+    const token1USDValue = token1Amount
+      .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
+      .div(1000);
+    const token2USDValue = token2Amount
+      .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
+      .div(1000);
+
+    return Number(token1USDValue.add(token2USDValue));
+};
 
 const getAPR = async (
     contractTVLinUSD: number,
-    collateralPrices: ICollateralPrices,
     monthlyRewardinMAHA
 ) => { 
-    const rewardinUSD = 12 * monthlyRewardinMAHA * collateralPrices.MAHA;  
+    const rewardinUSD = 12 * monthlyRewardinMAHA;  
     return (rewardinUSD / contractTVLinUSD) * 100;
+};
+
+const main = async (guageAddress) => {
+    await Moralis.start({
+        apiKey: 'sWWpwWUpyEqnZtM8PawuTsxSIUYgVmmR4KoKSWKuDgRiIbCE7kjLLe0nGhgQVsIl',
+        // ...and any other configuration
+    });
+
+    const rewardContract = new ethers.Contract(
+        '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+        NFT, 
+        ethGoerliProvider
+    );
+
+    const nftManagerContract = new ethers.Contract(
+        '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+        NFTMANAGER, 
+        ethGoerliProvider
+    );
+
+    const factory = new ethers.Contract(
+        '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+        FACTORY, 
+        ethGoerliProvider
+    );
+    
+    // const response = await nftManagerContract.balanceOf({
+    //     address
+    // });
+    
+    const response = await Moralis.EvmApi.account.getNFTsForContract({
+        address: guageAddress,
+        tokenAddress: uniswapNftManager,
+        chain,
+    });
+
+    const nftArray = response.result
+    //console.log(nftArray);
+    
+    let tokenId = []
+    let positions = []
+
+    await Bluebird.mapSeries(nftArray, async (data) => {
+        tokenId.push(data._data.tokenId)
+    })
+
+    //console.log(tokenId);
+
+    await Bluebird.mapSeries(tokenId, async (data) => {
+        const postionData = await rewardContract.positions(data)
+        positions.push(postionData)
+    })
+
+    let lpTokenAddress = []
+    await Bluebird.mapSeries(positions, async (data, i) => {
+        const lpAddress = await factory.getPool(data.token0, data.token1, data.fee)
+        lpTokenAddress.push({
+            lpAddress: lpAddress,
+            token0: data.token0,
+            token1: data.token1,
+            token0Name: await getTokenName(data.token0),
+            token1Name: await getTokenName(data.token1)
+        });
+    })    
+
+    let allLPAddress = [...new Map(lpTokenAddress.map(item =>
+        [item['lpAddress'], item])).values()];    
+    
+    let lPUsdWorth
+    const collateralPrices = await getCollateralPrices();
+    await Bluebird.mapSeries(allLPAddress, async (data, i) => {
+        lPUsdWorth = await getUniswapLPTokenTVLinUSD(
+            data.lpAddress,
+            [data.token0, data.token1],
+            [data.token0Name, data.token1Name],
+            collateralPrices,
+            ethGoerliProvider
+        )
+    }) 
+
+    //console.log(lPUsdWorth);
+    
+    let rewards = await getRewardRemaing(collateralPrices)
+    //console.log(rewards);
+    
+    let APY = await getAPR(rewards, lPUsdWorth)
+    //console.log(APY);
+    return {
+        guageAddress: APY
+    }
+}
+
+const fetchAndCache = async () => {
+    const data = await main(address);
+    cache.set("protocol_v3_apy", JSON.stringify(data));
+};
+  
+cron.schedule("0 * * * * *", fetchAndCache); // every minute
+fetchAndCache();
+
+export default async (_req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+
+    // 1 min cache
+    if (cache.get("protocol_v3_apy")) {
+        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+        res.send(cache.get("protocol_v3_apy"));
+    } else {
+        await fetchAndCache();
+        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+        res.send(cache.get("protocol_v3_apy"));
+    }
 };
