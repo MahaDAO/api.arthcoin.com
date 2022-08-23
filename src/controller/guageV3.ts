@@ -1,7 +1,7 @@
 
 import  Moralis  from 'moralis';
 import { EvmChain } from '@moralisweb3/evm-utils';
-import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../src/web3";
+import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
 
 import * as Bluebird from "bluebird";
@@ -22,8 +22,13 @@ const IERC20 = require("../abi/IERC20.json");
 
 const address = '0xaFc6936593016cb6a5FE276399004aB72e921f86';
 const uniswapNftManager = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
-const chain = EvmChain.GOERLI;
+const chain = EvmChain.ETHEREUM;
 const cache = new NodeCache();
+
+const guageAddresses = {
+    ARTHUSDCGauge: "0x174327F7B7A624a87bd47b5d7e1899e3562646DF", // calculate rewards remaining here
+    ARTHMAHAGauge: "0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8", // calculate rewards remaining here
+}
 
 const tokenDecimals: ICollateralPrices = {
     ARTH: 18,
@@ -126,11 +131,11 @@ const main = async (guageAddress) => {
         ethGoerliProvider
     );
 
-    const nftManagerContract = new ethers.Contract(
-        '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
-        NFTMANAGER, 
-        ethGoerliProvider
-    );
+    // const nftManagerContract = new ethers.Contract(
+    //     '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+    //     NFTMANAGER, 
+    //     ethGoerliProvider
+    // );
 
     const factory = new ethers.Contract(
         '0x1F98431c8aD98523631AE4a59f267346ea31F984',
@@ -149,7 +154,7 @@ const main = async (guageAddress) => {
     });
 
     const nftArray = response.result
-    //console.log(nftArray);
+    console.log('nftArray', nftArray);
     
     let tokenId = []
     let positions = []
@@ -192,21 +197,23 @@ const main = async (guageAddress) => {
         )
     }) 
 
-    //console.log(lPUsdWorth);
+    console.log(lPUsdWorth);
     
     let rewards = await getRewardRemaing(collateralPrices)
     //console.log(rewards);
     
     let APY = await getAPR(rewards, lPUsdWorth)
-    //console.log(APY);
+    console.log(APY);
     return {
         guageAddress: APY
     }
 }
 
 const fetchAndCache = async () => {
-    const data = await main(address);
-    cache.set("protocol_v3_apy", JSON.stringify(data));
+    const arthMahaGuage = await main(guageAddresses.ARTHMAHAGauge);
+    const arthUsdcGuage = await main(guageAddresses.ARTHUSDCGauge);
+
+    cache.set("protocol_v3_apy", JSON.stringify(arthMahaGuage));
 };
   
 cron.schedule("0 * * * * *", fetchAndCache); // every minute

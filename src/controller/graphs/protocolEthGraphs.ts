@@ -22,7 +22,7 @@ const ethPrice = async (from, to) => {
     return priceChart.data.prices
 }
 
-const main = async (address) => {
+export const protocolETHGraph = async (address) => {
     const url = `https://api.etherscan.io/api?module=logs&action=getLogs&address=${address}&page=1&offset=1000&apikey=${apiKey}&topic0=${topic}`
 
     const data = await request.get(url)
@@ -56,7 +56,7 @@ const main = async (address) => {
 }
 
 const fetchAndCache = async () => {
-    const data = await main('0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00');
+    const data = await protocolETHGraph('0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00');
     cache.set("protocol_eth_graph", JSON.stringify(data));
 };
   
