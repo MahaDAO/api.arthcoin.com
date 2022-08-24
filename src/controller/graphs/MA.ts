@@ -22,6 +22,23 @@ let prices = [
 
 let p = [20.30, 21.40, 19.70, 20.43, 21.54, 23.43]
 
+const getEthPrice = async (days) => {
+    try {        
+        let priceChart = await CoinGeckoClient.coins.fetchMarketChart('ethereum', {
+            vs_currency: "usd",
+            days: days,
+            interval: 'daily'
+        });
+
+        //console.log(priceChart.data.prices);
+        return priceChart.data.prices
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+//getEthPrice(30)
+
 function simpleMovingAverage(prices, window) {
     if (!prices || prices.length < window) {
       return [];
@@ -44,7 +61,7 @@ function simpleMovingAverage(prices, window) {
             sum += a[1]
         });
 
-        console.log('sum', sum);
+        //console.log('sum', sum);
         simpleMovingAverages.push(
             [ windowSlice[windowSlice.length -1][0], sum / window ]
         );
@@ -53,6 +70,36 @@ function simpleMovingAverage(prices, window) {
     return simpleMovingAverages;
 }
 
-simpleMovingAverage(prices, 5)
+// simpleMovingAverage(prices, 5)
+const fetchAndCache = async () => {
+    const ethPrice = await getEthPrice(60)
+    const sevenDayMA = await simpleMovingAverage(ethPrice, 7);
+    console.log('sevenDayMA.length', sevenDayMA.length);
+    
+    const ethPrice30 = await getEthPrice(85)
+    const thirtyDayMA = await simpleMovingAverage(ethPrice30, 30)
+    console.log('thirtyDayMA.length', thirtyDayMA.length);
+    
+    cache.set("protocol_eth_7_MA", JSON.stringify({
+        sevenDayMA: sevenDayMA,
+        thirtyDayMA: thirtyDayMA
+    }));
+};
+  
+cron.schedule("0 * * * * *", fetchAndCache); // every minute
+fetchAndCache();
 
-// (21.54 + 20.43 + 19.70 + 21.40 + 20.30 ) / 5
+export default async (_req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+
+    // 1 min cache
+    if (cache.get("protocol_eth_7_MA")) {
+        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+        res.send(cache.get("protocol_eth_7_MA"));
+    } else {
+        await fetchAndCache();
+        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+        res.send(cache.get("protocol_eth_7_MA"));
+    }
+};
