@@ -16,7 +16,7 @@ const ethPrice = async (from, to) => {
     let priceChart = await CoinGeckoClient.coins.fetchMarketChartRange('ethereum', {
         vs_currency: "usd",
         from: from,
-        to: to
+        to: to,
     });
 
     return priceChart.data.prices

@@ -20,7 +20,14 @@ const IERC20 = require("../src/abi/IERC20.json");
 
 const address = '0xaFc6936593016cb6a5FE276399004aB72e921f86';
 const uniswapNftManager = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
-const chain = EvmChain.GOERLI;
+const chain = EvmChain.ETHEREUM;
+
+const guageAddresses = {
+    ARTHUSDCGauge: "0x174327F7B7A624a87bd47b5d7e1899e3562646DF", // calculate rewards remaining here
+    ARTHMAHAGauge: "0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8", // calculate rewards remaining here
+    ARTHUSDCPool: "0x031a1d307C91fbDE01005Ec2Ebc5Fcb03b6f80aB",
+    ARTHMAHAPool: "0xC5Ee69662e7EF79e503be9D54C237d5aafaC305d"
+}
 
 const tokenDecimals: ICollateralPrices = {
     ARTH: 18,
@@ -43,14 +50,33 @@ const tokenDecimals: ICollateralPrices = {
     MATIC: 18
 };
 
+// export const getTokenName = async (address) => {    
+//     let tokenName 
+//     switch (address) {
+//         case ('0xBEaB728FcC37DE548620F17e9A521374F4A35c02'):
+//             tokenName = "ARTH";
+//         break;
+//         case ('0xc003235c028A18E55bacE946E91fAe95769348BB'):
+//             tokenName = "USDC";
+//         break;
+//         default:
+//             tokenName = "new";
+//     }
+
+//     return tokenName
+// }
+
 export const getTokenName = async (address) => {    
     let tokenName 
     switch (address) {
-        case ('0xBEaB728FcC37DE548620F17e9A521374F4A35c02'):
+        case ('0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71'):
             tokenName = "ARTH";
         break;
-        case ('0xc003235c028A18E55bacE946E91fAe95769348BB'):
+        case ('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'):
             tokenName = "USDC";
+        break;
+        case ('0xB4d930279552397bbA2ee473229f89Ec245bc365'):
+            tokenName = "MAHA";
         break;
         default:
             tokenName = "new";
@@ -62,16 +88,16 @@ export const getTokenName = async (address) => {
 //export const getRewardRemaing = async (collateralPrices, address) => {
 export const getRewardRemaing = async (collateralPrices) => {
     const maha = new ethers.Contract(
-        '0x106E0c36aD45cEAce8a778fa7365a2ce0500C3a2',
+        '0xb4d930279552397bba2ee473229f89ec245bc365',
         IERC20,
-        ethGoerliProvider
+        ethProvider
     );
     
     //const balance = await maha.balanceOf(address)
-    const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
+    // const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
 
-    const mahaUSD = (Number(balance / 1e18) * collateralPrices['MAHA'])    
-    return Number(mahaUSD)
+    // const mahaUSD = (Number(balance / 1e18) * collateralPrices['MAHA'])    
+    return 1000 //Number(mahaUSD)
 }
 
 const getUniswapLPTokenTVLinUSD = async (
@@ -120,19 +146,13 @@ const main = async (guageAddress) => {
     const rewardContract = new ethers.Contract(
         '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
         NFT, 
-        ethGoerliProvider
-    );
-
-    const nftManagerContract = new ethers.Contract(
-        '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
-        NFTMANAGER, 
-        ethGoerliProvider
+        ethProvider
     );
 
     const factory = new ethers.Contract(
         '0x1F98431c8aD98523631AE4a59f267346ea31F984',
         FACTORY, 
-        ethGoerliProvider
+        ethProvider
     );
     
     // const response = await nftManagerContract.balanceOf({
@@ -146,7 +166,7 @@ const main = async (guageAddress) => {
     });
 
     const nftArray = response.result
-    //console.log(nftArray);
+    console.log(nftArray);
     
     let tokenId = []
     let positions = []
@@ -162,8 +182,9 @@ const main = async (guageAddress) => {
         positions.push(postionData)
     })
 
+    console.log(positions);
     let lpTokenAddress = []
-    await Bluebird.mapSeries(positions, async (data, i) => {
+    await Bluebird.mapSeries(positions, async (data) => {
         const lpAddress = await factory.getPool(data.token0, data.token1, data.fee)
         lpTokenAddress.push({
             lpAddress: lpAddress,
@@ -173,6 +194,9 @@ const main = async (guageAddress) => {
             token1Name: await getTokenName(data.token1)
         });
     })    
+
+    console.log('lpTokenAddress', lpTokenAddress);
+    
 
     let allLPAddress = [...new Map(lpTokenAddress.map(item =>
         [item['lpAddress'], item])).values()];    
@@ -185,7 +209,7 @@ const main = async (guageAddress) => {
             [data.token0, data.token1],
             [data.token0Name, data.token1Name],
             collateralPrices,
-            ethGoerliProvider
+            ethProvider
         )
     }) 
 
@@ -198,4 +222,4 @@ const main = async (guageAddress) => {
     console.log(APY);
 }
 
-main(address)
+main(guageAddresses.ARTHUSDCGauge)

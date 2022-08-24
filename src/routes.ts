@@ -9,6 +9,7 @@ import leverage from "./controller/leverage";
 import ethProtocolGraph from "./controller/graphs/protocolEthGraphs"
 import ethProtocolMAGraph from "./controller/graphs/MA"
 import ethProtocolCPIGraph from "./controller/graphs/CPI"
+import guageV3Apy from "./controller/guageV3"
 
 const router = Router();
 
@@ -27,9 +28,9 @@ router.get("/apy/eth/protocol/graph", ethProtocolGraph);
 router.get("/apy/eth/protocol/graph/MA", ethProtocolMAGraph);
 router.get("/apy/eth/protocol/graph/CPI", ethProtocolCPIGraph);
 
-
 router.post("/apy/qlp", (req, res) => { qlp(req, res) });
 router.post("/apy/lp", (req, res) => { lpPrice(req, res) });
+router.post("/apy/guageV3Apy", (req, res) => { guageV3Apy(req, res) });
 
 router.get("/apy/leverage", (req, res) => { leverage(req, res) });
 
