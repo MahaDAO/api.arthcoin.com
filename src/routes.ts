@@ -30,7 +30,7 @@ router.get("/apy/eth/protocol/graph/CPI", ethProtocolCPIGraph);
 
 router.post("/apy/qlp", (req, res) => { qlp(req, res) });
 router.post("/apy/lp", (req, res) => { lpPrice(req, res) });
-router.post("/apy/guageV3Apy", (req, res) => { guageV3Apy(req, res) });
+router.get("/apy/guageV3Apy", guageV3Apy);
 
 router.get("/apy/leverage", (req, res) => { leverage(req, res) });
 

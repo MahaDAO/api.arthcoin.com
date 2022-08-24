@@ -13,14 +13,13 @@ import {
     getCollateralPrices,
     CollateralKeys,
     ICollateralPrices,
-} from "../controller/coingecko";
+} from "./coingecko";
 
-const NFT = require("./nftABI.json");
-const FACTORY = require("./factory.json");
-const NFTMANAGER = require("./uniswapNftManager.json");
-const IERC20 = require("../src/abi/IERC20.json");
+const NFT = require("../abi/nftABI.json");
+const FACTORY = require("../abi/factory.json");
+const NFTMANAGER = require("../abi/uniswapNftManager.json");
+const IERC20 = require("../abi/IERC20.json");
 
-const address = '0xaFc6936593016cb6a5FE276399004aB72e921f86';
 const uniswapNftManager = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
 const chain = EvmChain.ETHEREUM;
 
@@ -207,12 +206,18 @@ const nftV3 = async (guageAddress) => {
     
     let APY = await getAPR(rewards, lPUsdWorth)
     //console.log(APY);
+    return APY
 }
 
 const fetchAndCache = async () => {
     const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
     const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
 
+    console.log('nft v3 apy', {
+        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
+        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
+    });
+    
     cache.set("guageV3-apr", JSON.stringify({
         '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
         '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
