@@ -3,7 +3,6 @@ require('dotenv').config()
 import { Signature } from '../database/models/signature'
 
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-
 const doc = new GoogleSpreadsheet('1mtNZW5gj3mPz4rafvwomsXkeyb5Kj1Hi_bXtRgO_Ggk');
 
 export const checkSignature = async (req, res) => {
@@ -23,6 +22,8 @@ export const checkSignature = async (req, res) => {
 }
 
 export const writeSignature = async (req, res) => {
+    console.log(req.body);
+    
     let walletAddress = req.body.walletAddress
     let text = req.body.text
     let signature = req.body.signature
@@ -49,9 +50,12 @@ export const writeSignature = async (req, res) => {
         })
     
         await writeSignature.save()
-
-        const addRow = await sheet.addRow({ Address: walletAddress , Signature: signature });
+        const addRow = await sheet.addRow({ 
+            Address: walletAddress, 
+            Signature: signature,
+            Text: signature
+        });
     }
     
-
+    return { success: true }
 }

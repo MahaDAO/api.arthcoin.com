@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import governance from "./controller/governance";
 import loans from "./controller/loans";
 import guage from "./controller/gauageApy";
@@ -10,6 +11,7 @@ import ethProtocolGraph from "./controller/graphs/protocolEthGraphs"
 import ethProtocolMAGraph from "./controller/graphs/MA"
 import ethProtocolCPIGraph from "./controller/graphs/CPI"
 import guageV3Apy from "./controller/guageV3"
+import * as signature from "./controller/signature"
 
 const router = Router();
 
@@ -33,5 +35,8 @@ router.post("/apy/lp", (req, res) => { lpPrice(req, res) });
 router.get("/apy/guageV3Apy", guageV3Apy);
 
 router.get("/apy/leverage", (req, res) => { leverage(req, res) });
+
+router.post("/apy/check/singnature", (req, res) => { signature.checkSignature(req, res) })
+router.post("/apy/singnature", (req, res) => { signature.writeSignature(req, res) })
 
 export default router;
