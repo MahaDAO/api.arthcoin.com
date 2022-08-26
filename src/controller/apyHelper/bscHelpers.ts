@@ -163,10 +163,10 @@ const lookUpPrices = async function(id_array) {
 function printAPR(rewardTokenTicker, rewardPrice, poolRewardsPerWeek,
   stakeTokenTicker, staked_tvl, userStaked, poolTokenPrice,
   fixedDecimals) {
-    console.log('line 166 bsc', poolRewardsPerWeek, rewardPrice, staked_tvl);
+    // console.log('line 166 bsc', poolRewardsPerWeek, rewardPrice, staked_tvl);
     var usdPerWeek = poolRewardsPerWeek * rewardPrice;
     fixedDecimals = fixedDecimals ?? 2;
-    console.log(`${rewardTokenTicker} Per Week: ${poolRewardsPerWeek.toFixed(fixedDecimals)}`);
+    // console.log(`${rewardTokenTicker} Per Week: ${poolRewardsPerWeek.toFixed(fixedDecimals)}`);
     var weeklyAPR = usdPerWeek / staked_tvl * 100;
     var dailyAPR = weeklyAPR / 7;
     var yearlyAPR = weeklyAPR * 52;
@@ -205,7 +205,7 @@ export function printChefPool(App, chefAbi, chefAddr, prices, tokens, poolInfo, 
 
   const apr = printAPR(rewardTokenTicker, rewardPrice || 8.45, poolRewardsPerWeek, poolPrices.stakeTokenTicker,
   staked_tvl, userStaked, poolPrices.price, fixedDecimals);
-  console.log('bsc helper 207', apr);
+  // console.log('bsc helper 207', apr);
   
   return apr;
 }
@@ -214,19 +214,19 @@ export async function loadBscChefContract(App, tokens, prices, chef, chefAddress
   rewardTokenFunction, rewardsPerBlockFunction, rewardsPerWeekFixed, pendingRewardsFunction,
   deathPoolIndices) {
 
-    console.log('chef contract');
+    // console.log('chef contract');
     
     const chefContract = chef ?? new ethers.Contract(chefAddress, chefAbi, App.provider);
 
     const poolCount = parseInt(await chefContract.poolLength(), 10);
     const totalAllocPoints = await chefContract.totalAllocPoint();
 
-    console.log('poolCount', poolCount);
+    // console.log('poolCount', poolCount);
 
     var tokens:any = {};
 
     const rewardTokenAddress = await chefContract.callStatic[rewardTokenFunction]();
-    console.log('rewardTokenAddress', rewardTokenAddress);
+    // console.log('rewardTokenAddress', rewardTokenAddress);
     
     const rewardToken = await getBscToken(App, rewardTokenAddress, chefAddress);
     
@@ -281,7 +281,7 @@ export async function loadBscChefContract(App, tokens, prices, chef, chefAddress
     //       + ` Week $${formatMoney(totalUserStaked*averageApr/52)}`
     //       + ` Year $${formatMoney(totalUserStaked*averageApr)}\n`);
     // }
-    console.log('averageApr', averageApr);
+    // console.log('averageApr', averageApr);
     return { prices, totalUserStaked, totalStaked, averageApr }
 }
 

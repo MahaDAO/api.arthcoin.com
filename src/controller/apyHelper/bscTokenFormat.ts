@@ -371,7 +371,7 @@ export async function getBscToken(App, tokenAddress, stakingAddress) {
       return erc20tok;
     }
     catch(err) {
-      console.log(`Couldn't match ${tokenAddress} to any known token type.`);
+      // console.log(`Couldn't match ${tokenAddress} to any known token type.`);
     }
 }
 

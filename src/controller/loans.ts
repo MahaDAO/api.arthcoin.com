@@ -315,7 +315,7 @@ const fetchAPRs = async () => {
     polygonProvider
   );
 
-  console.log("arthu3eps");
+  // console.log("arthu3eps");
   const arthu3epsBscTVL = await getTVL(
     bsc.arthu3epsStaking,
     bsc.arthu3epsLP,
@@ -325,7 +325,7 @@ const fetchAPRs = async () => {
     bscProvider
   );
   
-  console.log("arthValeps");
+  // console.log("arthValeps");
   const arthValepsBscTVL = await getTVL(
     bsc.arthValStaking,
     bsc.arthValLP,
@@ -335,7 +335,7 @@ const fetchAPRs = async () => {
     bscProvider
   );
   
-  console.log("arthu3epsV2");
+  // console.log("arthu3epsV2");
   const arthu3epsV2BscTVL = await getTVL(
     bsc.arthu3epsStakingV2,
     bsc.arthu3epsLP,

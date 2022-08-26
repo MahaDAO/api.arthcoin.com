@@ -121,7 +121,7 @@ const fetchAPRs = async () => {
         collateralPrices,
         ethRinkebyProvider
     )
-    console.log(Number(mahaSolidLPTVL));
+    // console.log(Number(mahaSolidLPTVL));
     
     const rewardRemainig = await getRewardinTVL(
         rinkeby.mahaSolidLP,
@@ -130,10 +130,10 @@ const fetchAPRs = async () => {
         collateralPrices,
         ethRinkebyProvider
     )
-    console.log(rewardRemainig);
+    // console.log(rewardRemainig);
     
     const mahaSolidAPR = await getAPR(rewardRemainig, mahaSolidLPTVL)
-    console.log(mahaSolidAPR);
+    // console.log(mahaSolidAPR);
 }
 
 fetchAPRs()

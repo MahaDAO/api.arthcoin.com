@@ -37,7 +37,7 @@ const main = async (address) => {
         })
     })
 
-    console.log(dataArray.reverse()[0].time, dataArray.reverse()[20].time, dataArray.length);
+    // console.log(dataArray.reverse()[0].time, dataArray.reverse()[20].time, dataArray.length);
     
     //console.log(dataArray.reverse());
     let price = await ethPrice()

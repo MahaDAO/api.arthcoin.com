@@ -143,19 +143,19 @@ const fetchAPRs = async () => {
 
     const polygonStabilytvl = await getTVL("0x9209757eC192caA894Ad8eBC393DeB95b2ed5d0a", 137, polygonProvider)
     const polygonStabilyRewardtvl = await getRewardBalance("0x9209757eC192caA894Ad8eBC393DeB95b2ed5d0a", 137, polygonProvider)
-    console.log('polygonStabilyRewardtvl', polygonStabilyRewardtvl); 
+    // console.log('polygonStabilyRewardtvl', polygonStabilyRewardtvl); 
     const tvlInUsdPolygon = polygonStabilytvl * collateralPrices.ARTH || 2
     const polygonApr = await getAPR(tvlInUsdPolygon, collateralPrices,   0)
 
     const bnbStabilytvl = await getTVL("0x61A787B3E2eE1e410310fC7c4A9f6C77430e1B57", 56, bscProvider)
     const bnbnStabilyRewardtvl = await getRewardBalance("0x61A787B3E2eE1e410310fC7c4A9f6C77430e1B57", 56, bscProvider)
-    console.log('bnbnStabilyRewardtvl', bnbnStabilyRewardtvl);
+    // console.log('bnbnStabilyRewardtvl', bnbnStabilyRewardtvl);
     const tvlInUsdBnb = bnbStabilytvl * collateralPrices.ARTH || 2
     const bnbApr = await getAPR(tvlInUsdBnb, collateralPrices, bnbnStabilyRewardtvl || 500)
 
     const ethStabilytvl = await getTVL("0x2c360b513AE52947EEb37cfAD57ac9B7c9373e1B", 1, ethProvider)
     const ethStabilyRewardtvl = await getRewardBalance("0x2c360b513AE52947EEb37cfAD57ac9B7c9373e1B", 1, ethProvider)
-    console.log('ethStabilyRewardtvl', ethStabilyRewardtvl);
+    // console.log('ethStabilyRewardtvl', ethStabilyRewardtvl);
     const tvlInUsdEth = ethStabilytvl * collateralPrices.ARTH || 2
     const ethApr = await getAPR(tvlInUsdEth, collateralPrices, ethStabilyRewardtvl || 1000)
 
@@ -168,7 +168,7 @@ const fetchAPRs = async () => {
 
 const fetchAndCache = async () => {
   const data = await fetchAPRs();
-  console.log(data);
+  // console.log(data);
   
   cache.set("stability-apr", JSON.stringify(data));
 };

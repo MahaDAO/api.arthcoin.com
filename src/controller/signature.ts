@@ -22,7 +22,7 @@ export const checkSignature = async (req, res) => {
 }
 
 export const writeSignature = async (req, res) => {
-    console.log(req.body);
+    console.log('body', req.body);
     
     let walletAddress = req.body.walletAddress
     let text = req.body.text
@@ -55,7 +55,9 @@ export const writeSignature = async (req, res) => {
             Signature: signature,
             Text: signature
         });
+
+        res.send({ success: true })
+    } else {
+        res.send({ success: false })
     }
-    
-    return { success: true }
 }

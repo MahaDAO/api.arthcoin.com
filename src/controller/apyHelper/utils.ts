@@ -56,7 +56,7 @@ export const init_ethers = async () => {
 
     App.YOUR_ADDRESS = wallet.address
 
-    console.log(App);
+    // console.log(App);
     
     return App
 }

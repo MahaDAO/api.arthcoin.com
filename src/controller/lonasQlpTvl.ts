@@ -45,7 +45,7 @@ const usdcUsdtQLP = async (provider: ethers.providers.Provider) => {
     
     return { QlpTvl: collateral * (price * 2) };
   } catch (e) {
-    console.log(e);
+    // console.log(e);
   } 
 };
 

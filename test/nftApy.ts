@@ -166,7 +166,7 @@ const main = async (guageAddress) => {
     });
 
     const nftArray = response.result
-    console.log(nftArray);
+    // console.log(nftArray);
     
     let tokenId = []
     let positions = []
@@ -182,7 +182,7 @@ const main = async (guageAddress) => {
         positions.push(postionData)
     })
 
-    console.log(positions);
+    // console.log(positions);
     let lpTokenAddress = []
     await Bluebird.mapSeries(positions, async (data) => {
         const lpAddress = await factory.getPool(data.token0, data.token1, data.fee)
@@ -195,7 +195,7 @@ const main = async (guageAddress) => {
         });
     })    
 
-    console.log('lpTokenAddress', lpTokenAddress);
+    // console.log('lpTokenAddress', lpTokenAddress);
     
 
     let allLPAddress = [...new Map(lpTokenAddress.map(item =>
@@ -213,13 +213,13 @@ const main = async (guageAddress) => {
         )
     }) 
 
-    console.log(lPUsdWorth);
+    // console.log(lPUsdWorth);
     
     let rewards = await getRewardRemaing(collateralPrices)
-    console.log(rewards);
+    // console.log(rewards);
     
     let APY = await getAPR(rewards, lPUsdWorth)
-    console.log(APY);
+    // console.log(APY);
 }
 
 main(guageAddresses.ARTHUSDCGauge)

@@ -191,15 +191,15 @@ function getGelatoPrices(tokens, prices, pool, chain="eth")
   var t1 = getParameterCaseInsensitive(tokens,pool.token1);
   var p1 = getParameterCaseInsensitive(prices,pool.token1)?.usd;
   if (p0 == null || p1 == null) {
-    console.log(`Missing prices for tokens ${pool.token0} and ${pool.token1}.`);
+    // console.log(`Missing prices for tokens ${pool.token0} and ${pool.token1}.`);
     return undefined;
   }
   if (t0?.decimals == null) {
-    console.log(`Missing information for token ${pool.token0}.`);
+    // console.log(`Missing information for token ${pool.token0}.`);
     return undefined;
   }
   if (t1?.decimals == null) {
-    console.log(`Missing information for token ${pool.token1}.`);
+    // console.log(`Missing information for token ${pool.token1}.`);
     return undefined;
   }
   var q0 = pool.q0 / 10 ** t0.decimals;
@@ -240,15 +240,15 @@ function getUniPrices(tokens, prices, pool, chain="eth")
   var t1 = getParameterCaseInsensitive(tokens,pool.token1);
   var p1 = getParameterCaseInsensitive(prices,pool.token1)?.usd;
   if (p0 == null && p1 == null) {
-    console.log(`Missing prices for tokens ${pool.token0} and ${pool.token1}.`);
+    // console.log(`Missing prices for tokens ${pool.token0} and ${pool.token1}.`);
     return undefined;
   }
   if (t0?.decimals == null) {
-    console.log(`Missing information for token ${pool.token0}.`);
+    // console.log(`Missing information for token ${pool.token0}.`);
     return undefined;
   }
   if (t1?.decimals == null) {
-    console.log(`Missing information for token ${pool.token1}.`);
+    // console.log(`Missing information for token ${pool.token1}.`);
     return undefined;
   }
   var q0 = pool.q0 / 10 ** t0.decimals;

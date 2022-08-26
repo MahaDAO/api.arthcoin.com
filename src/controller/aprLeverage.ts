@@ -38,7 +38,7 @@ const apeSwapMain = async (
     const rewardsPerWeek = await APESWAP_CHEF.cakePerBlock() /1e18
       * 604800 / 3;
 
-    console.log('rewardsPerWeek', rewardsPerWeek);
+    //console.log('rewardsPerWeek', rewardsPerWeek);
     
 
     const rewardsSoulPerWeek = await APESWAP_SOUL_CHEF.rewardPerBlock() /1e18
@@ -46,7 +46,7 @@ const apeSwapMain = async (
 
     const tokens = {};
     const prices = await getBscPrices();
-    console.log("prices 49", prices);
+    //console.log("prices 49", prices);
     
 
     await loadBscChefContract(App, tokens, prices, APESWAP_CHEF, APESWAP_CHEF_ADDR, APESWAP_CHEF_ABI, rewardTokenTicker,
@@ -58,7 +58,7 @@ const apeSwapMain = async (
 
 async function loadSoulChefContract(App, tokens, prices, chef, chefAddress, chefAbi, rewardTokenTicker,
     rewardTokenFunction, rewardsPerBlockFunction, rewardsPerWeekFixed, pendingRewardsFunction) {
-      console.log("here 56");
+    //  console.log("here 56");
       
     const chefContract = chef ?? new ethers.Contract(chefAddress, chefAbi, App.provider);
   
@@ -93,7 +93,7 @@ async function loadSoulChefContract(App, tokens, prices, chef, chefAddress, chef
       }
     }
 
-    console.log('aprs leverage', aprs);
+    // console.log('aprs leverage', aprs);
     
     let totalUserStaked=0, totalStaked=0, averageApr=0;
     for (const a of aprs) {
@@ -107,7 +107,7 @@ async function loadSoulChefContract(App, tokens, prices, chef, chefAddress, chef
     }
     averageApr = averageApr / totalUserStaked;
 
-    console.log("apr", { prices, totalUserStaked, totalStaked, averageApr });
+    // console.log("apr", { prices, totalUserStaked, totalStaked, averageApr });
     
     return { prices, totalUserStaked, totalStaked, averageApr }
 }
