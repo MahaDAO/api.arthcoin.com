@@ -118,9 +118,9 @@ const getUniswapLPTokenTVLinUSD = async (
 
 const getAPR = async (
     contractTVLinUSD: number,
-    monthlyRewardinMAHA
+    weeklyRewardinMAHA
 ) => { 
-    const rewardinUSD = 12 * monthlyRewardinMAHA;  
+    const rewardinUSD = 52 * weeklyRewardinMAHA;  
     return (rewardinUSD / contractTVLinUSD) * 100;
 };
 
