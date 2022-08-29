@@ -73,7 +73,7 @@ export const getTokenName = async (address) => {
 }
 
 //export const getRewardRemaing = async (collateralPrices, address) => {
-export const getRewardRemaing = async (collateralPrices) => {
+export const getRewardRemaing = async (amount, collateralPrices) => {
     const maha = new ethers.Contract(
         '0xb4d930279552397bba2ee473229f89ec245bc365',
         IERC20,
@@ -84,7 +84,7 @@ export const getRewardRemaing = async (collateralPrices) => {
     // const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
 
     // const mahaUSD = (Number(balance / 1e18) * collateralPrices['MAHA'])    
-    return (1000 * collateralPrices['MAHA']) //Number(mahaUSD)
+    return (amount * collateralPrices['MAHA']) //Number(mahaUSD)
 }
 
 const getUniswapLPTokenTVLinUSD = async (
@@ -201,13 +201,19 @@ const nftV3 = async (guageAddress) => {
 
     //console.log(lPUsdWorth);
     
-    let rewards = await getRewardRemaing(collateralPrices)
+    let rewards 
+    if(guageAddress == guageAddresses.ARTHMAHAGauge){
+        rewards = await getRewardRemaing(1800, collateralPrices)
+    } else if (guageAddress == guageAddresses.ARTHUSDCGauge) {
+        rewards = await getRewardRemaing(200, collateralPrices)
+    }
+     
     //console.log(rewards);
     
     let APY = await getAPR(lPUsdWorth, rewards)
     //console.log(APY);
 
-    return ( APY / 5 )
+    return ( APY / 5)
 }
 
 const fetchAndCache = async () => {
