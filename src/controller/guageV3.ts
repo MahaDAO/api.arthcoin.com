@@ -84,7 +84,7 @@ export const getRewardRemaing = async (collateralPrices) => {
     // const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
 
     // const mahaUSD = (Number(balance / 1e18) * collateralPrices['MAHA'])    
-    return 1000 //Number(mahaUSD)
+    return (1000 * collateralPrices['MAHA']) //Number(mahaUSD)
 }
 
 const getUniswapLPTokenTVLinUSD = async (
@@ -106,23 +106,12 @@ const getUniswapLPTokenTVLinUSD = async (
     const token1Amount = token1Balance.div(token1Decimals);
     const token2Amount = token2Balance.div(token2Decimals);
 
-    console.log(
-        "token1Amount", Number(token1Amount), 
-        "token2Amount", Number(token2Amount)
-    );
-  
     const token1USDValue = token1Amount
       .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
       .div(1000);
     const token2USDValue = token2Amount
       .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
       .div(1000);
-    
-    console.log(
-        "token1USDValue", Number(token1USDValue), 
-        "token2USDValue", Number(token2USDValue), 
-        collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
-    );
 
     return Number(token1USDValue.add(token2USDValue));
 };
@@ -215,8 +204,9 @@ const nftV3 = async (guageAddress) => {
     let rewards = await getRewardRemaing(collateralPrices)
     //console.log(rewards);
     
-    let APY = await getAPR(rewards, lPUsdWorth)
+    let APY = await getAPR(lPUsdWorth, rewards)
     //console.log(APY);
+    
     return APY
 }
 
