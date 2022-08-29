@@ -15,9 +15,9 @@ export const checkSignature = async (req, res) => {
     })
 
     if(checkApproval) {
-        res.send({ success: true })
+        res.send({ signature: String(checkApproval.signature) })
     } else {
-        res.send({ success: false })
+        res.send({ signature: "" })
     }
 }
 

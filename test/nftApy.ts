@@ -85,7 +85,6 @@ export const getTokenName = async (address) => {
     return tokenName
 }
 
-//export const getRewardRemaing = async (collateralPrices, address) => {
 export const getRewardRemaing = async (collateralPrices) => {
     const maha = new ethers.Contract(
         '0xb4d930279552397bba2ee473229f89ec245bc365',
@@ -118,6 +117,11 @@ const getUniswapLPTokenTVLinUSD = async (
   
     const token1Amount = token1Balance.div(token1Decimals);
     const token2Amount = token2Balance.div(token2Decimals);
+
+    console.log(
+        "token1Amount", Number(token1Amount), 
+        "token2Amount", Number(token2Amount)
+    );
   
     const token1USDValue = token1Amount
       .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
@@ -125,6 +129,12 @@ const getUniswapLPTokenTVLinUSD = async (
     const token2USDValue = token2Amount
       .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
       .div(1000);
+    
+    console.log(
+        "token1USDValue", Number(token1USDValue), 
+        "token2USDValue", Number(token2USDValue), 
+        collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
+    );
 
     return Number(token1USDValue.add(token2USDValue));
 };
@@ -137,7 +147,7 @@ const getAPR = async (
     return (rewardinUSD / contractTVLinUSD) * 100;
 };
 
-const main = async (guageAddress) => {
+const nftV3 = async (guageAddress) => {
     await Moralis.start({
         apiKey: 'sWWpwWUpyEqnZtM8PawuTsxSIUYgVmmR4KoKSWKuDgRiIbCE7kjLLe0nGhgQVsIl',
         // ...and any other configuration
@@ -166,7 +176,7 @@ const main = async (guageAddress) => {
     });
 
     const nftArray = response.result
-    // console.log(nftArray);
+    console.log('nftArray', nftArray);
     
     let tokenId = []
     let positions = []
@@ -175,14 +185,14 @@ const main = async (guageAddress) => {
         tokenId.push(data._data.tokenId)
     })
 
-    //console.log(tokenId);
+    console.log('tokenId', tokenId);
 
     await Bluebird.mapSeries(tokenId, async (data) => {
         const postionData = await rewardContract.positions(data)
         positions.push(postionData)
     })
 
-    // console.log(positions);
+    //console.log(positions);
     let lpTokenAddress = []
     await Bluebird.mapSeries(positions, async (data) => {
         const lpAddress = await factory.getPool(data.token0, data.token1, data.fee)
@@ -195,9 +205,8 @@ const main = async (guageAddress) => {
         });
     })    
 
-    // console.log('lpTokenAddress', lpTokenAddress);
+    //console.log('lpTokenAddress', lpTokenAddress);
     
-
     let allLPAddress = [...new Map(lpTokenAddress.map(item =>
         [item['lpAddress'], item])).values()];    
     
@@ -213,13 +222,29 @@ const main = async (guageAddress) => {
         )
     }) 
 
-    // console.log(lPUsdWorth);
+    //console.log(lPUsdWorth);
     
     let rewards = await getRewardRemaing(collateralPrices)
-    // console.log(rewards);
+    console.log('rewards', rewards);
     
     let APY = await getAPR(rewards, lPUsdWorth)
-    // console.log(APY);
+    //console.log(APY);
+    return APY
 }
 
-main(guageAddresses.ARTHUSDCGauge)
+const fetchAndCache = async () => {
+    const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
+    //const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
+
+    console.log('nft v3 apy', {
+        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
+        //'0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
+    });
+    
+    // cache.set("guageV3-apr", JSON.stringify({
+    //     '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
+    //     '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
+    // }));
+};
+
+fetchAndCache();
