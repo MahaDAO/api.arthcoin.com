@@ -226,8 +226,8 @@ const fetchAndCache = async () => {
     // });
     
     cache.set("guageV3-apr", JSON.stringify({
-        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': 45,
-        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': 300
+        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': 22.5,
+        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': 150
     }));
 };
 
