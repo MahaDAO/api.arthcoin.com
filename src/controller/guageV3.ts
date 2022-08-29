@@ -153,7 +153,7 @@ const nftV3 = async (guageAddress) => {
     });
 
     const nftArray = response.result
-    console.log('nftArray', nftArray);
+    // console.log('nftArray', nftArray);
     
     let tokenId = []
     let positions = []
@@ -206,7 +206,7 @@ const nftV3 = async (guageAddress) => {
     
     let APY = await getAPR(lPUsdWorth, rewards)
     //console.log(APY);
-    
+
     return APY
 }
 
@@ -214,10 +214,10 @@ const fetchAndCache = async () => {
     const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
     const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
 
-    console.log('nft v3 apy', {
-        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
-        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
-    });
+    // console.log('nft v3 apy', {
+    //     '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
+    //     '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
+    // });
     
     cache.set("guageV3-apr", JSON.stringify({
         '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
