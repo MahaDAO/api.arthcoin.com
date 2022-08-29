@@ -73,7 +73,7 @@ export const writeSignature = async (req, res) => {
         const addRow = await sheet.addRow({ 
             Address: walletAddress, 
             Signature: signature,
-            Text: signature
+            Text: text
         });
 
         res.send({ success: true })
