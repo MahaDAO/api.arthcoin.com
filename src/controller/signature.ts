@@ -27,6 +27,18 @@ export const writeSignature = async (req, res) => {
     let walletAddress = req.body.walletAddress
     let text = req.body.text
     let signature = req.body.signature
+    
+    if(!walletAddress) {
+        res.send({ error: "Body does not contains walletAddress"})
+    }
+
+    if(!text) {
+        res.send({ error: "Body does not contains text"})
+    }
+
+    if(!signature) {
+        res.send({ error: "Body does not contains signature"})
+    }
 
     await doc.useServiceAccountAuth({
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,

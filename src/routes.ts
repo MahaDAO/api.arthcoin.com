@@ -37,6 +37,6 @@ router.get("/apy/guageV3Apy", guageV3Apy);
 router.get("/apy/leverage", (req, res) => { leverage(req, res) });
 
 router.post("/apy/check/signature", (req, res) => { signature.checkSignature(req, res) })
-router.post("/apy/singnature", (req, res) => { signature.writeSignature(req, res) })
+router.post("/apy/signature", (req, res) => { signature.writeSignature(req, res) })
 
 export default router;
