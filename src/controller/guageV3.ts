@@ -207,7 +207,7 @@ const nftV3 = async (guageAddress) => {
     let APY = await getAPR(lPUsdWorth, rewards)
     //console.log(APY);
 
-    return APY
+    return ( APY / 5 )
 }
 
 const fetchAndCache = async () => {
