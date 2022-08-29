@@ -9,11 +9,19 @@ export const checkSignature = async (req, res) => {
     let walletAddress = req.body.walletAddress
     let text = req.body.text
 
+    if(!walletAddress) {
+        res.send({ error: "Body does not contains walletAddress"})
+    }
+
+    if(!text) {
+        res.send({ error: "Body does not contains text"})
+    }
+
     const checkApproval = await Signature.findOne({
         walletAddress: walletAddress,
         text: text
     })
-
+    
     if(checkApproval) {
         res.send({ signature: String(checkApproval.signature) })
     } else {
