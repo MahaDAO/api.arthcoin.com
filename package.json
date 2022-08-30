@@ -57,6 +57,7 @@
     "reddit": "^1.2.1",
     "request-promise": "^4.2.6",
     "rimraf": "^3.0.2",
+    "underscore": "^1.13.4",
     "web3": "^1.4.0"
   },
   "devDependencies": {
