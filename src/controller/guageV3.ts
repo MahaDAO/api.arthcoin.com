@@ -208,7 +208,7 @@ const nftV3 = async (guageAddress) => {
         rewards = await getRewardRemaing(200, collateralPrices)
     }
      
-    //console.log(rewards);
+    console.log("rewards", rewards);
     
     let APY = await getAPR(lPUsdWorth, rewards)
     //console.log(APY);
@@ -226,8 +226,8 @@ const fetchAndCache = async () => {
     // });
     
     cache.set("guageV3-apr", JSON.stringify({
-        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
-        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
+        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': 22.5,
+        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': 150
     }));
 };
 
