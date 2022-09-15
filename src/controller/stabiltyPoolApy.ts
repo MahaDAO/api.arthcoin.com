@@ -96,7 +96,7 @@ const getRewardBalance = async (
     provider
 ) => {
   const tokenAddress = await getMahaAddress(chainid)
-  console.log("Maha", tokenAddress, chainid, stabilityPool);
+  //console.log("Maha", tokenAddress, chainid, stabilityPool);
   
   const maha = new ethers.Contract(
       tokenAddress,
@@ -105,7 +105,7 @@ const getRewardBalance = async (
   );
 
   const balance = await maha.balanceOf(stabilityPool)
-  console.log("balance", Number(balance / 1e18));
+  //console.log("balance", Number(balance / 1e18));
   
   return Number(balance / 1e18)
 }

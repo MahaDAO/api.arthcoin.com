@@ -133,10 +133,10 @@ const getUniswapLPTokenTVLinUSD = async (
     const token1Amount = token1Balance.div(token1Decimals);
     const token2Amount = token2Balance.div(token2Decimals);
 
-    console.log(
-        "token1Amount", Number(token1Amount), 
-        "token2Amount", Number(token2Amount)
-    );
+    // console.log(
+    //     "token1Amount", Number(token1Amount), 
+    //     "token2Amount", Number(token2Amount)
+    // );
   
     const token1USDValue = token1Amount
       .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
@@ -145,11 +145,11 @@ const getUniswapLPTokenTVLinUSD = async (
       .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
       .div(1000);
     
-    console.log(
-        "token1USDValue", Number(token1USDValue), 
-        "token2USDValue", Number(token2USDValue), 
-        collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
-    );
+    // console.log(
+    //     "token1USDValue", Number(token1USDValue), 
+    //     "token2USDValue", Number(token2USDValue), 
+    //     collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
+    // );
     
     console.log(Number(token1USDValue.add(token2USDValue)));
     return Number(token1USDValue.add(token2USDValue));
