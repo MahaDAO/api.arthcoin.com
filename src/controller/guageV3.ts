@@ -268,12 +268,12 @@ const scrappedApyRequest = async () => {
             max : ( String(dotData.realDddAPR + dotData.realEpxAPR) )
         },
         "stability-eth" : {
-            min: stabilityApy.eth,
-            max: 0
+            min: String(stabilityApy.eth),
+            max: String(0)
         },
         "stability-bnb" : {
-            min: stabilityApy.bnb,
-            max: 0
+            min: String(stabilityApy.bnb),
+            max: String(0)
         }
     }
 }
