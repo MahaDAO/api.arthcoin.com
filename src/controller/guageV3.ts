@@ -15,6 +15,7 @@ import {
     ICollateralPrices,
 } from "./coingecko";
 
+const request = require('request-promise')
 const NFT = require("../abi/nftABI.json");
 const FACTORY = require("../abi/factory.json");
 const NFTMANAGER = require("../abi/uniswapNftManager.json");
@@ -216,9 +217,65 @@ const nftV3 = async (guageAddress) => {
     return ( APY / 5)
 }
 
+const options = (method, url) => {
+    return {
+        method: method,
+        uri: url,
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin':'*'
+        },
+        json: true
+    }
+}
+
+const scrappedApyRequest = async () => {
+    const ellipsisApy = await request(options('GET', 'https://api.ellipsis.finance/api/getAPRs'))
+    const ellipsisData = ellipsisApy.data['9']
+    
+    const dotApy = await request(options('GET', 'https://api.dotdot.finance/api/lpDetails'))
+    const dotData = dotApy.data.tokens[34]
+
+    const stabilityApy = await request(options('GET', 'https://api.arthcoin.com/apy/stability'))
+    // console.log(dotData);
+    
+    // console.log({
+    //     "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
+    //         min : String(ellipsisData.totalApr),
+    //         max : String(ellipsisData.aprWithBoost)
+    //     },
+    //     "dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : {
+    //         min : ( String(dotData.minEpxAPR + dotData.minDddAPR) ),
+    //         max : ( String(dotData.realDddAPR + dotData.realEpxAPR) )
+    //     }
+    // });
+    
+    return {
+        "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
+            min : String(ellipsisData.totalApr),
+            max : String(ellipsisData.aprWithBoost)
+        },
+        "dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : {
+            min : ( String(dotData.minEpxAPR + dotData.minDddAPR) ),
+            max : ( String(dotData.realDddAPR + dotData.realEpxAPR) )
+        },
+        "stability-eth" : {
+            min: stabilityApy.eth,
+            max: 0
+        },
+        "stability-bnb" : {
+            min: stabilityApy.bnb,
+            max: 0
+        }
+    }
+}
+
+// scrapedApy()
+
 const fetchAndCache = async () => {
     const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
     const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
+    const scrappedApy = await scrappedApyRequest()
 
     // console.log('nft v3 apy', {
     //     '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
@@ -226,8 +283,10 @@ const fetchAndCache = async () => {
     // });
     
     cache.set("guageV3-apr", JSON.stringify({
-        '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': 22.5,
-        '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': 150
+        'uniswap-0x174327F7B7A624a87bd47b5d7e1899e3562646DF': { min: 22.5, max: 22.5 * 5 },
+        'uniswap-0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': { min: 150, max: 150 * 5 },
+        'ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
+        'dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d']
     }));
 };
 
