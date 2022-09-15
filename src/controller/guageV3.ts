@@ -237,7 +237,7 @@ const scrappedApyRequest = async () => {
     const dotData = dotApy.data.tokens[34]
 
     const stabilityApy = await request(options('GET', 'https://api.arthcoin.com/apy/stability'))
-    // console.log(dotData);
+    //console.log(stabilityApy);
     
     // console.log({
     //     "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
@@ -247,6 +247,14 @@ const scrappedApyRequest = async () => {
     //     "dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : {
     //         min : ( String(dotData.minEpxAPR + dotData.minDddAPR) ),
     //         max : ( String(dotData.realDddAPR + dotData.realEpxAPR) )
+    //     },
+    //     "stability-eth" : {
+    //         min: String(stabilityApy.eth),
+    //         max: String(0)
+    //     },
+    //     "stability-bnb" : {
+    //         min: String(stabilityApy.bnb),
+    //         max: String(0)
     //     }
     // });
     
@@ -270,17 +278,20 @@ const scrappedApyRequest = async () => {
     }
 }
 
-// scrapedApy()
+scrappedApyRequest()
 
 const fetchAndCache = async () => {
-    const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
-    const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
+    // const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
+    // const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
     const scrappedApy = await scrappedApyRequest()
 
-    // console.log('nft v3 apy', {
-    //     '0x174327F7B7A624a87bd47b5d7e1899e3562646DF': arthUsdcApy,
-    //     '0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': arthMahaApy
-    // });
+    console.log('nft v3 apy', {
+        'uniswap-0x174327F7B7A624a87bd47b5d7e1899e3562646DF': { min: 22.5, max: 22.5 * 5 },
+        'uniswap-0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': { min: 150, max: 150 * 5 },
+        'ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
+        'dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
+        'stability-eth': scrappedApy['stability-eth']
+    });
     
     cache.set("guageV3-apr", JSON.stringify({
         'uniswap-0x174327F7B7A624a87bd47b5d7e1899e3562646DF': { min: 22.5, max: 22.5 * 5 },
@@ -291,20 +302,20 @@ const fetchAndCache = async () => {
     }));
 };
 
-cron.schedule("0 * * * * *", fetchAndCache); // every minute
+// cron.schedule("0 * * * * *", fetchAndCache); // every minute
 fetchAndCache();
   
-export default async (_req, res) => {
-    res.setHeader("Content-Type", "application/json");
-    res.status(200);
+// export default async (_req, res) => {
+//     res.setHeader("Content-Type", "application/json");
+//     res.status(200);
   
-    // 1 min cache
-    if (cache.get("guageV3-apr")) {
-      //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-      res.send(cache.get("guageV3-apr"));
-    } else {
-      await fetchAndCache();
-      //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-      res.send(cache.get("guageV3-apr"));
-    }
-}
+//     // 1 min cache
+//     if (cache.get("guageV3-apr")) {
+//       //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+//       res.send(cache.get("guageV3-apr"));
+//     } else {
+//       await fetchAndCache();
+//       //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+//       res.send(cache.get("guageV3-apr"));
+//     }
+// }
