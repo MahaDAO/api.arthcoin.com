@@ -13,7 +13,7 @@ const main = async () => {
     let sclpPrice = collateralPrices["SCLP"]
     let mahaPrice = collateralPrices["MAHA"]
 
-    let amountofMaha = ((sclpPrice * 9000) / mahaPrice) + 1000
+    let amountofMaha = ((sclpPrice * 9000) / mahaPrice) 
     
     return { amountWorthMaha: amountofMaha }
 }
