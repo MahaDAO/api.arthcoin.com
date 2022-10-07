@@ -15,7 +15,10 @@ const main = async () => {
 
     let amountofMaha = ((sclpPrice * 9000) / mahaPrice) 
     
-    return { amountWorthMaha: amountofMaha }
+    return { 
+        sclpWorthMaha: amountofMaha,
+        maha: 1000
+    }
 }
 
 const fetchAndCache = async () => {
