@@ -12,6 +12,8 @@ import ethProtocolMAGraph from "./controller/graphs/MA"
 import ethProtocolCPIGraph from "./controller/graphs/CPI"
 import guageV3Apy from "./controller/guageV3"
 import rewards from "./controller/rewards";
+import mahalendApy from "./controller/mahalendApy";
+
 import * as signature from "./controller/signature"
 
 const router = Router();
@@ -42,5 +44,6 @@ router.post("/apy/signature", (req, res) => { signature.writeSignature(req, res)
 
 router.get("/apy/rewards", (req, res) => { rewards(req, res) });
 
+router.get("/apy/mahalend", (req, res) => { mahalendApy(req, res) });
 
 export default router;
