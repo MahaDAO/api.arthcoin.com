@@ -43,8 +43,10 @@ const getAPY = async () => {
     console.log(apy, volume, Number(fee), tvl);
 
     return {
-        tradingApr: tradingApr,
-        apy: apy
+        '0x6ec38b3228251a0C5D491Faf66858e2E23d7728B': {
+            tradingApr: tradingApr,
+            apy: apy
+        } 
     }
 }
 
