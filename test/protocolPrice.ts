@@ -1,79 +1,97 @@
 const dotenv = require('dotenv')
 dotenv.config()
 
-import CoinGecko from "coingecko-api";
-import NodeCache from "node-cache";
-import cron from "node-cron";
+import { ethers, BigNumber } from "ethers";
+import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../src/web3";
+import {
+    getCollateralPrices,
+    CollateralKeys,
+    ICollateralPrices,
+} from "../src/controller/coingecko";
 
-const CoinGeckoClient = new CoinGecko();
-const cache = new NodeCache();
-const request = require('request-promise')
+const GMUOracle = require("./GMUOracle.json")
+const UniswapV3Pool = require("./uniswapV3Pool.json")
 
-const apiKey = process.env.ETHERSCAN_KEY
-const topic = '0x4d29de21de555af78a62fc82dd4bc05e9ae5b0660a37f04729527e0f22780cd3'
+const gmuContract = new ethers.Contract(
+    '0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00',
+    GMUOracle, 
+    ethProvider
+)
 
-const ethPrice = async () => {
-    let priceChart = await CoinGeckoClient.coins.fetchMarketChart('ethereum', {
-        vs_currency: "USD",
-        days: '30',
-        interval: 'daily'
-    });
+const arthWethPoolContract = new ethers.Contract(
+    '0xE7cDba5e9b0D5E044AaB795cd3D659aAc8dB869B',
+    UniswapV3Pool, 
+    ethProvider
+)
 
-    return priceChart.data.prices
+export const getProtocolPrice = async () => {
+    return Number((await gmuContract.fetchLastGoodPrice() / 1e18).toFixed(5))
 }
 
-const main = async (address) => {
-    const url = `https://api.etherscan.io/api?module=logs&action=getLogs&address=${address}&page=1&offset=1000&apikey=${apiKey}&topic0=${topic}`
+export const getSqrtPriceX96 = async () => {
+    let slot0 = await arthWethPoolContract.slot0()
+    return Number(slot0.sqrtPriceX96)
+}
 
-    const data = await request.get(url)
-    const formatedData = JSON.parse(data)
-    
-    //console.log(formatedData.result, formatedData.result.length); 
-    const dataArray = []
-    const datapoints = await formatedData.result.forEach(val => {
-        dataArray.push({
-            time: Number(val.timeStamp),
-            price: ( Number(val.data) / 1e18 )
-        })
-    })
+// a - protocol price, b - trading price
+/* 
+    direction:- 
+    1 - Spread at Arth protocol, protocol price greater then pool's traded arth price
+    2 - Spread ar arth/weth pool, arth's trading price of pool is greater then protocol price
+*/
+export const spreadtOpportunity = async (a, b) => {
+    if ( a > b ) {
+        return 1
+    } else if ( b > a) {
+        return 2
+    } 
+}
 
-    // console.log(dataArray.reverse()[0].time, dataArray.reverse()[20].time, dataArray.length);
-    
-    //console.log(dataArray.reverse());
-    let price = await ethPrice()
-    const ethPriceArray = []
-    const ethDatapoints = await price.forEach((val, i) => {        
-        ethPriceArray.push({
-            time: Number(val[0]),
-            price: Number(val[1])
-        })
-    })
-    
+// direction - spreadtOpportunity(), a - protocol price, b - trading price
+export const calculateSpread = async (direction, a, b) => {
+    let diff = 0
+    let spreadPercentage = 0
+
+    if (direction == 1) {
+        diff = a - b
+        spreadPercentage =  Number((( diff / a ) * 100).toFixed(5))
+    } 
+
+    if (direction == 2) {
+        diff = b - a
+        spreadPercentage =  Number((( diff / b ) * 100).toFixed(5))
+    }
+
+    //console.log('difference', diff);
     return {
-        protocolPrice: dataArray.reverse(),
-        ethPrice: ethPriceArray.reverse()
+        difference: diff,
+        spread: spreadPercentage
     }
 }
 
-const fetchAndCache = async () => {
-    const data = await main('0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00');
-    cache.set("protocol_eth_graph", JSON.stringify(data));
-};
-  
-cron.schedule("0 * * * * *", fetchAndCache); // every minute
-fetchAndCache();
+const main = async () => {
+    const collateralPrices = await getCollateralPrices();
 
-export default async (_req, res) => {
-    res.setHeader("Content-Type", "application/json");
-    res.status(200);
+    let protocolPrice = await getProtocolPrice()
+    let sqrtPriceX96 = await getSqrtPriceX96()
+    
+    let token1price = (2 ** 192 / sqrtPriceX96 ** 2) 
+    let token0price = (sqrtPriceX96 ** 2 / 2 ** 192)
+    let wethPrice = collateralPrices["WETH"]
+    let arthTradingPrice = Number(((token0price) * wethPrice).toFixed(5))
 
-    // 1 min cache
-    if (cache.get("protocol_eth_graph")) {
-        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-        res.send(cache.get("protocol_eth_graph"));
-    } else {
-        await fetchAndCache();
-        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-        res.send(cache.get("protocol_eth_graph"));
-    }
-};
+    let spreadDirection = await spreadtOpportunity(protocolPrice, arthTradingPrice)
+    let difference = await calculateSpread(spreadDirection, protocolPrice, arthTradingPrice)
+
+    console.log(
+        'token1price', token1price, 
+        'token0price', token0price, 
+        'Trading Price', arthTradingPrice, 
+        'Protocol Price', protocolPrice,
+        'spreadDirection', spreadDirection,
+        'difference', difference.difference,
+        'spread', difference.spread
+    );
+}
+
+main()
