@@ -160,9 +160,9 @@ const fetchAPRs = async () => {
     const ethApr = await getAPR(tvlInUsdEth, collateralPrices, ethStabilyRewardtvl || 1000)
 
     return {   
-        matic: String(polygonApr),
-        eth: String(ethApr),
-        bnb: String(bnbApr)
+        matic: { apr: String(polygonApr), tvl: polygonStabilytvl },
+        eth: { apr: String(ethApr), tvl: ethStabilytvl },
+        bnb: { apr: String(bnbApr), tvl: bnbStabilytvl }
     }
 };
 
