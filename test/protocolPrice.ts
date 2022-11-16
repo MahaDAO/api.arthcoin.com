@@ -69,6 +69,7 @@ export const calculateSpread = async (direction, a, b) => {
     }
 }
 
+
 const main = async () => {
     const collateralPrices = await getCollateralPrices();
 

@@ -4,7 +4,7 @@ dotenv.config()
 import "@nomiclabs/hardhat-ethers";
 
 const ALCHEMY_URL = process.env.ALCHEMY_URL
-console.log(ALCHEMY_URL);
+//console.log(ALCHEMY_URL);
 
 const CHAIN_IDS = {
     hardhat: 31337, // chain ID for hardhat testing
