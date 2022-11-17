@@ -211,6 +211,11 @@ const main = async () => {
     let wethBalance = await wethContract.balanceOf(address)
     console.log("wethBalance", Number(wethBalance));
 
+    // Deposit ether in WETH contract to get some more weth
+    await wethContract.connect(impersonatedSigner).deposit({ value: ethers.utils.parseEther('10') })
+    let wethBalanceAfterDeposit = await wethContract.balanceOf(address)
+    console.log("wethBalance after deposit", Number(wethBalanceAfterDeposit));
+
     console.log('run');
     let balance = ethers.utils.formatEther((await impersonatedSigner.getBalance()))
     console.log('balance', balance);
@@ -225,6 +230,7 @@ const main = async () => {
     console.log('protocolPrice', protocolPrice)
     console.log('arthTradingPrice', arthTradingPrice);
 
+    // Price manipulation on uniswap v3
     const TokenA = new Token(1, immutables.token0, 18, 'ARTH', 'ARTH Valuecoin')
     const TokenB = new Token(1, immutables.token1, 18, 'WETH', 'Wrapped Ether')
 
@@ -238,7 +244,34 @@ const main = async () => {
     )
 
     const amountIn = 1500
+    const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
+        immutables.token0,
+        immutables.token1,
+        immutables.fee,
+        amountIn.toString(),
+        0
+    )
 
+    const swapRoute = new Route([poolExample], TokenA, TokenB)
+
+    // create an unchecked trade instance
+    const uncheckedTradeExample = await Trade.createUncheckedTrade({
+        route: swapRoute,
+        inputAmount: CurrencyAmount.fromRawAmount(TokenA, amountIn.toString()),
+        outputAmount: CurrencyAmount.fromRawAmount(TokenB, quotedAmountOut.toString()),
+        tradeType: TradeType.EXACT_INPUT,
+    })
+
+    // print the quote and the unchecked trade instance in the console
+    console.log('The quoted amount out is', quotedAmountOut.toString())
+    console.log('The unchecked trade object is', uncheckedTradeExample)
+
+    let slot0Post = await arthWethPoolContract.slot0()
+    let arthSlotPricePost = Number(slot0Post.sqrtPriceX96)
+    let token0pricePost = (arthSlotPricePost ** 2 / 2 ** 192)
+    let wethPricePost = collateralPrices["WETH"]
+    let arthTradingPricePost = Number(((token0pricePost) * wethPricePost).toFixed(5))
+    console.log('arthTradingPrice Post', arthTradingPricePost);
 }
 
 main()
