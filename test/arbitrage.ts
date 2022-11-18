@@ -30,65 +30,6 @@ const SwapRouterAddress = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 const poolAddress = '0xE7cDba5e9b0D5E044AaB795cd3D659aAc8dB869B'
 const quoterAddress = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
 
-interface Immutables {
-    factory: string
-    token0: string
-    token1: string
-    fee: number
-    tickSpacing: number
-    maxLiquidityPerTick: BigNumber
-}
-  
-interface State {
-    liquidity: BigNumber
-    sqrtPriceX96: BigNumber
-    tick: number
-    observationIndex: number
-    observationCardinality: number
-    observationCardinalityNext: number
-    feeProtocol: number
-    unlocked: boolean
-}
-  
-async function getPoolImmutables(poolContract) {
-    const [factory, token0, token1, fee, tickSpacing, maxLiquidityPerTick] = await Promise.all([
-      poolContract.factory(),
-      poolContract.token0(),
-      poolContract.token1(),
-      poolContract.fee(),
-      poolContract.tickSpacing(),
-      poolContract.maxLiquidityPerTick(),
-    ])
-  
-    const immutables: Immutables = {
-      factory,
-      token0,
-      token1,
-      fee,
-      tickSpacing,
-      maxLiquidityPerTick,
-    }
-    return immutables
-}
-  
-async function getPoolState(poolContract) {
-    // note that data here can be desynced if the call executes over the span of two or more blocks.
-    const [liquidity, slot] = await Promise.all([poolContract.liquidity(), poolContract.slot0()])
-  
-    const PoolState: State = {
-      liquidity,
-      sqrtPriceX96: slot[0],
-      tick: slot[1],
-      observationIndex: slot[2],
-      observationCardinality: slot[3],
-      observationCardinalityNext: slot[4],
-      feeProtocol: slot[5],
-      unlocked: slot[6],
-    }
-  
-    return PoolState
-}
-
 // Copied Functions ===========================================================================
 export function getSlot(userAddress, mappingSlot) {
     return ethers.utils.solidityKeccak256(
@@ -163,8 +104,6 @@ const main = async () => {
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
     )
 
-    const [immutables, state] = await Promise.all([getPoolImmutables(arthWethPoolContract), getPoolState(arthWethPoolContract)])
-
     const address = "0x0d2026b3EE6eC71FC6746ADb6311F6d3Ba1C000B";
     await helpers.impersonateAccount(address);
     const impersonatedSigner = await ethers.getSigner(address);
@@ -231,47 +170,7 @@ const main = async () => {
     console.log('arthTradingPrice', arthTradingPrice);
 
     // Price manipulation on uniswap v3
-    const TokenA = new Token(1, immutables.token0, 18, 'ARTH', 'ARTH Valuecoin')
-    const TokenB = new Token(1, immutables.token1, 18, 'WETH', 'Wrapped Ether')
-
-    const poolExample = new Pool(
-        TokenA,
-        TokenB,
-        immutables.fee,
-        state.sqrtPriceX96.toString(), //note the description discrepancy - sqrtPriceX96 and sqrtRatioX96 are interchangable values
-        state.liquidity.toString(),
-        state.tick
-    )
-
-    const amountIn = 1500
-    const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
-        immutables.token0,
-        immutables.token1,
-        immutables.fee,
-        amountIn.toString(),
-        0
-    )
-
-    const swapRoute = new Route([poolExample], TokenA, TokenB)
-
-    // create an unchecked trade instance
-    const uncheckedTradeExample = await Trade.createUncheckedTrade({
-        route: swapRoute,
-        inputAmount: CurrencyAmount.fromRawAmount(TokenA, amountIn.toString()),
-        outputAmount: CurrencyAmount.fromRawAmount(TokenB, quotedAmountOut.toString()),
-        tradeType: TradeType.EXACT_INPUT,
-    })
-
-    // print the quote and the unchecked trade instance in the console
-    console.log('The quoted amount out is', quotedAmountOut.toString())
-    console.log('The unchecked trade object is', uncheckedTradeExample)
-
-    let slot0Post = await arthWethPoolContract.slot0()
-    let arthSlotPricePost = Number(slot0Post.sqrtPriceX96)
-    let token0pricePost = (arthSlotPricePost ** 2 / 2 ** 192)
-    let wethPricePost = collateralPrices["WETH"]
-    let arthTradingPricePost = Number(((token0pricePost) * wethPricePost).toFixed(5))
-    console.log('arthTradingPrice Post', arthTradingPricePost);
+   
 }
 
 main()
