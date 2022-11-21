@@ -22,16 +22,26 @@ const web3Provider = new ethers.providers.JsonRpcProvider("https://eth-mainnet.a
 const ERC20 = require("./IERC20.json")
 const WETHAbi = require("./weth.json");
 const UniswapV3Pool = require("./uniswapV3Pool.json")
+const BorrowerOperations = require("./BorrowerOperations.json")
 
-async function log(inpt){
-    console.log(inpt);
-    console.log("");
-}
 
 const address = "0x0d2026b3EE6eC71FC6746ADb6311F6d3Ba1C000B";
 async function Account(){  
     await helpers.impersonateAccount(address);
     const impersonatedSigner = await ethers.getSigner(address);
+
+    await network.provider.send("hardhat_setBalance", [
+        address,
+        "0x100000000000000000",
+    ]);
+
+    return impersonatedSigner
+}
+
+const address2 = "0xBcd4042DE499D14e55001CcbB24a551F3b954096";
+async function Account2(){  
+    await helpers.impersonateAccount(address);
+    const impersonatedSigner = await ethers.getSigner(address2);
 
     await network.provider.send("hardhat_setBalance", [
         address,
@@ -57,6 +67,7 @@ const tradingPrice = async (contract) => {
 
 const main = async () => {
     let wallet = await Account()
+    let wallet2 = await Account2()
 
     const usdcContract = await ethers.getContractAt(
         ERC20,
@@ -81,6 +92,11 @@ const main = async () => {
     const usdcWethPoolContract = await ethers.getContractAt(
         UniswapV3Pool,
         '0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640'
+    )
+
+    const borrowerOperationsContract = await ethers.getContractAt(
+        BorrowerOperations,
+        '0xD3761E54826837B8bBd6eF0A278D5b647B807583'
     )
 
     const tradingPriceBefore = await tradingPrice(arthWethPoolContract)
@@ -147,7 +163,6 @@ const main = async () => {
     //     maxSwapsPerPath: 10
     //   }
     );
-    //console.log("route", route);
     
     var wethBalanceBefore = await wethContract.balanceOf(address);
     console.log("WETH Balance Before : ", wethBalanceBefore / 1e18);
@@ -164,8 +179,8 @@ const main = async () => {
     var arthBalanceBefore = await arthContract.balanceOf(address);
     console.log("ARTH Balance Before : ", arthBalanceBefore / 1e18);
 
-    log(`Quote Exact In: ${route.quote.toFixed(wethAmount.currency === WETH ? ARTH.decimals : WETH.decimals)}`);
-    log(`Gas Adjusted Quote In: ${route.quoteGasAdjusted.toFixed(wethAmount.currency === WETH ? ARTH.decimals : WETH.decimals)}`);
+    console.log(`Quote Exact In: ${route.quote.toFixed(wethAmount.currency === WETH ? ARTH.decimals : WETH.decimals)}`);
+    console.log(`Gas Adjusted Quote In: ${route.quoteGasAdjusted.toFixed(wethAmount.currency === WETH ? ARTH.decimals : WETH.decimals)}`);
     
     var nc = await wallet.getTransactionCount();
     
@@ -193,6 +208,27 @@ const main = async () => {
 
     const tradingPriceLater = await tradingPrice(arthWethPoolContract)
     console.log("trading price later", tradingPriceLater);    
+
+    // Opening Trove
+    var arthBalanceBeforeWallet2 = await arthContract.balanceOf(address2);
+    console.log("ARTH Balance Before Wallet 2 : ", arthBalanceBeforeWallet2 / 1e18);
+
+    const e18 = BigNumber.from(10).pow(18)
+
+    await borrowerOperationsContract.connect(wallet2)
+    .openTrove(
+        e18,
+        e18.mul(251),
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
+        {
+            value: e18.mul(2)
+        }
+    );
+
+    var arthBalanceLaterWallet2 = await arthContract.balanceOf(address2);
+    console.log("ARTH Balance Later Wallet 2 : ", arthBalanceLaterWallet2 / 1e18);
 }
 
 main()
