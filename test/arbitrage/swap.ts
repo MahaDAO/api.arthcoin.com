@@ -10,7 +10,7 @@ import {
     getCollateralPrices,
     CollateralKeys,
     ICollateralPrices,
-} from "../src/controller/coingecko";
+} from "../../src/controller/coingecko";
 
 const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45";
 const TokenInput = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";

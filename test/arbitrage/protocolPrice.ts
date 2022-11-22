@@ -2,15 +2,15 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 import { ethers, BigNumber } from "ethers";
-import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../src/web3";
+import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../../src/web3";
 import {
     getCollateralPrices,
     CollateralKeys,
     ICollateralPrices,
-} from "../src/controller/coingecko";
+} from "../../src/controller/coingecko";
 
-const GMUOracle = require("./GMUOracle.json")
-const UniswapV3Pool = require("./uniswapV3Pool.json")
+const GMUOracle = require("./abi/GMUOracle.json")
+const UniswapV3Pool = require("./abi/uniswapV3Pool.json")
 
 const gmuContract = new ethers.Contract(
     '0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00',
