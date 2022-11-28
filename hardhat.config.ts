@@ -4,6 +4,8 @@ dotenv.config()
 import "@nomiclabs/hardhat-ethers";
 
 const ALCHEMY_URL = process.env.ALCHEMY_URL
+const ALCHEMY_URL_POLYGON = process.env.RPC_URL_POLYGON
+
 //console.log(ALCHEMY_URL);
 
 const CHAIN_IDS = {
@@ -16,7 +18,7 @@ module.exports = {
             chainId: CHAIN_IDS.hardhat,
             forking: {
                 // Using Alchemy
-                url: ALCHEMY_URL, // url to RPC node, ${ALCHEMY_KEY} - must be your API key
+                url: ALCHEMY_URL_POLYGON, // url to RPC node, ${ALCHEMY_KEY} - must be your API key
                 // Using Infura
                 // url: `https://mainnet.infura.io/v3/${INFURA_KEY}`, // ${INFURA_KEY} - must be your API key
                 // blockNumber: 15967681, // a specific block number with which you want to work
