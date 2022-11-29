@@ -24,6 +24,7 @@ const Mahalend = require("./abi/Mahalend.json")
 
 
 const e18 = BigNumber.from(10).pow(18)
+const amount = 10000000000000000
 
 const Account = async (address) => {  
     await helpers.impersonateAccount(address);
@@ -144,12 +145,12 @@ const deposit = async (mahalend) => {
     const wallet = "0xA5ABc4Ed0107979771c7e7Cc6e20Fb56dc8E6029";
     const address = await Account(wallet)
 
-    console.log("Depsoiting Token");
+    console.log("Depsoiting token with amount :-", amount);
     
     //fundWETH(wethContract, address, "10000000000000000000")
     const depositing = await mahalend.connect(address).deposit(
         "0xE52509181FEb30EB4979E29EC70D50FD5C44D590",
-        "100000000000000000",
+        String(amount),
         "0xA5ABc4Ed0107979771c7e7Cc6e20Fb56dc8E6029",
         2
     )
@@ -161,11 +162,11 @@ const borrow = async (mahalend) => {
     const wallet = "0xA5ABc4Ed0107979771c7e7Cc6e20Fb56dc8E6029";
     const address = await Account(wallet)
 
-    console.log("Borrow Token");
+    console.log("Borrowing token with 10% less amount then to the deposited amount", amount * 0.1);
     //fundWETH(wethContract, address, "10000000000000000000")
     const borrow = await mahalend.connect(address).borrow(
         "0xE52509181FEb30EB4979E29EC70D50FD5C44D590",
-        "10000000000000000",
+        String(amount * 0.1),
         2,
         2,
         "0xA5ABc4Ed0107979771c7e7Cc6e20Fb56dc8E6029"
