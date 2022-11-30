@@ -2,7 +2,6 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 import { ethers, network } from "hardhat";
-import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../../src/web3";
 import {
     getCollateralPrices,
     CollateralKeys,
@@ -36,90 +35,6 @@ const Account = async (address) => {
     ]);
 
     return impersonatedSigner
-}
-
-function getSlot(userAddress, mappingSlot) {
-    return ethers.utils.solidityKeccak256(
-        ["uint256", "uint256"],
-        [userAddress, mappingSlot]
-    )
-}
-
-async function checkSlot(erc20, mappingSlot) {
-    const contractAddress = erc20.address
-    const userAddress = ethers.constants.AddressZero
-
-    // the slot must be a hex string stripped of leading zeros! no padding!
-    // https://ethereum.stackexchange.com/questions/129645/not-able-to-set-storage-slot-on-hardhat-network
-    const balanceSlot = getSlot(userAddress, mappingSlot)
-
-    // storage value must be a 32 bytes long padded with leading zeros hex string
-    const value:any = 0xDEADBEEF
-    const storageValue = ethers.utils.hexlify(ethers.utils.zeroPad(value, 32))
-
-    await ethers.provider.send(
-        "hardhat_setStorageAt",
-        [
-            contractAddress,
-            balanceSlot,
-            storageValue
-        ]
-    )
-    return await erc20.balanceOf(userAddress) == value
-}
-
-async function findBalanceSlot(erc20) {
-    const snapshot = await network.provider.send("evm_snapshot")
-    for (let slotNumber = 0; slotNumber < 100; slotNumber++) {
-        try {
-            if (await checkSlot(erc20, slotNumber)) {
-                await ethers.provider.send("evm_revert", [snapshot])
-                return slotNumber
-            }
-        } catch { }
-        await ethers.provider.send("evm_revert", [snapshot])
-    }
-}
-
-const fundArth = async (arthContract) => {
-    const wallet = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
-    const address = await Account(wallet)
-
-    // const borrowerOperationsContract = await ethers.getContractAt(
-    //     BorrowerOperations,
-    //     '0xE5c5D354514F9c8f8146D7faB88a2C6832FF86b2'
-    // )
-
-    // await borrowerOperationsContract.connect(address)
-    // .openTrove(
-    //     e18,
-    //     e18.mul(50),
-    //     '0x0000000000000000000000000000000000000000',
-    //     '0x0000000000000000000000000000000000000000',
-    //     '0x0000000000000000000000000000000000000000',
-    //     {
-    //         value: e18.mul(10)
-    //     }
-    // );
-
-    // var arthBalance = await arthContract.balanceOf(address);
-    // console.log("ARTH Balance : ", arthBalance / 1e18);
-
-    const mappingSlot = await findBalanceSlot(arthContract)
-    console.log("Found ARTH.balanceOf slot: ", mappingSlot)
-
-    const signerBalanceSlot = getSlot(wallet, mappingSlot)
-
-    const value:any = 123456789
-    await ethers.provider.send(
-        "hardhat_setStorageAt",
-        [
-            arthContract.address,
-            signerBalanceSlot,
-            ethers.utils.hexlify(ethers.utils.zeroPad(value, 32))
-        ]
-    )
-
 }
 
 const fundWETH = async (wethContract, wallet, amt) => {
