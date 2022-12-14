@@ -8,7 +8,7 @@ import {
     getCollateralPrices,
     CollateralKeys,
     ICollateralPrices,
-} from "../src/controller/coingecko";
+} from "../../src/controller/coingecko";
 
 import { spreadtOpportunity, calculateSpread } from "./protocolPrice"
 import * as helpers from "@nomicfoundation/hardhat-network-helpers";
@@ -21,10 +21,10 @@ import { Route } from '@uniswap/v3-sdk'
 import { Trade } from '@uniswap/v3-sdk'
 import { abi as QuoterABI } from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json'
 
-const GMUOracle = require("./GMUOracle.json")
-const UniswapV3Pool = require("./uniswapV3Pool.json")
-const ARTHABI = require("./arth.json")
-const WETHABI = require("./weth.json")
+const GMUOracle = require("./abi/GMUOracle.json")
+const UniswapV3Pool = require("./abi/uniswapV3Pool.json")
+const ARTHABI = require("./abi/IERC20.json")
+const WETHABI = require("./abi/weth.json")
 
 const SwapRouterAddress = "0xE592427A0AEce92De3Edee1F18E0157C05861564"; 
 const poolAddress = '0xE7cDba5e9b0D5E044AaB795cd3D659aAc8dB869B'

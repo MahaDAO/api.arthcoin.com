@@ -37,23 +37,47 @@ const Account = async (address) => {
     return impersonatedSigner
 }
 
-const fundWETH = async (wethContract, wallet, amt) => {
-    async function Deposit(){
-        await wethContract.connect(wallet).deposit(
-            "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
-            "0x",
-            { value: ethers.utils.parseEther('10') }
-        )
-        let wethBalanceAfterDeposit = await wethContract.balanceOf("0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199")
-        console.log("wethBalance after deposit", Number(wethBalanceAfterDeposit) / 1e18);
-    }
-    
-    async function Approve(){
-        await wethContract.connect(wallet).approve("0x9CAA01991e20e8813DC701C963183e9C21efe3f4", amt)
-    }
+export function getSlot(userAddress, mappingSlot) {
+    return ethers.utils.solidityKeccak256(
+        ["uint256", "uint256"],
+        [userAddress, mappingSlot]
+    )
+}
 
-    Deposit()
-    //Approve()
+export async function checkSlot(erc20, mappingSlot) {
+    const contractAddress = erc20.address
+    const userAddress = ethers.constants.AddressZero
+
+    // the slot must be a hex string stripped of leading zeros! no padding!
+    // https://ethereum.stackexchange.com/questions/129645/not-able-to-set-storage-slot-on-hardhat-network
+    const balanceSlot = getSlot(userAddress, mappingSlot)
+
+    // storage value must be a 32 bytes long padded with leading zeros hex string
+    const value:any = 0xDEADBEEF
+    const storageValue = ethers.utils.hexlify(ethers.utils.zeroPad(value, 32))
+
+    await ethers.provider.send(
+        "hardhat_setStorageAt",
+        [
+            contractAddress,
+            balanceSlot,
+            storageValue
+        ]
+    )
+    return await erc20.balanceOf(userAddress) == value
+}
+
+export async function findBalanceSlot(erc20) {
+    const snapshot = await network.provider.send("evm_snapshot")
+    for (let slotNumber = 0; slotNumber < 100; slotNumber++) {
+        try {
+            if (await checkSlot(erc20, slotNumber)) {
+                await ethers.provider.send("evm_revert", [snapshot])
+                return slotNumber
+            }
+        } catch { }
+        await ethers.provider.send("evm_revert", [snapshot])
+    }
 }
 
 const deposit = async (mahalend) => {
@@ -109,12 +133,16 @@ const main = async () => {
         '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
     )
 
-    console.log("Funding ARTH")
+    console.log("Funding WETH")
+    const mappingSlot = await findBalanceSlot(arthContract)
+    console.log("Found ARTH.balanceOf slot: ", mappingSlot)
+    //const signerBalanceSlot = getSlot(wallet, mappingSlot)
+
     //await fundArth(arthContract)
-    await arthContract.connect(address).approve("0x9CAA01991e20e8813DC701C963183e9C21efe3f4", "1000000000000000000")
+    // await arthContract.connect(address).approve("0x9CAA01991e20e8813DC701C963183e9C21efe3f4", "1000000000000000000")
     
-    await deposit(mahalendContract)
-    await borrow(mahalendContract)
+    // await deposit(mahalendContract)
+    // await borrow(mahalendContract)
 }
 
 main()

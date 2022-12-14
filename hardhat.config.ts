@@ -19,6 +19,7 @@ module.exports = {
             forking: {
                 // Using Alchemy
                 url: ALCHEMY_URL_POLYGON, // url to RPC node, ${ALCHEMY_KEY} - must be your API key
+                // url: ALCHEMY_URL
                 // Using Infura
                 // url: `https://mainnet.infura.io/v3/${INFURA_KEY}`, // ${INFURA_KEY} - must be your API key
                 // blockNumber: 15967681, // a specific block number with which you want to work
