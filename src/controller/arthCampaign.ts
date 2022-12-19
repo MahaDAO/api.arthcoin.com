@@ -32,17 +32,17 @@ const MAHAPerMonth = 1000
 const getCampaignTVL = async (collateralPrices) => {
     //const getCollateral = await troveContract.getEntireDebtAndColl(CampaignStrategyAddress)
     const getCollateral = await campaignContract.totalSupply()
-    
+
     // let collateral = Number(getCollateral[1])
     let ethPrice = collateralPrices['WETH']
 
-    //console.log('Collateral', (collateral / 1e18) * ethPrice);   
-    return (getCollateral * ethPrice)
+    //console.log('Collateral', (collateral / 1e18) * ethPrice); 
+    return (getCollateral * ethPrice / 1e18)
 }
 
 const campaignAPR = async (collateralPrices) => {
     let tvlInUSD = await getCampaignTVL(collateralPrices)
-    let rewardsInUSD = (( MAHAPerMonth * 12 ) * collateralPrices['MAHA'])
+    let rewardsInUSD = ((MAHAPerMonth * 12) * collateralPrices['MAHA'])
 
     return (rewardsInUSD / tvlInUSD) * 100
 }
@@ -51,7 +51,7 @@ const main = async () => {
     const collateralPrices = await getCollateralPrices()
 
     let APR = await campaignAPR(collateralPrices)
-    //console.log(APR);
+    // console.log(APR);
 
     return {
         'arth-eth-loans': APR
@@ -62,19 +62,19 @@ const fetchAndCache = async () => {
     const data = await main();
     cache.set("arth-eth-loans", JSON.stringify(data));
 };
-  
+
 // 5 min cache
 cron.schedule("0 */5 * * * *", fetchAndCache);
 fetchAndCache();
-  
+
 export default async (_req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.status(200);
-  
+
     if (cache.get("arth-eth-loans")) {
-      res.send(cache.get("arth-eth-loans"));
+        res.send(cache.get("arth-eth-loans"));
     } else {
-      await fetchAndCache();
-      res.send(cache.get("arth-eth-loans"));
+        await fetchAndCache();
+        res.send(cache.get("arth-eth-loans"));
     }
 };
