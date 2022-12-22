@@ -239,7 +239,7 @@ const scrappedApyRequest = async () => {
     const stabilityApy = await request(options('GET', 'https://api.arthcoin.com/apy/stability'))
     //console.log(stabilityApy);
 
-    const arthEthStability = await request(options('GET', 'https://api.arthcoin.com/apy/campaign'))
+    const arthEthStrategy = await request(options('GET', 'https://api.arthcoin.com/apy/campaign'))
 
     // console.log({
     //     "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
@@ -277,8 +277,8 @@ const scrappedApyRequest = async () => {
             min: String(stabilityApy.bnb.apr),
             max: String(0)
         },
-        'arth-eth-stability': {
-            min: String(arthEthStability['arth-eth-loans']),
+        'arth-eth-strategy': {
+            min: String(arthEthStrategy['arth-eth-loans']),
             max: String(0)
         }
     }
@@ -306,7 +306,7 @@ const fetchAndCache = async () => {
         'ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
         'dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
         'stability-eth': scrappedApy['stability-eth'],
-        'arth-eth-stability': scrappedApy['arth-eth-stability']
+        'arth-eth-strategy': scrappedApy['arth-eth-strategy']
     }));
 };
 
