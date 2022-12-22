@@ -1,5 +1,5 @@
 
-import  Moralis  from 'moralis';
+import Moralis from 'moralis';
 import { EvmChain } from '@moralisweb3/evm-utils';
 import { polygonProvider, ethRinkebyProvider, ethGoerliProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
@@ -49,23 +49,23 @@ const tokenDecimals: ICollateralPrices = {
     BANNANA: 18,
     BSCUSDC: 18,
     BSCUSDT: 18,
-    FRAX :18,
+    FRAX: 18,
     SOLID: 18,
     MATIC: 18
 };
 
-export const getTokenName = async (address) => {    
-    let tokenName 
+export const getTokenName = async (address) => {
+    let tokenName
     switch (address) {
         case ('0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71'):
             tokenName = "ARTH";
-        break;
+            break;
         case ('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'):
             tokenName = "USDC";
-        break;
+            break;
         case ('0xB4d930279552397bbA2ee473229f89Ec245bc365'):
             tokenName = "MAHA";
-        break;
+            break;
         default:
             tokenName = "new";
     }
@@ -80,7 +80,7 @@ export const getRewardRemaing = async (amount, collateralPrices) => {
         IERC20,
         ethProvider
     );
-    
+
     //const balance = await maha.balanceOf(address)
     // const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
 
@@ -94,25 +94,25 @@ const getUniswapLPTokenTVLinUSD = async (
     tokenNames: string[],
     collateralPrices: ICollateralPrices,
     provider: ethers.providers.Provider
-) => {    
+) => {
     const token1 = new ethers.Contract(tokenAddresses[0], IERC20, provider);
     const token2 = new ethers.Contract(tokenAddresses[1], IERC20, provider);
-  
+
     const token1Balance: BigNumber = await token1.balanceOf(lpAddress);
     const token2Balance: BigNumber = await token2.balanceOf(lpAddress);
 
     const token1Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[0]]);
     const token2Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[1]]);
-  
+
     const token1Amount = token1Balance.div(token1Decimals);
     const token2Amount = token2Balance.div(token2Decimals);
 
     const token1USDValue = token1Amount
-      .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
-      .div(1000);
+        .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
+        .div(1000);
     const token2USDValue = token2Amount
-      .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
-      .div(1000);
+        .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
+        .div(1000);
 
     return Number(token1USDValue.add(token2USDValue));
 };
@@ -120,8 +120,8 @@ const getUniswapLPTokenTVLinUSD = async (
 const getAPR = async (
     contractTVLinUSD: number,
     weeklyRewardinMAHA
-) => { 
-    const rewardinUSD = 52 * weeklyRewardinMAHA;  
+) => {
+    const rewardinUSD = 52 * weeklyRewardinMAHA;
     return (rewardinUSD / contractTVLinUSD) * 100;
 };
 
@@ -133,20 +133,20 @@ const nftV3 = async (guageAddress) => {
 
     const rewardContract = new ethers.Contract(
         '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
-        NFT, 
+        NFT,
         ethProvider
     );
 
     const factory = new ethers.Contract(
         '0x1F98431c8aD98523631AE4a59f267346ea31F984',
-        FACTORY, 
+        FACTORY,
         ethProvider
     );
-    
+
     // const response = await nftManagerContract.balanceOf({
     //     address
     // });
-    
+
     const response = await Moralis.EvmApi.account.getNFTsForContract({
         address: guageAddress,
         tokenAddress: uniswapNftManager,
@@ -155,7 +155,7 @@ const nftV3 = async (guageAddress) => {
 
     const nftArray = response.result
     // console.log('nftArray', nftArray);
-    
+
     let tokenId = []
     let positions = []
 
@@ -181,13 +181,13 @@ const nftV3 = async (guageAddress) => {
             token0Name: await getTokenName(data.token0),
             token1Name: await getTokenName(data.token1)
         });
-    })    
+    })
 
     //console.log('lpTokenAddress', lpTokenAddress);
-    
+
     let allLPAddress = [...new Map(lpTokenAddress.map(item =>
-        [item['lpAddress'], item])).values()];    
-    
+        [item['lpAddress'], item])).values()];
+
     let lPUsdWorth
     const collateralPrices = await getCollateralPrices();
     await Bluebird.mapSeries(allLPAddress, async (data, i) => {
@@ -198,23 +198,23 @@ const nftV3 = async (guageAddress) => {
             collateralPrices,
             ethProvider
         )
-    }) 
+    })
 
     //console.log(lPUsdWorth);
-    
-    let rewards 
-    if(guageAddress == guageAddresses.ARTHMAHAGauge){
+
+    let rewards
+    if (guageAddress == guageAddresses.ARTHMAHAGauge) {
         rewards = await getRewardRemaing(1800, collateralPrices)
     } else if (guageAddress == guageAddresses.ARTHUSDCGauge) {
         rewards = await getRewardRemaing(200, collateralPrices)
     }
-     
+
     console.log("rewards", rewards);
-    
+
     let APY = await getAPR(lPUsdWorth, rewards)
     //console.log(APY);
 
-    return ( APY / 5)
+    return (APY / 5)
 }
 
 const options = (method, url) => {
@@ -223,7 +223,7 @@ const options = (method, url) => {
         uri: url,
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin':'*'
+            'Access-Control-Allow-Origin': '*'
         },
         json: true
     }
@@ -232,13 +232,15 @@ const options = (method, url) => {
 const scrappedApyRequest = async () => {
     const ellipsisApy = await request(options('GET', 'https://api.ellipsis.finance/api/getAPRs'))
     const ellipsisData = ellipsisApy.data['9']
-    
+
     const dotApy = await request(options('GET', 'https://api.dotdot.finance/api/lpDetails'))
     const dotData = dotApy.data.tokens[34]
 
     const stabilityApy = await request(options('GET', 'https://api.arthcoin.com/apy/stability'))
     //console.log(stabilityApy);
-    
+
+    const arthEthStability = await request(options('GET', 'https://api.arthcoin.com/apy/campaign'))
+
     // console.log({
     //     "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
     //         min : String(ellipsisData.totalApr),
@@ -257,22 +259,26 @@ const scrappedApyRequest = async () => {
     //         max: String(0)
     //     }
     // });
-    
+
     return {
-        "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
-            min : String(ellipsisData.totalApr),
-            max : String(ellipsisData.aprWithBoost)
+        "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d": {
+            min: String(ellipsisData.totalApr),
+            max: String(ellipsisData.aprWithBoost)
         },
-        "dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : {
-            min : ( String(dotData.minEpxAPR + dotData.minDddAPR) ),
-            max : ( String(dotData.realDddAPR + dotData.realEpxAPR) )
+        "dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d": {
+            min: (String(dotData.minEpxAPR + dotData.minDddAPR)),
+            max: (String(dotData.realDddAPR + dotData.realEpxAPR))
         },
-        "stability-eth" : {
+        "stability-eth": {
             min: String(stabilityApy.eth.apr),
             max: String(0)
         },
-        "stability-bnb" : {
+        "stability-bnb": {
             min: String(stabilityApy.bnb.apr),
+            max: String(0)
+        },
+        'arth-eth-stability': {
+            min: String(arthEthStability['arth-eth-loans']),
             max: String(0)
         }
     }
@@ -284,6 +290,7 @@ const fetchAndCache = async () => {
     // const arthUsdcApy = await nftV3(guageAddresses.ARTHUSDCGauge);
     // const arthMahaApy = await nftV3(guageAddresses.ARTHMAHAGauge);
     const scrappedApy = await scrappedApyRequest()
+    console.log(scrappedApy);
 
     // console.log('nft v3 apy', {
     //     'uniswap-0x174327F7B7A624a87bd47b5d7e1899e3562646DF': { min: 22.5, max: 22.5 * 5 },
@@ -292,30 +299,31 @@ const fetchAndCache = async () => {
     //     'dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
     //     'stability-eth': scrappedApy['stability-eth']
     // });
-    
+
     cache.set("guageV3-apr", JSON.stringify({
         'uniswap-0x174327F7B7A624a87bd47b5d7e1899e3562646DF': { min: String(22.5), max: String(22.5 * 5) },
         'uniswap-0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8': { min: String(150), max: String(150 * 5) },
         'ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
         'dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
-        'stability-eth': scrappedApy['stability-eth']
+        'stability-eth': scrappedApy['stability-eth'],
+        'arth-eth-stability': scrappedApy['arth-eth-stability']
     }));
 };
 
 cron.schedule("0 * * * * *", fetchAndCache); // every minute
 fetchAndCache();
-  
+
 export default async (_req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.status(200);
-  
+
     // 1 min cache
     if (cache.get("guageV3-apr")) {
-      //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-      res.send(cache.get("guageV3-apr"));
+        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+        res.send(cache.get("guageV3-apr"));
     } else {
-      await fetchAndCache();
-      //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-      res.send(cache.get("guageV3-apr"));
+        await fetchAndCache();
+        //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
+        res.send(cache.get("guageV3-apr"));
     }
 }
