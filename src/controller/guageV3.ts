@@ -310,7 +310,7 @@ const fetchAndCache = async () => {
     }));
 };
 
-cron.schedule("0 * * * * *", fetchAndCache); // every minute
+cron.schedule("0 0 0 * * *", fetchAndCache); // every minute
 fetchAndCache();
 
 export default async (_req, res) => {
