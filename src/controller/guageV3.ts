@@ -14,12 +14,14 @@ import {
     CollateralKeys,
     ICollateralPrices,
 } from "./coingecko";
+import mahalendApy from './mahalendApy';
 
 const request = require('request-promise')
 const NFT = require("../abi/nftABI.json");
 const FACTORY = require("../abi/factory.json");
 const NFTMANAGER = require("../abi/uniswapNftManager.json");
 const IERC20 = require("../abi/IERC20.json");
+const GMUOracle = require("../abi/GMUOracle.json")
 
 const uniswapNftManager = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
 const chain = EvmChain.ETHEREUM;
@@ -217,6 +219,27 @@ const nftV3 = async (guageAddress) => {
     return (APY / 5)
 }
 
+const getMahalendRewards = async () => {
+    const yearlyRewards = 12000
+    const collateralPrices = await getCollateralPrices()
+    const mahaPrice = collateralPrices['MAHA']
+    const mahalendArth = new ethers.Contract(
+        '0xe6b683868d1c168da88cfe5081e34d9d80e4d1a6',
+        IERC20,
+        ethProvider
+    );
+
+    const gmuContract = new ethers.Contract(
+        '0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00',
+        GMUOracle,
+        ethProvider
+    );
+    const totalSupply = Number(await mahalendArth.totalSupply() / 1e18)
+    const arthPrice = Number(await gmuContract.fetchLastGoodPrice() / 1e18)
+    const rewardPercent = ((yearlyRewards * mahaPrice) / (arthPrice * totalSupply)) * 100
+    return rewardPercent
+}
+
 const options = (method, url) => {
     return {
         method: method,
@@ -240,6 +263,9 @@ const scrappedApyRequest = async () => {
     //console.log(stabilityApy);
 
     const arthEthStrategy = await request(options('GET', 'https://api.arthcoin.com/apy/campaign'))
+
+    const mahalendRewards = await getMahalendRewards()
+
 
     // console.log({
     //     "ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d" : { 
@@ -280,6 +306,10 @@ const scrappedApyRequest = async () => {
         'arth-eth-strategy': {
             min: String(arthEthStrategy['arth-eth-loans']),
             max: String(0)
+        },
+        'arth-mahalend': {
+            min: String(mahalendRewards),
+            max: String(0)
         }
     }
 }
@@ -306,7 +336,8 @@ const fetchAndCache = async () => {
         'ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['ellipsis-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
         'dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d': scrappedApy['dot-0x21dE718BCB36F649E1A7a7874692b530Aa6f986d'],
         'stability-eth': scrappedApy['stability-eth'],
-        'arth-eth-strategy': scrappedApy['arth-eth-strategy']
+        'arth-eth-strategy': scrappedApy['arth-eth-strategy'],
+        'arth-mahalend': scrappedApy['arth-mahalend']
     }));
 };
 
