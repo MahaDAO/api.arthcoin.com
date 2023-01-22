@@ -51,13 +51,13 @@ const getAPR = async () => {
     ethProvider
   );
 
-  const totalLockedMaha = (await mahax.totalSupply()).div(e18).toNumber();
+  const totalLockedMAHAX = (await mahax.totalSupply()).div(e18).toNumber();
 
-  const mahaAPY = (rewardWorthMahaPerYear.maha / totalLockedMaha) * 100;
-  const sclpAPY = (rewardWorthMahaPerYear.sclp / totalLockedMaha) * 100;
-  const forwardAPY = (rewardWorthMahaPerYear.forward / totalLockedMaha) * 100;
-  const usdcAPY = (rewardWorthMahaPerYear.usdc / totalLockedMaha) * 100;
-  const arthAPY = (rewardWorthMahaPerYear.arth / totalLockedMaha) * 100;
+  const mahaAPY = (rewardWorthMahaPerYear.maha / totalLockedMAHAX) * 100;
+  const sclpAPY = (rewardWorthMahaPerYear.sclp / totalLockedMAHAX) * 100;
+  const forwardAPY = (rewardWorthMahaPerYear.forward / totalLockedMAHAX) * 100;
+  const usdcAPY = (rewardWorthMahaPerYear.usdc / totalLockedMAHAX) * 100;
+  const arthAPY = (rewardWorthMahaPerYear.arth / totalLockedMAHAX) * 100;
 
   return {
     mahaAPY,
