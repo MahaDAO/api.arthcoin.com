@@ -3,12 +3,16 @@ import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
 
-import { rewardPerMonth, getApeAPR, getApeSwapLPTokenTVLinUSD } from "./apyHelper/apeReward"
+import {
+  rewardPerMonth,
+  getApeAPR,
+  getApeSwapLPTokenTVLinUSD,
+} from "./apyHelper/apeReward";
 import {
   getCollateralPrices,
   CollateralKeys,
   ICollateralPrices,
-} from "./coingecko";
+} from "../utils/coingecko";
 
 const apeSwapChef = require("../abi/ApeSwapChef.json");
 const cache = new NodeCache();
@@ -30,12 +34,12 @@ const bsc = {
   "bsc.3eps": "0xaf4de8e872131ae328ce21d909c74705d3aaf452",
   apeswapChefAddr: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9",
   apeBusdUsdc: "0xC087C78AbaC4A0E900a327444193dBF9BA69058E",
-  apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb"
-}
+  apeBusdUsdt: "0x2e707261d086687470B515B320478Eb1C88D49bb",
+};
 
 const fetchAndCache = async () => {
   const collateralPrices = await getCollateralPrices();
-  const apeSwapReward = await rewardPerMonth(apeSwapChef, bscProvider)
+  const apeSwapReward = await rewardPerMonth(apeSwapChef, bscProvider);
 
   const busdusdcTVL = await getApeSwapLPTokenTVLinUSD(
     bsc.apeBusdUsdc,
@@ -43,7 +47,7 @@ const fetchAndCache = async () => {
     ["BSCUSDC", "BUSD"],
     collateralPrices,
     bscProvider
-  )
+  );
 
   const busdusdtTVL = await getApeSwapLPTokenTVLinUSD(
     bsc.apeBusdUsdt,
@@ -51,33 +55,50 @@ const fetchAndCache = async () => {
     ["BSCUSDT", "BUSD"],
     collateralPrices,
     bscProvider
-  )
+  );
 
-  const busdUsdcApr = await getApeAPR(Number(busdusdcTVL), apeSwapReward, collateralPrices)
-  const busdUsdtApr = await getApeAPR(Number(busdusdtTVL), apeSwapReward, collateralPrices)
-  
+  const busdUsdcApr = await getApeAPR(
+    Number(busdusdcTVL),
+    apeSwapReward,
+    collateralPrices
+  );
+  const busdUsdtApr = await getApeAPR(
+    Number(busdusdtTVL),
+    apeSwapReward,
+    collateralPrices
+  );
+
   // const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
-  cache.set("leaverage-datapoints", JSON.stringify({
+  cache.set(
+    "leaverage-datapoints",
+    JSON.stringify({
       supplyAPR: "11.48",
       tradingAPR: "0.00",
       borrowAPR: "6.5",
       totalAPR: "6.5",
-  }));
+    })
+  );
 
   // const qlpTvl = await usdcUsdtQLP(polygonTestnetProvider);
-  cache.set("leaverage-datapoints-busd-usdt", JSON.stringify({
-    supplyAPR: String(busdUsdtApr),
-    tradingAPR: "0.00",
-    borrowAPR: "1.63",
-    totalAPR: String(busdUsdtApr)
-  }));
+  cache.set(
+    "leaverage-datapoints-busd-usdt",
+    JSON.stringify({
+      supplyAPR: String(busdUsdtApr),
+      tradingAPR: "0.00",
+      borrowAPR: "1.63",
+      totalAPR: String(busdUsdtApr),
+    })
+  );
 
-  cache.set("leaverage-datapoints-busd-usdc", JSON.stringify({
-    supplyAPR: String(busdUsdcApr),
-    tradingAPR: "0.00",
-    borrowAPR: "1.63",
-    totalAPR: String(busdUsdcApr)
-  }));
+  cache.set(
+    "leaverage-datapoints-busd-usdc",
+    JSON.stringify({
+      supplyAPR: String(busdUsdcApr),
+      tradingAPR: "0.00",
+      borrowAPR: "1.63",
+      totalAPR: String(busdUsdcApr),
+    })
+  );
 };
 
 cron.schedule("0 * * * * *", fetchAndCache); // every minute
@@ -89,14 +110,14 @@ export default async (_req, res) => {
 
   let data;
   switch (_req.query.collateral) {
-    case 'USDCUSDT-QLP-S':
+    case "USDCUSDT-QLP-S":
       data = cache.get("leaverage-datapoints");
       break;
-    case 'BUSDUSDT-APE-LP-S':
-      data = cache.get("leaverage-datapoints-busd-usdt")
+    case "BUSDUSDT-APE-LP-S":
+      data = cache.get("leaverage-datapoints-busd-usdt");
       break;
-    case 'BUSDUSDC-APE-LP-S':
-      data = cache.get("leaverage-datapoints-busd-usdc")
+    case "BUSDUSDC-APE-LP-S":
+      data = cache.get("leaverage-datapoints-busd-usdc");
       break;
     default:
       data = cache.get("leaverage-datapoints");

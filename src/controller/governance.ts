@@ -2,7 +2,7 @@ import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
 
-import { getCollateralPrices, ICollateralPrices } from "./coingecko";
+import { getCollateralPrices, ICollateralPrices } from "../utils/coingecko";
 import { polygonProvider } from "../web3";
 
 const cache = new NodeCache();

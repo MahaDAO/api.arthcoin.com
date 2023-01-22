@@ -1,0 +1,2 @@
+export const ETH_ARTH = "0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71";
+export const ETH_MAHA = "0x745407c86df8db893011912d3ab28e68b62e49b0";

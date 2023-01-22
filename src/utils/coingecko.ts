@@ -1,4 +1,5 @@
 import CoinGecko from "coingecko-api";
+import cache from "./cache";
 
 const CoinGeckoClient = new CoinGecko();
 
@@ -7,26 +8,17 @@ export type CollateralKeys =
   | "WBTC"
   | "BUSD"
   | "USDT"
-  | "ARTH.usd"
-  | "bsc.3eps"
-  | "polygon.3pool"
   | "DAI"
   | "WETH"
   | "MAHA"
   | "ARTH"
-  | "SCLP"
-  | "BANNANA"
-  | "BSCUSDC"
-  | "FRAX"
-  | "BSCUSDT"
-  | "SOLID"
-  | "MATIC";
+  | "SCLP";
 
 export type ICollateralPrices = {
   [key in CollateralKeys]: number;
 };
 
-export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
+const _getCollateralPrices = async (): Promise<ICollateralPrices> => {
   const result = await CoinGeckoClient.simple.price({
     ids: "bitcoin,ethereum,dai,tether,mahadao,arth,usd-coin,scallop,binance-usd,apeswap-finance,frax,solidly,matic-network",
     vs_currencies: "USD",
@@ -37,19 +29,17 @@ export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
     WBTC: result.data.bitcoin.usd,
     BUSD: result.data["binance-usd"].usd,
     USDT: result.data.tether.usd,
-    "polygon.3pool": 1.048,
-    "ARTH.usd": 1.009,
-    "bsc.3eps": 1.009,
     DAI: result.data.dai.usd,
     USDC: result.data["usd-coin"].usd,
     WETH: result.data.ethereum.usd,
     MAHA: result.data.mahadao.usd,
     SCLP: result.data.scallop.usd,
-    BANNANA: result.data["apeswap-finance"].usd,
-    BSCUSDC: result.data["usd-coin"].usd,
-    BSCUSDT: result.data.tether.usd,
-    FRAX: result.data.frax.usd, 
-    SOLID: result.data.solidly.usd,
-    MATIC: result.data["matic-network"].usd
   };
+};
+
+export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
+  if (cache.get("coingecko")) return cache.get("coingecko");
+  const result = await _getCollateralPrices();
+  cache.set("coingecko", result);
+  return result;
 };

@@ -1,22 +1,27 @@
-import { polygonProvider, bscProvider, polygonTestnetProvider, ethProvider } from "../web3";
+import {
+  polygonProvider,
+  bscProvider,
+  polygonTestnetProvider,
+  ethProvider,
+} from "../web3";
 import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 import cron from "node-cron";
-import { rewardPerMonth, getApeAPR } from "./apyHelper/apeReward"
-import { scrappedApr } from "./scrapedApy/apr"
+import { rewardPerMonth, getApeAPR } from "./apyHelper/apeReward";
+import { scrappedApr } from "./scrapedApy/apr";
 
 import {
   getCollateralPrices,
   CollateralKeys,
   ICollateralPrices,
-} from "./coingecko";
+} from "../utils/coingecko";
 
 const cache = new NodeCache();
 
 // ABIs
 const BasicStakingABI = require("../abi/BasicStaking.json");
 const IERC20 = require("../abi/IERC20.json");
-const TroveManager = require("../abi/TroveManager.json")
+const TroveManager = require("../abi/TroveManager.json");
 const priceFeed = require("../abi/PriceFeed.json");
 const apeSwapChef = require("../abi/ApeSwapChef.json");
 
@@ -42,7 +47,7 @@ const bsc = {
   apeArthMahaStaking: "0x1599a0A579aD3Fc86DBe6953dfEc04eb365dd8e6",
   apeArthMahaLp: "0x84020EEfe28647056eAC16Cb16095Da2Ccf25665",
   arthValLP: "0x4cfaabd5920021359bb22bb6924cce708773b6ac",
-  arthValStaking: "0x41efe9AD56D328449439c330b327Ca496C3e38BB"
+  arthValStaking: "0x41efe9AD56D328449439c330b327Ca496C3e38BB",
 };
 
 const polygon = {
@@ -58,7 +63,7 @@ const polygon = {
   arth: "0xe52509181feb30eb4979e29ec70d50fd5c44d590",
   maha: "0xedd6ca8a4202d4a36611e2fff109648c4863ae19",
   troveManager: "0xe5EfD185Bd7c288e270bA764E105f8964aAecd41",
-  priceFeed: "0x935c70e4B9371f63A598BdA58BF1B2b270C8eBFe"
+  priceFeed: "0x935c70e4B9371f63A598BdA58BF1B2b270C8eBFe",
 };
 
 const eth = {
@@ -69,9 +74,9 @@ const eth = {
   frax: "0x853d955acef822db058eb8505911ed77f175b99e",
   arth: "0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71",
   "arth.usd": "0x973F054eDBECD287209c36A2651094fA52F99a71",
-  frxArthLP : "0x5a59fd6018186471727faaeae4e57890abc49b08",
-  frxArthStaking: "0x7B2F31Fe97f32760c5d6A4021eeA132d44D22039"
-}
+  frxArthLP: "0x5a59fd6018186471727faaeae4e57890abc49b08",
+  frxArthStaking: "0x7B2F31Fe97f32760c5d6A4021eeA132d44D22039",
+};
 
 const tokenDecimals: ICollateralPrices = {
   ARTH: 18,
@@ -91,13 +96,13 @@ const tokenDecimals: ICollateralPrices = {
   BSCUSDT: 18,
   FRAX: 18,
   SOLID: 18,
-  MATIC: 18
+  MATIC: 18,
 };
 
 const wallet = new ethers.Wallet(
   process.env.WALLET_KEY,
   polygonTestnetProvider
-)
+);
 
 const getAPR = async (
   contractTVLinUSD: number,
@@ -129,7 +134,7 @@ const getEllipsisLPTokenTVLinUSD = async (
   const token2Amount = token2Balance.div(token2Decimals);
 
   // console.log(
-  //   "token1Amount", Number(token1Amount),"\n", 
+  //   "token1Amount", Number(token1Amount),"\n",
   //   "token2Amount", Number(token2Amount)
   // );
 
@@ -141,8 +146,8 @@ const getEllipsisLPTokenTVLinUSD = async (
     .div(1000);
 
   // console.log(
-  //   "token1USDValue", Number(token1USDValue),"\n", 
-  //   "token2USDValue", Number(token2USDValue),"\n", 
+  //   "token1USDValue", Number(token1USDValue),"\n",
+  //   "token2USDValue", Number(token2USDValue),"\n",
   //   "tokens-", tokenNames[0], tokenNames[1],"\n",
   //   "collateralPrices", collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]], "\n",
   //   "========================================================="
@@ -164,7 +169,7 @@ const getUniswapLPTokenTVLinUSD = async (
 
   const token1Balance: BigNumber = await token1.balanceOf(lpAddress);
   const token2Balance: BigNumber = await token2.balanceOf(lpAddress);
-  
+
   const token1Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[0]]);
   const token2Decimals = BigNumber.from(10).pow(tokenDecimals[tokenNames[1]]);
 
@@ -172,7 +177,7 @@ const getUniswapLPTokenTVLinUSD = async (
   const token2Amount = token2Balance.div(token2Decimals);
 
   // console.log(
-  //   "token1Amount", Number(token1Amount), 
+  //   "token1Amount", Number(token1Amount),
   //   "token2Amount", Number(token2Amount)
   // );
 
@@ -182,13 +187,13 @@ const getUniswapLPTokenTVLinUSD = async (
   const token2USDValue = token2Amount
     .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
     .div(1000);
-  
+
   // console.log(
-  //   "token1USDValue", Number(token1USDValue), 
-  //   "token2USDValue", Number(token2USDValue), 
+  //   "token1USDValue", Number(token1USDValue),
+  //   "token2USDValue", Number(token2USDValue),
   //   collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
   // );
-  
+
   // total usd in the LP token
   return token1USDValue.add(token2USDValue);
 };
@@ -208,8 +213,8 @@ const getTVL = async (
   );
 
   const lpToken = new ethers.Contract(lpAddress, IERC20, provider);
-  
-  let lpTokenTVLinUSD
+
+  let lpTokenTVLinUSD;
   // const lpTokenTVLinUSD =
   //   lpAddress !== bsc.arthu3epsLP
   //     ? await getUniswapLPTokenTVLinUSD(
@@ -237,7 +242,7 @@ const getTVL = async (
       collateralPrices,
       provider
     );
-  } else if(lpAddress == bsc.arthValLP) {
+  } else if (lpAddress == bsc.arthValLP) {
     lpTokenTVLinUSD = await getEllipsisLPTokenTVLinUSD(
       "0x1d4B4796853aEDA5Ab457644a18B703b6bA8b4aB",
       lpAddress,
@@ -253,11 +258,11 @@ const getTVL = async (
       tokenNames,
       collateralPrices,
       provider
-    )
+    );
   }
-  
+
   //console.log('lpTokenTVLinUSD', Number(lpTokenTVLinUSD));
-  
+
   const totalSupply: BigNumber = await lpToken.totalSupply();
   const stakedAmount: BigNumber = await stakingContract.totalSupply();
 
@@ -268,7 +273,7 @@ const getTVL = async (
 
 const fetchAPRs = async () => {
   const collateralPrices = await getCollateralPrices();
-  const apeSwapReward = await rewardPerMonth(apeSwapChef, bscProvider)
+  const apeSwapReward = await rewardPerMonth(apeSwapChef, bscProvider);
 
   const arthMahaBscTVL = await getTVL(
     bsc.arthMahaStaking,
@@ -324,7 +329,7 @@ const fetchAPRs = async () => {
     collateralPrices,
     bscProvider
   );
-  
+
   // console.log("arthValeps");
   const arthValepsBscTVL = await getTVL(
     bsc.arthValStaking,
@@ -334,7 +339,7 @@ const fetchAPRs = async () => {
     collateralPrices,
     bscProvider
   );
-  
+
   // console.log("arthu3epsV2");
   const arthu3epsV2BscTVL = await getTVL(
     bsc.arthu3epsStakingV2,
@@ -344,7 +349,7 @@ const fetchAPRs = async () => {
     collateralPrices,
     bscProvider
   );
-  
+
   const apeArthMahaBscTVL = await getTVL(
     bsc.apeArthMahaStaking,
     bsc.apeArthMahaLp,
@@ -372,7 +377,7 @@ const fetchAPRs = async () => {
     ethProvider
   );
 
-  const aprData = await scrappedApr()
+  const aprData = await scrappedApr();
 
   return {
     chainSpecificData: {
@@ -403,10 +408,14 @@ const fetchAPRs = async () => {
           // arthBusd: await getAPR(arthBuscBscTVL, 5000, collateralPrices),
           // arthMaha: await getAPR(arthMahaBscTVL, 5000, collateralPrices),
           arthMahaApe: await getAPR(apeArthMahaBscTVL, 5000, collateralPrices),
-          "arthu3valeps-v2": await getAPR(arthValepsBscTVL, 5000, collateralPrices),
+          "arthu3valeps-v2": await getAPR(
+            arthValepsBscTVL,
+            5000,
+            collateralPrices
+          ),
           arthu3valdoteps: aprData.dot,
           arthu3epx: Number(aprData.ellipsis),
-          arthu3eps: aprData.dotApyArthu3eps
+          arthu3eps: aprData.dotApyArthu3eps,
         },
         tvl: {
           "arthu3eps-v2": arthu3epsV2BscTVL,
@@ -416,7 +425,7 @@ const fetchAPRs = async () => {
           arthMahaApe: apeArthMahaBscTVL,
           "arthu3valeps-v2": arthValepsBscTVL,
           arthu3epx: Number(aprData.ellipsisTvl),
-          arthu3valdoteps: aprData.dotTvl
+          arthu3valdoteps: aprData.dotTvl,
         },
         minApr: {
           arthu3valdoteps: aprData.dotDddApr,
@@ -427,32 +436,38 @@ const fetchAPRs = async () => {
           arthu3valdoteps: aprData.dotEpxApr,
           arthu3epx: Number(aprData.ellipsisMaxApr),
           //arthu3eps: aprData.dotEpxAprArthu3eps
-        }
+        },
       },
       1: {
         apr: {
-          ethMahaSushi: await getAPR(sushiEthMahaETHTVL, 5000, collateralPrices),
-          fraxArthCurve: await getAPR(frxArthTVL, 5000, collateralPrices)
+          ethMahaSushi: await getAPR(
+            sushiEthMahaETHTVL,
+            5000,
+            collateralPrices
+          ),
+          fraxArthCurve: await getAPR(frxArthTVL, 5000, collateralPrices),
         },
         tvl: {
           ethMahaSushi: sushiEthMahaETHTVL,
-          fraxArthCurve: frxArthTVL
-        }
-      }
+          fraxArthCurve: frxArthTVL,
+        },
+      },
     },
     mahaRewardPerMinute: 5000 / (86400 * 30),
   };
 };
 
-const usdcUsdtQLP = async (
-  provider: ethers.providers.Provider
-) => {
-  const troveManager = new ethers.Contract(polygon.troveManager, TroveManager, polygonTestnetProvider);
+const usdcUsdtQLP = async (provider: ethers.providers.Provider) => {
+  const troveManager = new ethers.Contract(
+    polygon.troveManager,
+    TroveManager,
+    polygonTestnetProvider
+  );
   const collateralRaised = await troveManager.getEntireSystemColl();
 
   //console.log('collateralRaised', collateralRaised);
-  return { collateralRaised : collateralRaised }
-}
+  return { collateralRaised: collateralRaised };
+};
 
 const fetchAndCache = async () => {
   const data = await fetchAPRs();
