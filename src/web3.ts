@@ -1,5 +1,5 @@
-const dotenv = require('dotenv')
-dotenv.config()
+const dotenv = require("dotenv");
+dotenv.config();
 
 import nconf from "nconf";
 import { ethers } from "ethers";

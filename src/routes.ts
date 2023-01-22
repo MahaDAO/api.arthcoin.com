@@ -27,13 +27,9 @@ router.get("/apr/vaults", vaults);
 router.get("/apr/stability-pool-v2", stability);
 router.get("/apr/gauges-uniswap-v3", guageV3Apy);
 router.get("/apr/gauges-lp-tokens", gaugeLP);
+
 router.get("/graph/protocol", ethProtocolGraph);
 router.get("/graph/protocol/MA", ethProtocolMAGraph);
 router.get("/graph/protocol/CPI", ethProtocolCPIGraph);
-
-// router.get("/apy/leverage", leverage);
-// router.get("/apy/rewards", rewards);
-// router.get("/apy/mahalend", mahalendApy);
-// router.get("/apy/campaign", arthCampaign);
 
 export default router;
