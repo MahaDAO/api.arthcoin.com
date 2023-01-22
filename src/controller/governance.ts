@@ -1,22 +1,13 @@
 import { ethers, BigNumber } from "ethers";
 import { getCollateralPrices, ICollateralPrices } from "../utils/coingecko";
-import { polygonProvider } from "../web3";
+import { ethProvider } from "../web3";
 
 // ABIs
 const VotingEscrow = require("../abi/VotingEscrow.json");
 
-const tokenAddresses = {
-  arth: "0xe52509181feb30eb4979e29ec70d50fd5c44d590",
-  maha: "0xedd6ca8a4202d4a36611e2fff109648c4863ae19",
-  usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-  sclp: "0x2fc711518aae7c87d7002566c5d43b0e5d2b1932",
-  poolToken: "0x48202b3f81e345c8F72aae88cC386dD1fbBeab97",
-  escrow: "0x8f2c37d2f8ae7bce07aa79c768cc03ab0e5ae9ae",
-};
-
 const e18 = BigNumber.from(10).pow(18);
 
-const mahaRewardPerYear = 2500 * 12;
+const mahaRewardPerYear = 5000 * 12;
 const sclpRewardPerYear = 9500 * 52; // 9500 sclp a week
 const forwardRewardPerYear = 5000000000;
 const usdcRewardPerYear = 0; // todo remove this hardcoded values
@@ -55,14 +46,12 @@ const getAPR = async () => {
   const rewardWorthMahaPerYear = await getMAHARewardPerYear(collateralPrices);
 
   const mahax = new ethers.Contract(
-    tokenAddresses.escrow,
+    "0xbdd8f4daf71c2cb16cce7e54bb81ef3cfcf5aacb",
     VotingEscrow,
-    polygonProvider
+    ethProvider
   );
 
-  const totalLockedMaha = (await mahax.totalSupplyWithoutDecay())
-    .div(e18)
-    .toNumber();
+  const totalLockedMaha = (await mahax.totalSupply()).div(e18).toNumber();
 
   const mahaAPY = (rewardWorthMahaPerYear.maha / totalLockedMaha) * 100;
   const sclpAPY = (rewardWorthMahaPerYear.sclp / totalLockedMaha) * 100;
@@ -74,7 +63,6 @@ const getAPR = async () => {
     mahaAPY,
     sclpAPY,
     forwardAPY,
-    usdcAPY: usdcAPY,
     arthAPY: arthAPY,
     overallAPY: mahaAPY + sclpAPY + 0 + usdcAPY + arthAPY,
   };
