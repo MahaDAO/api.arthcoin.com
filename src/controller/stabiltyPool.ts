@@ -15,19 +15,19 @@ const getTVL = async (stabilityPool, provider) => {
 const fetchAPRs = async () => {
   const prices = await getCollateralPrices();
 
-  const arthInSP = await getTVL(
+  const tvl = await getTVL(
     "0x910f16455e5eb4605fe639e2846579c228eed3b5",
     ethProvider
   );
 
-  const tvlInUsdEth = arthInSP * prices.ARTH || 2.09;
+  const tvlInUSD = tvl * prices.ARTH || 2.09;
   const rewardPerYearMAHA = 1000 * 12;
 
   const rewardinUSD = rewardPerYearMAHA * prices.MAHA;
-  const apr = (rewardinUSD / tvlInUsdEth) * 100;
+  const apr = (rewardinUSD / tvlInUSD) * 100;
 
   return {
-    eth: { apr: String(apr), tvl: arthInSP },
+    eth: { apr, tvl },
   };
 };
 

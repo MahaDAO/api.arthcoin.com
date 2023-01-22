@@ -1,12 +1,6 @@
-const dotenv = require("dotenv");
-dotenv.config();
-
-import NodeCache from "node-cache";
-import cron from "node-cron";
 import * as Bluebird from "bluebird";
 import { protocolETHGraph } from "./protocolEthGraphs";
 
-const cache = new NodeCache();
 const request = require("request-promise");
 
 const options = (method, url) => {
@@ -25,15 +19,16 @@ export const ethProtocolCPIGraph = async () => {
   const truflationData = await request(
     options("GET", "https://truflation-api.hydrogenx.live/dashboard-data")
   );
-  const CPIDataPoints = truflationData.b;
 
-  let cpiDataArray = [];
+  const CPIDataPoints = truflationData.b;
+  const cpiDataArray = [];
+
   await Bluebird.mapSeries(CPIDataPoints, (data) => {
-    let date = new Date(data[0]).getTime();
+    const date = new Date(data[0]).getTime();
     cpiDataArray.push([date, data[1]]);
   });
 
-  let protocolPrice = await protocolETHGraph(
+  const protocolPrice = await protocolETHGraph(
     "0x7EE5010Cbd5e499b7d66a7cbA2Ec3BdE5fca8e00"
   );
 
@@ -48,25 +43,6 @@ export const ethProtocolCPIGraph = async () => {
   };
 };
 
-const fetchAndCache = async () => {
-  const CPI = await ethProtocolCPIGraph();
-  cache.set("protocol_cpi", JSON.stringify(CPI));
-};
-
-cron.schedule("0 * * * * *", fetchAndCache); // every minute
-fetchAndCache();
-
 export default async (_req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.status(200);
-
-  // 1 min cache
-  if (cache.get("protocol_cpi")) {
-    //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-    res.send(cache.get("protocol_cpi"));
-  } else {
-    await fetchAndCache();
-    //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-    res.send(cache.get("protocol_cpi"));
-  }
+  res.json(await ethProtocolCPIGraph());
 };

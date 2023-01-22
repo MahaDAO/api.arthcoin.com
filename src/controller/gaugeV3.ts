@@ -43,6 +43,7 @@ const getMinMax = async (
   return {
     min: apr,
     max: apr * boostEffectiveness,
+    boostEffectiveness,
   };
 };
 

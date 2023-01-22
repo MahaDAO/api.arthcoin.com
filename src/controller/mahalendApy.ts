@@ -1,14 +1,5 @@
-import {
-  polygonProvider,
-  bscProvider,
-  polygonTestnetProvider,
-  ethProvider,
-} from "../web3";
-import { ethers, BigNumber } from "ethers";
-import NodeCache from "node-cache";
-import cron from "node-cron";
-
-const cache = new NodeCache();
+import { ethProvider } from "../web3";
+import { ethers } from "ethers";
 
 const request = require("request-promise");
 const CurveAPY = require("../abi/curvePool.json");
@@ -49,8 +40,6 @@ const getAPY = async () => {
 
   const tradingApr = (volume * fee) / tvl;
 
-  console.log(apy, volume, Number(fee), tvl);
-
   return {
     "0x6ec38b3228251a0C5D491Faf66858e2E23d7728B": {
       tradingApr: tradingApr,
@@ -59,25 +48,6 @@ const getAPY = async () => {
   };
 };
 
-const fetchAndCache = async () => {
-  const data = await getAPY();
-  cache.set("mahalend-apy", JSON.stringify(data));
-};
-
-cron.schedule("0 * * * * *", fetchAndCache); // every minute
-fetchAndCache();
-
 export default async (_req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.status(200);
-
-  // 1 min cache
-  if (cache.get("mahalend-apy")) {
-    //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-    res.send(cache.get("mahalend-apy"));
-  } else {
-    await fetchAndCache();
-    //res.send(cache.get("loans-apr"), cache.get("loan-qlp-tvl"));
-    res.send(cache.get("mahalend-apy"));
-  }
+  res.json(await getAPY());
 };
