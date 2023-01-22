@@ -1,22 +1,14 @@
 import { Router } from "express";
 import apicache from "apicache";
 
-// import governance from "./controller/governance";
-// import loans from "./controller/loans";
-// import guage from "./controller/gauageApy";
-import stability from "./controller/stabiltyPoolApy";
-// import qlp from "./controller/lonasQlpTvl";
-// import lpPrice from "./controller/lpTokenPrice";
-// import leverage from "./controller/leverage";
-// import ethProtocolGraph from "./controller/graphs/protocolEthGraphs";
-// import ethProtocolMAGraph from "./controller/graphs/MA";
-// import ethProtocolCPIGraph from "./controller/graphs/CPI";
+import governance from "./controller/governance";
+import stability from "./controller/stabiltyPool";
+import ethProtocolGraph from "./controller/graphs/protocolEthGraphs";
+import ethProtocolMAGraph from "./controller/graphs/MA";
+import ethProtocolCPIGraph from "./controller/graphs/CPI";
 import guageV3Apy from "./controller/gaugeV3";
 import gaugeLP from "./controller/gaugeLP";
-// import rewards from "./controller/rewards";
-// import mahalendApy from "./controller/mahalendApy";
-// import arthCampaign from "./controller/arthCampaign";
-// import * as signature from "./controller/signature";
+import vaults from "./controller/vaults";
 
 const router = Router();
 
@@ -26,34 +18,18 @@ router.get("/", (_req, res) => {
   });
 });
 
-let cache = apicache.middleware;
+// add a 5 min cache
+const cache = apicache.middleware;
 router.use(cache("5 minutes"));
 
-// const cacheMiddleware = new ExpressCache(
-//   cacheManager.caching("memory", {
-//     max: 10000,
-//     ttl: 3600,
-//   })
-// );
-
-// router.post("/apy/qlp", qlp);
-// router.post("/apy/lp", lpPrice);
-
-// router.post("/signature/check", signature.checkSignature);
-// router.post("/signature/write", signature.writeSignature);
-
-// cacheMiddleware.attach(router);
-
-// router.get("/apy/governance", governance);
-// router.get("/apy/loans", loans);
-// router.get("/apy/guage", guage);
+router.get("/apr/governance", governance);
+router.get("/apr/vaults", vaults);
 router.get("/apr/stability-pool-v2", stability);
 router.get("/apr/gauges-uniswap-v3", guageV3Apy);
 router.get("/apr/gauges-lp-tokens", gaugeLP);
-
-// router.get("/apy/eth/protocol/graph", ethProtocolGraph);
-// router.get("/apy/eth/protocol/graph/MA", ethProtocolMAGraph);
-// router.get("/apy/eth/protocol/graph/CPI", ethProtocolCPIGraph);
+router.get("/graph/protocol", ethProtocolGraph);
+router.get("/graph/protocol/MA", ethProtocolMAGraph);
+router.get("/graph/protocol/CPI", ethProtocolCPIGraph);
 
 // router.get("/apy/leverage", leverage);
 // router.get("/apy/rewards", rewards);

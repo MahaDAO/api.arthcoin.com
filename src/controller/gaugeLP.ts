@@ -3,7 +3,6 @@ import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 
 import { getCollateralPrices, CollateralKeys } from "../utils/coingecko";
-import { ERC20_ABI } from "./apyHelper/data";
 import { ETH_ARTH, ETH_MAHA, ETH_USDC } from "./config";
 
 const cache = new NodeCache();
@@ -62,9 +61,9 @@ const getRewards = async (gauge: IGauge) => {
   const token0Addr = ETH_ARTH;
   const token1Addr = ETH_USDC;
 
-  const token0 = await new ethers.Contract(token0Addr, ERC20_ABI, ethProvider);
-  const token1 = await new ethers.Contract(token1Addr, ERC20_ABI, ethProvider);
-  const lpToken = await new ethers.Contract(gauge[2], ERC20_ABI, ethProvider);
+  const token0 = await new ethers.Contract(token0Addr, IERC20, ethProvider);
+  const token1 = await new ethers.Contract(token1Addr, IERC20, ethProvider);
+  const lpToken = await new ethers.Contract(gauge[2], IERC20, ethProvider);
 
   // first get TVL of the gauge
   const lpTokensInGauge: BigNumber = await contract.totalSupply();

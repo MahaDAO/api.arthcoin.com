@@ -27,8 +27,6 @@
   "dependencies": {
     "@ethersproject/address": "^5.6.1",
     "@ethersproject/solidity": "^5.6.1",
-    "@moralisweb3/evm": "^2.0.0-alpha.2",
-    "@moralisweb3/evm-utils": "^2.0.1",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.1",
     "@truffle/hdwallet-provider": "^1.4.1",
