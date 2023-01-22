@@ -96,7 +96,7 @@ const getRewardBalance = async (
     provider
 ) => {
   const tokenAddress = await getMahaAddress(chainid)
-  console.log("Maha", tokenAddress, chainid, stabilityPool);
+  //console.log("Maha", tokenAddress, chainid, stabilityPool);
   
   const maha = new ethers.Contract(
       tokenAddress,
@@ -105,7 +105,7 @@ const getRewardBalance = async (
   );
 
   const balance = await maha.balanceOf(stabilityPool)
-  console.log("balance", Number(balance / 1e18));
+  //console.log("balance", Number(balance / 1e18));
   
   return Number(balance / 1e18)
 }
@@ -160,9 +160,9 @@ const fetchAPRs = async () => {
     const ethApr = await getAPR(tvlInUsdEth, collateralPrices, ethStabilyRewardtvl || 1000)
 
     return {   
-        matic: String(polygonApr),
-        eth: String(ethApr),
-        bnb: String(bnbApr)
+        matic: { apr: String(polygonApr), tvl: polygonStabilytvl },
+        eth: { apr: String(ethApr), tvl: ethStabilytvl },
+        bnb: { apr: String(bnbApr), tvl: bnbStabilytvl }
     }
 };
 

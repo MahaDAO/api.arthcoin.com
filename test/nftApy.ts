@@ -26,7 +26,10 @@ const guageAddresses = {
     ARTHUSDCGauge: "0x174327F7B7A624a87bd47b5d7e1899e3562646DF", // calculate rewards remaining here
     ARTHMAHAGauge: "0x48165A4b84e00347C4f9a13b6D0aD8f7aE290bB8", // calculate rewards remaining here
     ARTHUSDCPool: "0x031a1d307C91fbDE01005Ec2Ebc5Fcb03b6f80aB",
-    ARTHMAHAPool: "0xC5Ee69662e7EF79e503be9D54C237d5aafaC305d"
+    ARTHMAHAPool: "0xC5Ee69662e7EF79e503be9D54C237d5aafaC305d",
+    ARTH: "0x8cc0f052fff7ead7f2edcccac895502e884a8a71",
+    USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    MAHA: "0xb4d930279552397bba2ee473229f89ec245bc365"
 }
 
 const tokenDecimals: ICollateralPrices = {
@@ -49,6 +52,24 @@ const tokenDecimals: ICollateralPrices = {
     SOLID: 18,
     MATIC: 18
 };
+
+const maha = new ethers.Contract(
+    guageAddresses.MAHA,
+    IERC20,
+    ethProvider
+);
+
+const arth = new ethers.Contract(
+    guageAddresses.ARTH,
+    IERC20,
+    ethProvider
+);
+
+const usdc = new ethers.Contract(
+    guageAddresses.USDC,
+    IERC20,
+    ethProvider
+);
 
 // export const getTokenName = async (address) => {    
 //     let tokenName 
@@ -86,12 +107,6 @@ export const getTokenName = async (address) => {
 }
 
 export const getRewardRemaing = async (amount, collateralPrices) => {
-    const maha = new ethers.Contract(
-        '0xb4d930279552397bba2ee473229f89ec245bc365',
-        IERC20,
-        ethProvider
-    );
-    
     //const balance = await maha.balanceOf(address)
     // const balance = await maha.balanceOf('0x736a089Ad405f1C35394Ad15004f5359938f771e')
 
@@ -118,10 +133,10 @@ const getUniswapLPTokenTVLinUSD = async (
     const token1Amount = token1Balance.div(token1Decimals);
     const token2Amount = token2Balance.div(token2Decimals);
 
-    console.log(
-        "token1Amount", Number(token1Amount), 
-        "token2Amount", Number(token2Amount)
-    );
+    // console.log(
+    //     "token1Amount", Number(token1Amount), 
+    //     "token2Amount", Number(token2Amount)
+    // );
   
     const token1USDValue = token1Amount
       .mul(Math.floor(1000 * collateralPrices[tokenNames[0]]))
@@ -130,15 +145,19 @@ const getUniswapLPTokenTVLinUSD = async (
       .mul(Math.floor(1000 * collateralPrices[tokenNames[1]]))
       .div(1000);
     
-    console.log(
-        "token1USDValue", Number(token1USDValue), 
-        "token2USDValue", Number(token2USDValue), 
-        collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
-    );
+    // console.log(
+    //     "token1USDValue", Number(token1USDValue), 
+    //     "token2USDValue", Number(token2USDValue), 
+    //     collateralPrices[tokenNames[0]], collateralPrices[tokenNames[1]]
+    // );
     
     console.log(Number(token1USDValue.add(token2USDValue)));
     return Number(token1USDValue.add(token2USDValue));
 };
+
+const LPTokenPrice = async (TVLUsd, supply) => {
+    return Number(TVLUsd / supply)
+}
 
 const getAPR = async (
     contractTVLinUSD: number,

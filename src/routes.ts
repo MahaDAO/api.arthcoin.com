@@ -11,6 +11,10 @@ import ethProtocolGraph from "./controller/graphs/protocolEthGraphs"
 import ethProtocolMAGraph from "./controller/graphs/MA"
 import ethProtocolCPIGraph from "./controller/graphs/CPI"
 import guageV3Apy from "./controller/guageV3"
+import rewards from "./controller/rewards";
+import mahalendApy from "./controller/mahalendApy";
+import arthCampaign from "./controller/arthCampaign";
+
 import * as signature from "./controller/signature"
 
 const router = Router();
@@ -38,5 +42,11 @@ router.get("/apy/leverage", (req, res) => { leverage(req, res) });
 
 router.post("/apy/check/signature", (req, res) => { signature.checkSignature(req, res) })
 router.post("/apy/signature", (req, res) => { signature.writeSignature(req, res) })
+
+router.get("/apy/rewards", (req, res) => { rewards(req, res) });
+
+router.get("/apy/mahalend", (req, res) => { mahalendApy(req, res) });
+router.get("/apy/campaign", (req, res) => { arthCampaign(req, res) });
+
 
 export default router;

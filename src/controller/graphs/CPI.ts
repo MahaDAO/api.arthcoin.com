@@ -21,6 +21,10 @@ const options = (method, url) => {
     }
 }
 
+const scrapedApy = async () => {
+    
+}
+
 export const ethProtocolCPIGraph = async () => {
     const truflationData = await request(options('GET', 'https://truflation-api.hydrogenx.live/dashboard-data'))
     const CPIDataPoints = truflationData.b
