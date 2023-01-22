@@ -2,6 +2,8 @@ import express from "express";
 import logger from "morgan";
 
 import routes from "./routes";
+
+// disable mongodb for now; not needed
 // import { open } from "./database/index";
 // open();
 
