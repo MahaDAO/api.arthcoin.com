@@ -1,6 +1,7 @@
 import { ethers, BigNumber } from "ethers";
 import { getCollateralPrices, ICollateralPrices } from "../utils/coingecko";
 import { ethProvider } from "../web3";
+import { IAPRPoolResponse } from "./config";
 
 // ABIs
 const VotingEscrow = require("../abi/VotingEscrow.json");
@@ -41,7 +42,7 @@ const getMAHARewardPerYear = async (collateralPrices: ICollateralPrices) => {
   };
 };
 
-const getAPR = async () => {
+const getAPR = async (): Promise<IAPRPoolResponse> => {
   const collateralPrices = await getCollateralPrices();
   const rewardWorthMahaPerYear = await getMAHARewardPerYear(collateralPrices);
 
@@ -59,12 +60,69 @@ const getAPR = async () => {
   const usdcAPY = (rewardWorthMahaPerYear.usdc / totalLockedMAHAX) * 100;
   const arthAPY = (rewardWorthMahaPerYear.arth / totalLockedMAHAX) * 100;
 
+  const totalAPR = mahaAPY + sclpAPY + 0 + usdcAPY + arthAPY;
+
   return {
-    mahaAPY,
-    sclpAPY,
-    forwardAPY,
-    arthAPY: arthAPY,
-    overallAPY: mahaAPY + sclpAPY + 0 + usdcAPY + arthAPY,
+    mahaAPY: {
+      current: {
+        min: mahaAPY,
+        max: mahaAPY,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: mahaAPY,
+        max: mahaAPY,
+        boostEffectiveness: 1,
+      },
+    },
+    sclpAPY: {
+      current: {
+        min: sclpAPY,
+        max: sclpAPY,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: sclpAPY,
+        max: sclpAPY,
+        boostEffectiveness: 1,
+      },
+    },
+    forwardAPY: {
+      current: {
+        min: forwardAPY,
+        max: forwardAPY,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: forwardAPY,
+        max: forwardAPY,
+        boostEffectiveness: 1,
+      },
+    },
+    arthAPY: {
+      current: {
+        min: arthAPY,
+        max: arthAPY,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: arthAPY,
+        max: arthAPY,
+        boostEffectiveness: 1,
+      },
+    },
+    overallAPY: {
+      current: {
+        min: totalAPR,
+        max: totalAPR,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: totalAPR,
+        max: totalAPR,
+        boostEffectiveness: 1,
+      },
+    },
   };
 };
 

@@ -2,12 +2,14 @@ import { ethers, BigNumber } from "ethers";
 
 import { ethProvider } from "../web3";
 import { getCollateralPrices, CollateralKeys } from "../utils/coingecko";
+import { IAPRPoolResponse, IAPRResponse } from "./config";
 
 const GAUGE_ABI = require("../abi/GuageV3.json");
 const HELPER_ABI = require("../abi/UniswapV3UIHelper.json");
 
 const e18 = BigNumber.from(10).pow(18);
 const uniswapUIHelper = "0x772500810ab7975073c14E2054f8f891A2190572";
+
 const gauges = {
   ARTHETH: "0x2e1db01f87ab645321cb12048bbab8a9538c61cc", // calculate rewards remaining here
   ARTHMAHA: "0x98e1701f6558dd63481b57926c9f22c64d918c35", // calculate rewards remaining here
@@ -51,7 +53,7 @@ const getRewards = async (
   gauge: string,
   token0: CollateralKeys,
   token1: CollateralKeys
-) => {
+): Promise<IAPRResponse> => {
   const collateralPrices = await getCollateralPrices();
   const contract = await new ethers.Contract(gauge, GAUGE_ABI, ethProvider);
   const helper = await new ethers.Contract(
@@ -87,6 +89,7 @@ const getRewards = async (
       .toNumber() / 1000;
 
   return {
+    tvlUSD: totalUSDValue.div(e18).toNumber(),
     current: await getMinMax(totalUSDValue, mahaRewardRate, boostEffectiveness),
     upcoming: await getMinMax(
       totalUSDValue,
@@ -96,7 +99,7 @@ const getRewards = async (
   };
 };
 
-const fetchAPRs = async () => {
+const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
   return {
     "arth-maha-1000": await getRewards(gauges.ARTHMAHA, "MAHA", "ARTH"),
     "arth-eth-1000": await getRewards(gauges.ARTHETH, "ARTH", "WETH"),
@@ -104,8 +107,5 @@ const fetchAPRs = async () => {
 };
 
 export default async (_req, res) => {
-  const result = await fetchAPRs();
-  res.json(result);
+  res.json(await fetchAPRs());
 };
-
-fetchAPRs();

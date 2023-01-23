@@ -3,7 +3,13 @@ import { ethers, BigNumber } from "ethers";
 import NodeCache from "node-cache";
 
 import { getCollateralPrices, CollateralKeys } from "../utils/coingecko";
-import { ETH_ARTH, ETH_MAHA, ETH_USDC } from "./config";
+import {
+  ETH_ARTH,
+  ETH_MAHA,
+  ETH_USDC,
+  IAPRPoolResponse,
+  IAPRResponse,
+} from "./config";
 
 const cache = new NodeCache();
 
@@ -54,7 +60,7 @@ const getMinMax = async (
   };
 };
 
-const getRewards = async (gauge: IGauge) => {
+const getRewards = async (gauge: IGauge): Promise<IAPRResponse> => {
   const collateralPrices = await getCollateralPrices();
   const contract = await new ethers.Contract(gauge[0], GAUGE_ABI, ethProvider);
 
@@ -103,6 +109,7 @@ const getRewards = async (gauge: IGauge) => {
       .toNumber() / 1000;
 
   return {
+    tvlUSD: totalUSDValue.div(e18).toNumber(),
     current: await getMinMax(totalUSDValue, mahaRewardRate, boostEffectiveness),
     upcoming: await getMinMax(
       totalUSDValue,
@@ -112,7 +119,7 @@ const getRewards = async (gauge: IGauge) => {
   };
 };
 
-const fetchAPRs = async () => {
+const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
   return {
     "arth-usdc-curve-crypto-185": await getRewards(gauges.ARTHUSDCGaugeCurve),
   };

@@ -2,6 +2,7 @@ import { ethProvider } from "../web3";
 import { ethers } from "ethers";
 
 import { getCollateralPrices } from "../utils/coingecko";
+import { IAPRPoolResponse } from "./config";
 
 const Campaign = require("../abi/ArthCampaign.json");
 
@@ -22,17 +23,41 @@ const getCampaignTVL = async (collateralPrices) => {
 const campaignAPR = async (collateralPrices) => {
   const tvlInUSD = await getCampaignTVL(collateralPrices);
   const rewardsInUSD = MAHAPerMonth * 12 * collateralPrices["MAHA"];
-  return (rewardsInUSD / tvlInUSD) * 100;
+  return [(rewardsInUSD / tvlInUSD) * 100, tvlInUSD];
 };
 
-const main = async () => {
+const main = async (): Promise<IAPRPoolResponse> => {
   const collateralPrices = await getCollateralPrices();
 
-  let APR = await campaignAPR(collateralPrices);
+  const [apr, tvl] = await campaignAPR(collateralPrices);
 
   return {
-    "arth-eth-strategy": APR,
-    "arth-usdc-strategy": 0,
+    "arth-eth-strategy": {
+      tvlUSD: tvl,
+      current: {
+        min: apr,
+        max: apr,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: apr,
+        max: apr,
+        boostEffectiveness: 1,
+      },
+    },
+    "arth-usdc-strategy": {
+      tvlUSD: 0,
+      current: {
+        min: 0,
+        max: 0,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: 0,
+        max: 0,
+        boostEffectiveness: 1,
+      },
+    },
   };
 };
 

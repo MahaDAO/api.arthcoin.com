@@ -1,7 +1,7 @@
 import { ethProvider } from "../web3";
 import { ethers } from "ethers";
 import { getCollateralPrices } from "../utils/coingecko";
-import { ETH_ARTH } from "./config";
+import { ETH_ARTH, IAPRPoolResponse } from "./config";
 
 // ABIs
 const IERC20 = require("../abi/IERC20.json");
@@ -12,7 +12,7 @@ const getTVL = async (stabilityPool, provider) => {
   return Number(balance / 1e18);
 };
 
-const fetchAPRs = async () => {
+const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
   const prices = await getCollateralPrices();
 
   const tvl = await getTVL(
@@ -27,7 +27,19 @@ const fetchAPRs = async () => {
   const apr = (rewardinUSD / tvlInUSD) * 100;
 
   return {
-    eth: { apr, tvl },
+    eth: {
+      tvlUSD: tvl,
+      current: {
+        min: apr,
+        max: apr,
+        boostEffectiveness: 1,
+      },
+      upcoming: {
+        min: apr,
+        max: apr,
+        boostEffectiveness: 1,
+      },
+    },
   };
 };
 
