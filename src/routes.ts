@@ -9,6 +9,7 @@ import governance from "./controller/governance";
 import guageV3Apy from "./controller/gaugeV3";
 import stability from "./controller/stabiltyPool";
 import vaults from "./controller/vaults";
+import all from "./controller/all";
 
 const router = Router();
 router.get("/", (_req, res) => {
@@ -16,6 +17,8 @@ router.get("/", (_req, res) => {
     status: "online",
   });
 });
+
+router.get("/apr/all", all);
 
 // add a 15 min cache
 const cache = apicache.middleware;

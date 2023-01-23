@@ -42,7 +42,7 @@ const getMAHARewardPerYear = async (collateralPrices: ICollateralPrices) => {
   };
 };
 
-const getAPR = async (): Promise<IAPRPoolResponse> => {
+export const getData = async (): Promise<IAPRPoolResponse> => {
   const collateralPrices = await getCollateralPrices();
   const rewardWorthMahaPerYear = await getMAHARewardPerYear(collateralPrices);
 
@@ -63,7 +63,7 @@ const getAPR = async (): Promise<IAPRPoolResponse> => {
   const totalAPR = mahaAPY + sclpAPY + 0 + usdcAPY + arthAPY;
 
   return {
-    mahaAPY: {
+    "feedistributor-maha": {
       current: {
         min: mahaAPY,
         max: mahaAPY,
@@ -75,7 +75,7 @@ const getAPR = async (): Promise<IAPRPoolResponse> => {
         boostEffectiveness: 1,
       },
     },
-    sclpAPY: {
+    "feedistributor-sclp": {
       current: {
         min: sclpAPY,
         max: sclpAPY,
@@ -87,7 +87,7 @@ const getAPR = async (): Promise<IAPRPoolResponse> => {
         boostEffectiveness: 1,
       },
     },
-    forwardAPY: {
+    "feedistributor-forward": {
       current: {
         min: forwardAPY,
         max: forwardAPY,
@@ -99,7 +99,7 @@ const getAPR = async (): Promise<IAPRPoolResponse> => {
         boostEffectiveness: 1,
       },
     },
-    arthAPY: {
+    "feedistributor-arth": {
       current: {
         min: arthAPY,
         max: arthAPY,
@@ -111,7 +111,7 @@ const getAPR = async (): Promise<IAPRPoolResponse> => {
         boostEffectiveness: 1,
       },
     },
-    overallAPY: {
+    "feedistributor-total": {
       current: {
         min: totalAPR,
         max: totalAPR,
@@ -127,5 +127,5 @@ const getAPR = async (): Promise<IAPRPoolResponse> => {
 };
 
 export default async (_req, res) => {
-  res.json(await getAPR());
+  res.json(await getData());
 };

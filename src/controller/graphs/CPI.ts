@@ -1,4 +1,4 @@
-import * as Bluebird from "bluebird";
+import Bluebird from "bluebird";
 import { protocolETHGraph } from "./protocolEthGraphs";
 
 const request = require("request-promise");

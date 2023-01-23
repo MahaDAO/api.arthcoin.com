@@ -99,7 +99,7 @@ const getRewards = async (
   };
 };
 
-const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
+export const getData = async (): Promise<IAPRPoolResponse> => {
   return {
     "arth-maha-1000": await getRewards(gauges.ARTHMAHA, "MAHA", "ARTH"),
     "arth-eth-1000": await getRewards(gauges.ARTHETH, "ARTH", "WETH"),
@@ -107,5 +107,5 @@ const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
 };
 
 export default async (_req, res) => {
-  res.json(await fetchAPRs());
+  res.json(await getData());
 };

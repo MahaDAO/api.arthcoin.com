@@ -26,7 +26,7 @@ const campaignAPR = async (collateralPrices) => {
   return [(rewardsInUSD / tvlInUSD) * 100, tvlInUSD];
 };
 
-const main = async (): Promise<IAPRPoolResponse> => {
+export const getData = async (): Promise<IAPRPoolResponse> => {
   const collateralPrices = await getCollateralPrices();
 
   const [apr, tvl] = await campaignAPR(collateralPrices);
@@ -62,5 +62,5 @@ const main = async (): Promise<IAPRPoolResponse> => {
 };
 
 export default async (_req, res) => {
-  res.json(await main());
+  res.json(await getData());
 };

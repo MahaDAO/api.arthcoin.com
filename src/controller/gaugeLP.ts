@@ -119,13 +119,13 @@ const getRewards = async (gauge: IGauge): Promise<IAPRResponse> => {
   };
 };
 
-const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
+export const getData = async (): Promise<IAPRPoolResponse> => {
   return {
     "arth-usdc-curve-crypto-185": await getRewards(gauges.ARTHUSDCGaugeCurve),
   };
 };
 
 export default async (_req, res) => {
-  const result = await fetchAPRs();
+  const result = await getData();
   res.json(result);
 };

@@ -12,7 +12,7 @@ const getTVL = async (stabilityPool, provider) => {
   return Number(balance / 1e18);
 };
 
-const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
+export const getData = async (): Promise<IAPRPoolResponse> => {
   const prices = await getCollateralPrices();
 
   const tvl = await getTVL(
@@ -44,6 +44,6 @@ const fetchAPRs = async (): Promise<IAPRPoolResponse> => {
 };
 
 export default async (_req, res) => {
-  const data = await fetchAPRs();
+  const data = await getData();
   res.json(data);
 };
