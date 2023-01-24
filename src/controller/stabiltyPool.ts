@@ -27,7 +27,7 @@ export const getData = async (): Promise<IAPRPoolResponse> => {
   const apr = (rewardinUSD / tvlInUSD) * 100;
 
   return {
-    eth: {
+    "eth-sp": {
       tvlUSD: tvl,
       current: {
         min: apr,
