@@ -1,7 +1,7 @@
-import { ethProvider } from "../web3";
 import { ethers, BigNumber } from "ethers";
 
-import GMUOracleABI from "../abi/GMUOracle.json";
+import { ethProvider } from "../../web3";
+import GMUOracleABI from "../../abi/GMUOracle.json";
 
 const e18 = BigNumber.from(10).pow(18);
 

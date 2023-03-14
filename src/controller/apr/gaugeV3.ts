@@ -4,8 +4,8 @@ import { ethProvider } from "../../web3";
 import { getCollateralPrices, CollateralKeys } from "../../utils/coingecko";
 import { IAPRPoolResponse, IAPRResponse } from "../config";
 
-const GAUGE_ABI = require("../abi/GuageV3.json");
-const HELPER_ABI = require("../abi/UniswapV3UIHelper.json");
+import GaugeABI from "../../abi/GuageV3.json";
+import HelperABI from "../../abi/UniswapV3UIHelper.json";
 
 const e18 = BigNumber.from(10).pow(18);
 const uniswapUIHelper = "0x772500810ab7975073c14E2054f8f891A2190572";
@@ -55,10 +55,14 @@ const getRewards = async (
   token1: CollateralKeys
 ): Promise<IAPRResponse> => {
   const collateralPrices = await getCollateralPrices();
-  const contract = await new ethers.Contract(gauge, GAUGE_ABI, ethProvider);
+  const contract = await new ethers.Contract(
+    gauge,
+    GaugeABI as any,
+    ethProvider
+  );
   const helper = await new ethers.Contract(
     uniswapUIHelper,
-    HELPER_ABI,
+    HelperABI as any,
     ethProvider
   );
 
