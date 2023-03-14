@@ -1,13 +1,13 @@
-import { ethProvider } from "../web3";
+import { ethProvider } from "../../web3";
 import { ethers } from "ethers";
-import { getCollateralPrices } from "../utils/coingecko";
-import { ETH_ARTH, IAPRPoolResponse } from "./config";
+import { getCollateralPrices } from "../../utils/coingecko";
+import { ETH_ARTH, IAPRPoolResponse } from "../config";
 
 // ABIs
-const IERC20 = require("../abi/IERC20.json");
+import IERC20 from "../../abi/IERC20.json";
 
 const getTVL = async (stabilityPool, provider) => {
-  const arth = new ethers.Contract(ETH_ARTH, IERC20, provider);
+  const arth = new ethers.Contract(ETH_ARTH, IERC20 as any, provider);
   const balance = await arth.balanceOf(stabilityPool);
   return Number(balance / 1e18);
 };

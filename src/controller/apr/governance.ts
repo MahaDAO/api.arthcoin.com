@@ -1,10 +1,12 @@
 import { ethers, BigNumber } from "ethers";
-import { getCollateralPrices, ICollateralPrices } from "../utils/coingecko";
-import { ethProvider } from "../web3";
-import { IAPRPoolResponse } from "./config";
+import { getCollateralPrices, ICollateralPrices } from "../../utils/coingecko";
+import { ethProvider } from "../../web3";
+import { IAPRPoolResponse } from "../config";
+
+import VotingEscorwABI from "../../abi/VotingEscrow.json";
 
 // ABIs
-const VotingEscrow = require("../abi/VotingEscrow.json");
+// const VotingEscrow = require("../abi/VotingEscrow.json");
 
 const e18 = BigNumber.from(10).pow(18);
 
@@ -48,7 +50,7 @@ export const getData = async (): Promise<IAPRPoolResponse> => {
 
   const mahax = new ethers.Contract(
     "0xbdd8f4daf71c2cb16cce7e54bb81ef3cfcf5aacb",
-    VotingEscrow,
+    VotingEscorwABI,
     ethProvider
   );
 

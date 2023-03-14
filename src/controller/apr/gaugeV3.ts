@@ -1,8 +1,8 @@
 import { ethers, BigNumber } from "ethers";
 
-import { ethProvider } from "../web3";
-import { getCollateralPrices, CollateralKeys } from "../utils/coingecko";
-import { IAPRPoolResponse, IAPRResponse } from "./config";
+import { ethProvider } from "../../web3";
+import { getCollateralPrices, CollateralKeys } from "../../utils/coingecko";
+import { IAPRPoolResponse, IAPRResponse } from "../config";
 
 const GAUGE_ABI = require("../abi/GuageV3.json");
 const HELPER_ABI = require("../abi/UniswapV3UIHelper.json");

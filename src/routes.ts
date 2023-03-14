@@ -4,12 +4,12 @@ import apicache from "apicache";
 import ethProtocolCPIGraph from "./controller/graphs/CPI";
 import ethProtocolGraph from "./controller/graphs/protocolEthGraphs";
 import ethProtocolMAGraph from "./controller/graphs/MA";
-import gaugeLP from "./controller/gaugeLP";
-import governance from "./controller/governance";
-import guageV3Apy from "./controller/gaugeV3";
-import stability from "./controller/stabiltyPool";
-import vaults from "./controller/vaults";
-import all from "./controller/all";
+import gaugeLP from "./controller/apr/gaugeLP";
+import governance from "./controller/apr/governance";
+import guageV3Apy from "./controller/apr/gaugeV3";
+import stability from "./controller/apr/stabiltyPool";
+import vaults from "./controller/apr/vaults";
+import all from "./controller/apr/all";
 
 const router = Router();
 router.get("/", (_req, res) => {

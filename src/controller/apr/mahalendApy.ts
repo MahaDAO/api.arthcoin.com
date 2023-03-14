@@ -1,12 +1,11 @@
-import { ethProvider } from "../web3";
+import { ethProvider } from "../../web3";
 import { ethers } from "ethers";
-
-const request = require("request-promise");
-const CurveAPY = require("../abi/curvePool.json");
+import request from "request-promise";
+import CurveABI from "../../abi/CurveLP.json";
 
 const curveContract = new ethers.Contract(
   "0x6ec38b3228251a0C5D491Faf66858e2E23d7728B",
-  CurveAPY,
+  CurveABI as any,
   ethProvider
 );
 

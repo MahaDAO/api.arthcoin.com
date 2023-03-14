@@ -1,14 +1,14 @@
-import { ethProvider } from "../web3";
 import { ethers } from "ethers";
 
-import { getCollateralPrices } from "../utils/coingecko";
-import { IAPRPoolResponse } from "./config";
+import { ethProvider } from "../../web3";
+import { getCollateralPrices } from "../../utils/coingecko";
+import { IAPRPoolResponse } from "../config";
 
-const Campaign = require("../abi/ArthCampaign.json");
+import CampaignABI from "../../abi/ArthCampaign.json";
 
 const campaignContract = new ethers.Contract(
   "0xA9735E594624339f8fbc8a99c57C13C7B4E8BCaC",
-  Campaign,
+  CampaignABI as any,
   ethProvider
 );
 

@@ -1,20 +1,17 @@
-import { ethProvider } from "../web3";
+import { ethProvider } from "../../web3";
 import { ethers, BigNumber } from "ethers";
-import NodeCache from "node-cache";
 
-import { getCollateralPrices, CollateralKeys } from "../utils/coingecko";
+import { getCollateralPrices, CollateralKeys } from "../../utils/coingecko";
 import {
   ETH_ARTH,
   ETH_MAHA,
   ETH_USDC,
   IAPRPoolResponse,
   IAPRResponse,
-} from "./config";
+} from "../config";
 
-const cache = new NodeCache();
-
-const IERC20 = require("../abi/IERC20.json");
-const GAUGE_ABI = require("../abi/GaugeV2.json");
+import IERC20 from "../../abi/IERC20.json";
+import GAUGE_ABI from "../../abi/GaugeV2.json";
 
 type IGauge = [
   string,
