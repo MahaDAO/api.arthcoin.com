@@ -1,23 +1,9 @@
-import CoinGecko from "coingecko-api";
-const CoinGeckoClient = new CoinGecko();
-const request = require("request-promise");
+import request from "request-promise";
+import { ethHistoricPrice } from "../../utils/coingecko";
 
 const apiKey = process.env.ETHERSCAN_KEY;
 const topic =
   "0x4d29de21de555af78a62fc82dd4bc05e9ae5b0660a37f04729527e0f22780cd3";
-
-const ethPrice = async (from) => {
-  let priceChart = await CoinGeckoClient.coins.fetchMarketChartRange(
-    "ethereum",
-    {
-      vs_currency: "usd",
-      from: from,
-      to: Date.now(),
-    }
-  );
-
-  return priceChart.data.prices;
-};
 
 export const protocolETHGraph = async (address) => {
   const url = `https://api.etherscan.io/api?module=logs&action=getLogs&address=${address}&page=1&offset=1000&apikey=${apiKey}&topic0=${topic}`;
@@ -34,7 +20,7 @@ export const protocolETHGraph = async (address) => {
   //console.log(dataArray[0][0], dataArray[dataArray.length - 1][0], dataArray.length);
 
   //console.log(dataArray.reverse());
-  let price = await ethPrice(dataArray[0][0] / 1000);
+  let price = await ethHistoricPrice(dataArray[0][0] / 1000);
   // const ethPriceArray = []
   // const ethDatapoints = await price.forEach((val, i) => {
   //     ethPriceArray.push(

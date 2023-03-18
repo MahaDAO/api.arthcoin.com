@@ -38,8 +38,27 @@ const _getCollateralPrices = async (): Promise<ICollateralPrices> => {
 };
 
 export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
-  if (cache.get("coingecko")) return cache.get("coingecko");
+  if (cache.get("cg:getCollateralPrices"))
+    return cache.get("cg:getCollateralPrices");
   const result = await _getCollateralPrices();
-  cache.set("coingecko", result, 60 * 5);
+  cache.set("cg:getCollateralPrices", result, 60 * 5);
   return result;
+};
+
+export const ethHistoricPrice = async (from: number) => {
+  const key = `cg:ethHistoricPrice:${from}`;
+  if (cache.get(key)) return cache.get(key);
+
+  const priceChart = await CoinGeckoClient.coins.fetchMarketChartRange(
+    "ethereum",
+    {
+      vs_currency: "usd",
+      from,
+      to: Date.now(),
+    }
+  );
+
+  cache.set(key, priceChart, 60 * 5);
+
+  return priceChart.data.prices;
 };

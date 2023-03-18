@@ -1,19 +1,4 @@
-import CoinGecko from "coingecko-api";
-const CoinGeckoClient = new CoinGecko();
-
-const getEthPrice = async (days) => {
-  try {
-    let priceChart = await CoinGeckoClient.coins.fetchMarketChart("ethereum", {
-      vs_currency: "usd",
-      days: days,
-      interval: "daily",
-    });
-
-    return priceChart.data.prices;
-  } catch (e) {
-    console.log(e);
-  }
-};
+import { ethHistoricPrice } from "../..//utils/coingecko";
 
 function simpleMovingAverage(prices, window) {
   if (!prices || prices.length < window) {
@@ -42,10 +27,10 @@ function simpleMovingAverage(prices, window) {
 
 // simpleMovingAverage(prices, 5)
 const fetchAndCache = async () => {
-  const ethPrice = await getEthPrice(60);
+  const ethPrice = await ethHistoricPrice(60);
   const sevenDayMA = await simpleMovingAverage(ethPrice, 7);
 
-  const ethPrice30 = await getEthPrice(85);
+  const ethPrice30 = await ethHistoricPrice(85);
   const thirtyDayMA = await simpleMovingAverage(ethPrice30, 30);
 
   return {
