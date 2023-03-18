@@ -40,6 +40,6 @@ const _getCollateralPrices = async (): Promise<ICollateralPrices> => {
 export const getCollateralPrices = async (): Promise<ICollateralPrices> => {
   if (cache.get("coingecko")) return cache.get("coingecko");
   const result = await _getCollateralPrices();
-  cache.set("coingecko", result);
+  cache.set("coingecko", result, 60 * 5);
   return result;
 };
