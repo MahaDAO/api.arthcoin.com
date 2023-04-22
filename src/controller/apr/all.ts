@@ -5,6 +5,7 @@ import * as gaugeLP from "./gaugeLP";
 import * as gaugeV3 from "./gaugeV3";
 import * as governance from "./governance";
 import * as stabilityPool from "./stabiltyPool";
+import * as mahalend from "./mahalend";
 import * as vaults from "./vaults";
 import cache from "../../utils/cache";
 
@@ -14,8 +15,10 @@ const getData = async () => {
   const c = await gaugeV3.getData();
   const d = await stabilityPool.getData();
   const e = await vaults.getData();
+  const f = await mahalend.getData();
 
   return {
+    ...f,
     ...a,
     ...b,
     ...c,
