@@ -27,6 +27,10 @@ export const ethProvider = new ethers.providers.JsonRpcProvider(
   nconf.get("RPC_URL_ETH") || process.env.RPC_URL_ETH
 );
 
+export const arbProvider = new ethers.providers.JsonRpcProvider(
+  nconf.get("RPC_URL_ARB") || process.env.RPC_URL_ARB
+);
+
 export const ethRinkebyProvider = new ethers.providers.JsonRpcProvider(
   nconf.get("RPC_URL_RINKEBY") || process.env.RPC_URL_RINKEBY
 );
