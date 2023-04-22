@@ -22,7 +22,7 @@ export const getData = async () => {
   const tvlARTH = await mToken.totalSupply();
   const tvlUsd = tvlARTH.div(e18) * price;
 
-  const totalAPR = (12 * rewardPerMonthUsd) / tvlUsd;
+  const totalAPR = ((12 * rewardPerMonthUsd) / tvlUsd) * 100;
 
   return {
     "mahalend-eth-arth": {
